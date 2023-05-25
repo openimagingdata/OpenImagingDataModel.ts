@@ -1,4 +1,4 @@
-{
+const baseSettings = {
   "printWidth": 80,
   "singleQuote": true,
   "trailingComma": "es5",
@@ -7,3 +7,5 @@
   "bracketSpacing": true,
   "arrowParens": "always"
 }
+
+module.exports = { ...baseSettings }
