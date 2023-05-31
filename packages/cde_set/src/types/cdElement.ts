@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { indexCodeSchema } from './indexCode';
+import { IndexCode, indexCodeSchema } from './indexCode';
 
 export const baseElementSchema = z.object({
   id: z.string(),
@@ -75,8 +75,13 @@ export type ElementData = z.infer<typeof elementSchema>;
 export class CdElement<T extends ElementData = ElementData> {
   protected _data: T;
 
+  protected _indexCodes;
+
   constructor(baseElementData: T) {
     this._data = { ...baseElementData };
+    this._indexCodes = this._data.index_codes.map((indexCode) => {
+      return new IndexCode(indexCode);
+    });
   }
 
   get id() {
@@ -93,6 +98,10 @@ export class CdElement<T extends ElementData = ElementData> {
 
   get question() {
     return this._data.question;
+  }
+
+  get indexCodes() {
+    return [...this._indexCodes];
   }
 }
 export class FloatElement extends CdElement<FloatElementData> {
