@@ -1,4 +1,4 @@
-import CdeSet from '@openraddata/cde_set';
+import CdeSet from '@openimagingdata/cde_set';
 
 import { z } from 'zod';
 

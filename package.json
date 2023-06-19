@@ -1,11 +1,11 @@
 {
-  "name": "@openraddata/openraddatamodel",
+  "name": "@openimagingdata/openimagingdatamodel",
   "version": "0.0.1",
   "description": "",
   "scripts": {},
   "dependencies": {},
   "keywords": [],
-  "author": "Open Radiology Data Model Project <info@openraddata.org>",
+  "author": "Open Imaging Data Model Initiative <info@openimagingdata.org>",
   "pnpm": {
     "workspaces": [
       "packages/*"
