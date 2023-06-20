@@ -5,17 +5,15 @@ import { floatElementSchema, valueSetElementSchema } from './cdElement';
 import { indexCodeSchema } from './indexCode';
 
 export const cdeSetSchema = z.object({
-  data: z.object({
-    id: z.string(),
-    name: z.string(),
-    description: z.string(),
-    index_codes: z.array(indexCodeSchema), // TODO: add index codes schema
-    body_parts: z.array(bodyPartSchema), // TODO: add body parts schema
-    elements: z.array(
-      // TODO: add elements schema - and have multiple schemas for the four different types of elements
-      z.union([valueSetElementSchema, floatElementSchema])
-    ),
-  }),
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  index_codes: z.array(indexCodeSchema), // TODO: add index codes schema
+  body_parts: z.array(bodyPartSchema), // TODO: add body parts schema
+  elements: z.array(
+    // TODO: add elements schema - and have multiple schemas for the four different types of elements
+    z.union([valueSetElementSchema, floatElementSchema])
+  ),
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;
@@ -29,30 +27,30 @@ export class CdeSet {
   constructor(inData: CdeSetData) {
     this._data = { ...inData };
     // TODO: add elements
-    // this._elements = this._data.data.elements.map((elementData) => {
+    // this._elements = this._data.elements.map((elementData) => {
     //   return new FloatElement(elementData);
     // });
   }
 
   get id() {
-    return this._data.data.id;
+    return this._data.id;
   }
 
   get name() {
-    return this._data.data.name;
+    return this._data.name;
   }
 
   get description() {
-    return this._data.data.description;
+    return this._data.description;
   }
 
   get indexCodes() {
     // should we convert this to the IndexCode class?
-    return this._data.data.index_codes;
+    return this._data.index_codes;
   }
 
   get bodyParts() {
-    return this._data.data.body_parts;
+    return this._data.body_parts;
   }
 
   // TODO: add elements

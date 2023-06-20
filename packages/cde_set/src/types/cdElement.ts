@@ -168,7 +168,7 @@ export class CdElementFactory {
       );
   }
 
-  static createFromJson(json: string | {}): CdElement {
+  static createFromJson(json: string | object): CdElement {
     const parsedJson: object =
       typeof json === 'string' ? JSON.parse(json) : json;
     const inData = elementSchema.parse(parsedJson);

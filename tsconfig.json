@@ -1,24 +1,12 @@
 {
-    "compilerOptions": {
-      "module": "ESNext",
-      "target": "ES2020",
-      "lib": ["DOM", "ES2020"],
-      "esModuleInterop": true,
-      "moduleResolution": "node",
-      "strict": true,
-      "declaration": true,
-      "outDir": "dist",
-      "sourceMap": true,
-      "rootDir": ".",
-      "baseUrl": ".",
-      "forceConsistentCasingInFileNames": true,
-      "paths": {
-        "*": ["*", "node_modules/*"]
-      },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./packages/cde_set"
     },
-    "include": [],
-    "exclude": [
-      "**/node_modules",
-      "**/dist"
-    ]
-  }
+    {
+      "path": "./packages/observation"
+    }
+  ]
+}

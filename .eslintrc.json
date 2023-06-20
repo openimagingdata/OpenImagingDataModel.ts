@@ -1,0 +1,34 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module", // Allows for the use of imports
+    "project": ["tsconfig.json", "packages/*/tsconfig.json"]
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "eslint-comments",
+    "import",
+    "prettier",
+    "simple-import-sort"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "prettier/prettier": "error",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": ["tsconfig.json", "packages/*/tsconfig.json"]
+      }
+    }
+  }
+}
