@@ -1,5 +1,4 @@
-import { CdeSet } from '@openimagingdata/cde_set';
-import { CdeSetData } from 'packages/cde_set/src/types/cdeSet';
+import { CdeSet, CdeSetData } from '@openimagingdata/cde_set';
 import { z } from 'zod';
 
 export const systemCodeSchema = z.object({
@@ -64,8 +63,27 @@ export class Observation {
   constructor(inData: ObservationData) {
     // TODO: initialize this._cdeSet
     this._data = { ...inData };
-    this._cdeSet = new CdeSet(sampleCdeSetData);
+    this._cdeSet = new CdeSet(sampleCdeSetData); // do we want a lookup here?
   }
 
   // TODO: Implement accessors, including components; do we need wrapper classes for component data?
+  get id() {
+    return this._data.id;
+  }
+
+  get code() {
+    return this._data.code;
+  }
+
+  get bodySite() {
+    return this._data.bodySite;
+  }
+
+  get component() {
+    return this._data.component;
+  }
+
+  get cdeSet() {
+    return this._cdeSet;
+  }
 }
