@@ -8,7 +8,8 @@
     "build": "rollup -c",
     "lint": "eslint 'src/**/*.ts'",
     "prettier": "prettier --write 'src/**/*.ts'",
-    "clean": "rimraf dist .cache .tmp lib build"
+    "clean": "rimraf dist .cache .tmp lib build",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
