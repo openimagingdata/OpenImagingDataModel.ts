@@ -1,11 +1,39 @@
 {
-  "name": "@openraddata/openraddatamodel",
+  "name": "@openimagingdata/openimagingdatamodel",
   "version": "0.0.1",
   "description": "",
-  "scripts": {},
-  "dependencies": {},
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "build": "pnpm -r build",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.2",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "eslint": "^8.37.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "prettier": "^2.8.7",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.25.3",
+    "rollup-plugin-typescript2": "^0.35.0",
+    "vitest": "^0.33.0"
+  },
   "keywords": [],
-  "author": "Open Radiology Data Model Project <info@openraddata.org>",
+  "author": "Open Imaging Data Model Initiative <info@openimagingdata.org>",
+  "packageManager": "pnpm@8.6.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.6.0"
+  },
   "pnpm": {
     "workspaces": [
       "packages/*"
