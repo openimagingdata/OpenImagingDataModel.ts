@@ -4,16 +4,28 @@ import { bodyPartSchema } from './bodyPart';
 import { floatElementSchema, valueSetElementSchema } from './cdElement';
 import { indexCodeSchema } from './indexCode';
 
-export const cdeSetSchema = z.object({
-  id: z.string(),
+const versionSchema = z.object({
   name: z.string(),
-  description: z.string(),
-  index_codes: z.array(indexCodeSchema), // TODO: add index codes schema
-  body_parts: z.array(bodyPartSchema), // TODO: add body parts schema
+  version_date: z.string(), // TODO: add format validation "00/00/0000"
+  status: z.enum(['Proposed', 'Published', 'Retired']),
+});
+
+export const cdeSetSchema = z.object({
+  id: z.string(), // TODO: add format validation
+  name: z.string().length(5),
+  description: z.string().length(10),
+  version: versionSchema,
+  url: z.string().url(),
+  index_codes: z.array(indexCodeSchema),
+  body_parts: z.array(bodyPartSchema),
+  // authors
+  // history
+  // specialty
   elements: z.array(
     // TODO: add elements schema - and have multiple schemas for the four different types of elements
     z.union([valueSetElementSchema, floatElementSchema])
   ),
+  // references
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;
