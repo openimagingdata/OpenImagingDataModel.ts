@@ -4,7 +4,7 @@ export const indexCodeSchema = z.object({
   system: z.string(),
   code: z.string(),
   display: z.string().optional(),
-  href: z.string().optional(),
+  href: z.string().optional(), //add .url() to format only to URL?
 });
 
 export type IndexCodeData = z.infer<typeof indexCodeSchema>;

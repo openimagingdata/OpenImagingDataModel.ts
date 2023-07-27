@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { bodyPartSchema } from './bodyPart';
 import { floatElementSchema, valueSetElementSchema } from './cdElement';
 import { indexCodeSchema } from './indexCode';
+import { authorSchema } from './authorSchema';
+import { specialtySchema } from './shared';
+import { referenceSchema } from './referencesSchema';
 
 const versionSchema = z.object({
   name: z.string(),
@@ -18,14 +21,14 @@ export const cdeSetSchema = z.object({
   url: z.string().url(),
   index_codes: z.array(indexCodeSchema),
   body_parts: z.array(bodyPartSchema),
-  // authors
-  // history
-  // specialty
+  authors: z.array(authorSchema),
+  //history: 
+  specialty: z.array(specialtySchema),
   elements: z.array(
     // TODO: add elements schema - and have multiple schemas for the four different types of elements
     z.union([valueSetElementSchema, floatElementSchema])
   ),
-  // references
+  references: z.array(referenceSchema)
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;
