@@ -6,15 +6,19 @@ import { indexCodeSchema } from './indexCode';
 import { authorSchema } from './authorSchema';
 import { specialtySchema } from './shared';
 import { referenceSchema } from './referencesSchema';
+import { elementSchema } from './cdElement';
+
+const datePattern = /^\d{2}\/\d{2}\/\d{4}$/;
+const idPattern = /^rdes\d{1,2}$/;
 
 const versionSchema = z.object({
   name: z.string(),
-  version_date: z.string(), // TODO: add format validation "00/00/0000"
+  version_date: z.string().regex(datePattern, 'Invalid date format.'), // TODO: add format validation "00/00/0000"
   status: z.enum(['Proposed', 'Published', 'Retired']),
 });
 
 export const cdeSetSchema = z.object({
-  id: z.string(), // TODO: add format validation
+  id: z.string().regex(idPattern, 'Invalid id format'), // TODO: add format validation
   name: z.string().length(5),
   description: z.string().length(10),
   version: versionSchema,
@@ -24,11 +28,8 @@ export const cdeSetSchema = z.object({
   authors: z.array(authorSchema),
   //history: 
   specialty: z.array(specialtySchema),
-  elements: z.array(
+  elements: z.array(elementSchema)  
     // TODO: add elements schema - and have multiple schemas for the four different types of elements
-    z.union([valueSetElementSchema, floatElementSchema])
-  ),
-  references: z.array(referenceSchema)
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;

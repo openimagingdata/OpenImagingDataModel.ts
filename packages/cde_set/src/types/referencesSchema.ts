@@ -11,6 +11,33 @@ export const referenceSchema = z.object({
 })
 
 
+export type referenceData = z.infer<typeof referenceSchema>;
+
+export class Reference {
+    private _data: referenceData;
+
+    constructor(inData: referenceData) {
+        this._data = { ...inData };
+    }
+
+    get citation() {
+        return this._data.citation;
+    }
+
+    get doi_url() {
+        return this._data.doi_url;
+    }
+
+    get pubmed_id() {
+        return this._data.pubmed_id;
+    }
+
+    get url() {
+        return this._data.url;
+    }
+}
+
+
     /*
     "Reference": {
             "type": "object",
