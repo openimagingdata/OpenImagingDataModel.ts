@@ -1,12 +1,15 @@
 import { z } from 'zod';
 
 import { bodyPartSchema } from './bodyPart';
-import { floatElementSchema, valueSetElementSchema } from './cdElement';
+import {
+  elementSchema,
+  // floatElementSchema,
+  // valueSetElementSchema,
+} from './cdElement';
 import { indexCodeSchema } from './indexCode';
 import { authorSchema } from './authorSchema';
 import { specialtySchema } from './shared';
-import { referenceSchema } from './referencesSchema';
-import { elementSchema } from './cdElement';
+// import { referenceSchema } from './referencesSchema';
 
 const datePattern = /^\d{2}\/\d{2}\/\d{4}$/;
 const idPattern = /^rdes\d{1,2}$/;
@@ -26,10 +29,10 @@ export const cdeSetSchema = z.object({
   index_codes: z.array(indexCodeSchema),
   body_parts: z.array(bodyPartSchema),
   authors: z.array(authorSchema),
-  //history: 
+  //history:
   specialty: z.array(specialtySchema),
-  elements: z.array(elementSchema)  
-    // TODO: add elements schema - and have multiple schemas for the four different types of elements
+  elements: z.array(elementSchema),
+  // TODO: add elements schema - and have multiple schemas for the four different types of elements
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;
