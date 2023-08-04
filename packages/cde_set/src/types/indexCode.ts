@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const indexCodeSchema = z.object({
-  system: z.enum(["RADLEX", "SNOMEDCT", "LOINC"]),
+  system: z.enum(['RADLEX', 'SNOMEDCT', 'LOINC']),
   code: z.string(),
   display: z.string().optional(),
   href: z.string().url().optional(), //add .url() to format only to URL?
