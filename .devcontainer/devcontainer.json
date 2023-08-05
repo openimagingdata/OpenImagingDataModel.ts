@@ -16,7 +16,10 @@
         "ZixuanChen.vitest-explorer",
         "streetsidesoftware.code-spell-checker",
         "DavidAnson.vscode-markdownlint",
-        "ms-vscode-remote.remote-containers"
+        "ms-vscode-remote.remote-containers",
+        "GitHub.copilot",
+        "aaron-bond.better-comments",
+        "Gruntfuggly.todo-tree"
       ]
     }
   }
