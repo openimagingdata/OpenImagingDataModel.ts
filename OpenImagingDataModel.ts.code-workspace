@@ -3,5 +3,24 @@
     {
       "path": "."
     }
-  ]
+  ],
+  "settings": {
+    "cSpell.words": ["codeable", "openimagingdata"],
+    "console-ninja.toolsToEnableSupportAutomaticallyFor": {
+      "vite": false,
+      "jest": false,
+      "webpack": false,
+      "next.js": false,
+      "cypress": false,
+      "http-server": false,
+      "serve": false,
+      "live-server": false,
+      "nuxt": false,
+      "remix": false,
+      "qwik": false,
+      "hydrogen": false,
+      "serverless": false,
+      "astro": false
+    }
+  }
 }
