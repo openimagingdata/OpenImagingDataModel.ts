@@ -51,8 +51,16 @@ export const sampleCdeSetData: CdeSetData = {
   id: '1',
   name: 'Sample CDE Set',
   description: 'A sample CDE set',
+  version: {
+    status: 'Proposed',
+    name: 'Starting',
+    version_date: '2021-01-01',
+  },
+  url: 'https://example.com',
   index_codes: [],
   body_parts: [],
+  authors: [],
+  specialty: [],
   elements: [],
 };
 

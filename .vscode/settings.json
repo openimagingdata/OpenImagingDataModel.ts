@@ -17,5 +17,8 @@
   "eslint.workingDirectories": [
     { "directory": "packages/cde_set", "changeProcessCWD": true },
     { "directory": "packages/observation", "changeProcessCWD": true }
-  ]
+  ],
+  "console-ninja.toolsToEnableSupportAutomaticallyFor": {
+    "vite": false
+  }
 }
