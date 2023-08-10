@@ -14,8 +14,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
   "dependencies": {
+    "node-xlsx": "^0.23.0",
     "zod": "^3.21.4"
   }
 }

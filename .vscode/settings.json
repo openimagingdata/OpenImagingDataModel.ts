@@ -21,5 +21,6 @@
   ],
   "console-ninja.toolsToEnableSupportAutomaticallyFor": {
     "vite": false
-  }
+  },
+  "editor.tabSize": 2
 }
