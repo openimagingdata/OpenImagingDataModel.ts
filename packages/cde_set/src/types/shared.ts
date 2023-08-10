@@ -1,16 +1,8 @@
 import { z } from 'zod';
 
-export const organizationSchema = z.object({
-  name: z.string(),
-  abbreviation: z.string().optional(),
-  url: z.string().optional(),
-  comment: z.string().optional(),
-  role: z
-    .enum(['author', 'sponsor', 'translator', 'reviewer', 'contributor'])
-    .optional(),
-});
-
 export const statusField = z.enum(['Proposed', 'Published', 'Retired']);
+
+const datePattern = /^\d{2}\/\d{2}\/\d{4}$/;
 
 export const versionSchema = z.object({
   name: z.string(),
@@ -62,6 +54,5 @@ export const cdeEventSchema = z.object({
 });
 
 export type CdeEventData = z.infer<typeof cdeEventSchema>;
-export type OrganizationData = z.infer<typeof organizationSchema>;
 export type SpecialtyData = z.infer<typeof specialtySchema>;
 export type VersionData = z.infer<typeof versionSchema>;

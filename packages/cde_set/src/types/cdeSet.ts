@@ -7,18 +7,16 @@ import {
   // valueSetElementSchema,
 } from './cdElement';
 import { indexCodeSchema } from './indexCode';
-import { authorSchema } from './authorSchema';
-import { specialtySchema } from './shared';
+import {
+  organizationSchema,
+  Organization,
+  personSchema,
+  Person,
+} from './author';
+import { specialtySchema, versionSchema } from './shared';
 // import { referenceSchema } from './referencesSchema';
 
-const datePattern = /^\d{2}\/\d{2}\/\d{4}$/;
 const idPattern = /^rdes\d{1,2}$/;
-
-const versionSchema = z.object({
-  name: z.string(),
-  version_date: z.string().regex(datePattern, 'Invalid date format.'), // TODO: add format validation "00/00/0000"
-  status: z.enum(['Proposed', 'Published', 'Retired']),
-});
 
 export const cdeSetSchema = z.object({
   id: z.string().regex(idPattern, 'Invalid id format'), // TODO: add format validation
@@ -28,7 +26,7 @@ export const cdeSetSchema = z.object({
   url: z.string().url(),
   index_codes: z.array(indexCodeSchema),
   body_parts: z.array(bodyPartSchema),
-  authors: z.array(authorSchema),
+  authors: authorSchema,
   //history:
   specialty: z.array(specialtySchema),
   elements: z.array(elementSchema),
@@ -39,12 +37,22 @@ export type CdeSetData = z.infer<typeof cdeSetSchema>;
 
 export class CdeSet {
   private _data: CdeSetData;
+  private _authors: (Person | Organization)[] = [];
 
   // TODO: add elements
   // private _elements: FloatElement[];
 
   constructor(inData: CdeSetData) {
     this._data = { ...inData };
+
+    // Load authors
+    inData.authors.person.forEach((personData) => {
+      this._authors.push(new Person(personData));
+    });
+    inData.authors.organization.forEach((organizationData) => {
+      this._authors.push(new Organization(organizationData));
+    });
+
     // TODO: add elements
     // this._elements = this._data.elements.map((elementData) => {
     //   return new FloatElement(elementData);
@@ -70,6 +78,10 @@ export class CdeSet {
 
   get bodyParts() {
     return this._data.body_parts;
+  }
+
+  get authors() {
+    return [...this._authors];
   }
 
   // TODO: add elements
