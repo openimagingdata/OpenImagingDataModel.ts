@@ -53,13 +53,6 @@ export const organizationSchema = z.object({
     .optional(),
 });
 
-//TODO: Need instances of organization and person to create author class
-//TODO: Create organization class
-//TODO: Import person class from person.ts
-//TODO: Create Author class
-//TODO: Within Author need: _data, person, organization
-//TODO: Create instances of person and organization from _data.person, _data.organization
-
 export type OrganizationData = z.infer<typeof organizationSchema>;
 
 export class Organization {

@@ -6,7 +6,7 @@ const datePattern = /^\d{2}\/\d{2}\/\d{4}$/;
 
 export const versionSchema = z.object({
   name: z.string(),
-  version_date: z.string().datetime(),
+  version_date: z.string().regex(datePattern),
   status: statusField,
 });
 
@@ -49,7 +49,7 @@ export const specialtySchema = z.object({
 });
 
 export const cdeEventSchema = z.object({
-  date: z.string().datetime(),
+  date: z.string().regex(datePattern),
   status: statusField,
 });
 

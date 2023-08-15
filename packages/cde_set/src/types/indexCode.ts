@@ -4,7 +4,7 @@ export const indexCodeSchema = z.object({
   system: z.enum(['RADLEX', 'SNOMEDCT', 'LOINC']),
   code: z.string(),
   display: z.string().optional(),
-  href: z.string().url().optional(), //add .url() to format only to URL?
+  href: z.string().url().optional(),
 });
 
 export type IndexCodeData = z.infer<typeof indexCodeSchema>;

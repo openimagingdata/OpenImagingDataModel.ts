@@ -7,13 +7,9 @@ import {
   // valueSetElementSchema,
 } from './cdElement';
 import { indexCodeSchema } from './indexCode';
-import {
-  organizationSchema,
-  Organization,
-  personSchema,
-  Person,
-} from './author';
+import { Organization, Person, authorSchema } from './author';
 import { specialtySchema, versionSchema } from './shared';
+
 // import { referenceSchema } from './referencesSchema';
 
 const idPattern = /^rdes\d{1,2}$/;
