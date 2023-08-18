@@ -38,7 +38,6 @@ export const valueSetElementSchema = baseElementSchema.extend({
       min_cardinality: z.number(),
       max_cardinality: z.number(),
     }),
-    value_type: z.literal('valueSet'),
     values: z.array(valueSetValueSchema),
   }),
 });
