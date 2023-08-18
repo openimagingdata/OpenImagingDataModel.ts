@@ -1,16 +1,11 @@
 import { z } from 'zod';
 
-import { bodyPartSchema } from './bodyPart';
-import {
-  elementSchema,
-  // floatElementSchema,
-  // valueSetElementSchema,
-} from './cdElement';
-import { indexCodeSchema } from './indexCode';
+import { bodyPartSchema, BodyPart } from './bodyPart';
+import { elementSchema } from './cdElement';
+import { indexCodeSchema, IndexCode } from './indexCode';
 import { Organization, Person, authorSchema } from './author';
-import { specialtySchema, versionSchema } from './shared';
-
-// import { referenceSchema } from './referencesSchema';
+import { specialtySchema, versionSchema, eventSchema } from './shared';
+import { referenceSchema } from './references';
 
 const idPattern = /^rdes\d{1,2}$/;
 
@@ -23,8 +18,9 @@ export const cdeSetSchema = z.object({
   index_codes: z.array(indexCodeSchema),
   body_parts: z.array(bodyPartSchema),
   authors: authorSchema,
-  //history:
+  history: z.array(eventSchema),
   specialty: z.array(specialtySchema),
+  references: z.array(referenceSchema),
   elements: z.array(elementSchema),
   // TODO: add elements schema - and have multiple schemas for the four different types of elements
 });
@@ -33,7 +29,9 @@ export type CdeSetData = z.infer<typeof cdeSetSchema>;
 
 export class CdeSet {
   private _data: CdeSetData;
-  private _authors: (Person | Organization)[] = [];
+  private _authors: (Person | Organization)[] = []; // Note: not an array in schema/JSON, just an object
+  private _index_codes: IndexCode[] = [];
+  private _body_parts: BodyPart[] = [];
 
   // TODO: add elements
   // private _elements: FloatElement[];
@@ -45,15 +43,26 @@ export class CdeSet {
     inData.authors.person.forEach((personData) => {
       this._authors.push(new Person(personData));
     });
+
     inData.authors.organization.forEach((organizationData) => {
       this._authors.push(new Organization(organizationData));
     });
 
+    //Load index codes
+    this._data.index_codes.forEach((indexCodeData) => {
+      this._index_codes.push(new IndexCode(indexCodeData));
+    });
+
+    //load body parts
+    this._data.body_parts.forEach((bodyPartData) => {
+      this._body_parts.push(new BodyPart(bodyPartData));
+    });
     // TODO: add elements
     // this._elements = this._data.elements.map((elementData) => {
     //   return new FloatElement(elementData);
     // });
   }
+  //use spread syntax only on iterables, not primative datatypes.
 
   get id() {
     return this._data.id;
@@ -67,21 +76,39 @@ export class CdeSet {
     return this._data.description;
   }
 
+  get version() {
+    return this._data.version;
+  }
+
   get indexCodes() {
-    // should we convert this to the IndexCode class?
-    return this._data.index_codes;
+    return [...this._index_codes];
+  }
+
+  get url() {
+    return this._data.url;
   }
 
   get bodyParts() {
-    return this._data.body_parts;
+    return [...this._body_parts];
   }
 
   get authors() {
     return [...this._authors];
   }
 
-  // TODO: add elements
-  // get elements() {
-  //   return [...this._elements];
-  // }
+  get history() {
+    return [...this._data.history];
+  }
+
+  get specialty() {
+    return [...this._data.specialty];
+  }
+
+  get references() {
+    return [...this._data.references];
+  }
+
+  get elements() {
+    return [...this._data.elements];
+  }
 }
