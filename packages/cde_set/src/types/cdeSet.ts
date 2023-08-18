@@ -3,8 +3,14 @@ import { z } from 'zod';
 import { bodyPartSchema, BodyPart } from './bodyPart';
 import { elementSchema } from './cdElement';
 import { indexCodeSchema, IndexCode } from './indexCode';
-import { Organization, Person, authorSchema } from './author';
-import { specialtySchema, versionSchema, eventSchema } from './shared';
+import {
+  specialtySchema,
+  versionSchema,
+  eventSchema,
+  Organization,
+  Person,
+  authorSchema,
+} from './shared';
 import { referenceSchema } from './references';
 
 const idPattern = /^rdes\d{1,2}$/;
