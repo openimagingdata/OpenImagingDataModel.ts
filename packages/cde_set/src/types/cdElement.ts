@@ -1,14 +1,29 @@
 import { z } from 'zod';
 
 import { IndexCode, indexCodeSchema } from './indexCode';
+import {
+  authorSchema,
+  versionElementSchema,
+  eventSchema,
+  specialtySchema,
+} from './shared';
 
 export const baseElementSchema = z.object({
   id: z.string(),
   parent_id: z.number(),
   name: z.string(),
-  definition: z.string(),
-  question: z.string(),
+  short_name: z.string().optional(),
+  instructions: z.string().optional(),
+  synonyms: z.array(z.string()).optional(),
+  definition: z.string().optional(),
+  question: z.string().optional(),
+  version: versionElementSchema,
   index_codes: z.array(indexCodeSchema),
+  authors: z.array(authorSchema).optional(),
+  history: z.array(eventSchema).optional(),
+  specialty: z.array(specialtySchema).optional(),
+  references: z.array(z.string()).optional(),
+  source: z.string().optional(),
 });
 
 export const valueSetValueSchema = z.object({

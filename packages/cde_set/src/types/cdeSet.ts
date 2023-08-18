@@ -10,8 +10,8 @@ import {
   Organization,
   Person,
   authorSchema,
+  referenceSchema,
 } from './shared';
-import { referenceSchema } from './references';
 
 const idPattern = /^rdes\d{1,2}$/;
 

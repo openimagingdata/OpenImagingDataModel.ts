@@ -10,6 +10,13 @@ export const versionSchema = z.object({
   status: statusField,
 });
 
+export const versionElementSchema = z.object({
+  name: z.string(),
+  version_date: z.string().regex(datePattern),
+  status_date: z.string().regex(datePattern),
+  status: statusField,
+});
+
 export const specialtySchema = z.object({
   name: z.string(),
   abbreviation: z.enum([
@@ -78,12 +85,20 @@ export const authorSchema = z.object({
   organization: z.array(organizationSchema),
 });
 
+export const referenceSchema = z.object({
+  citation: z.string(),
+  doi_url: z.string().url().optional(),
+  pubmed_id: z.string().url().optional(),
+  url: z.string().url().optional(),
+});
+
 export type EventData = z.infer<typeof eventSchema>;
 export type SpecialtyData = z.infer<typeof specialtySchema>;
 export type VersionData = z.infer<typeof versionSchema>;
 export type PersonData = z.infer<typeof personSchema>;
 export type OrganizationData = z.infer<typeof organizationSchema>;
 export type AuthorData = z.infer<typeof authorSchema>;
+export type ReferenceData = z.infer<typeof referenceSchema>;
 
 export class Person {
   private _data: PersonData;
