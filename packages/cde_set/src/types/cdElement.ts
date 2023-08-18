@@ -50,7 +50,6 @@ export const floatElementSchema = baseElementSchema.extend({
     }),
     step_value: z.number().optional(),
     unit: z.string(),
-    value_type: z.literal('float'),
   }),
 });
 
@@ -62,7 +61,6 @@ export const integerElementSchema = baseElementSchema.extend({
     }),
     step_value: z.number().optional(),
     unit: z.string(),
-    value_type: z.literal('integer'),
   }),
 });
 
