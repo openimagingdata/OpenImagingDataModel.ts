@@ -6,6 +6,7 @@ import {
   versionElementSchema,
   eventSchema,
   specialtySchema,
+  referenceSchema,
 } from './shared';
 
 export const baseElementSchema = z.object({
@@ -14,7 +15,7 @@ export const baseElementSchema = z.object({
   name: z.string(),
   short_name: z.string().optional(),
   instructions: z.string().optional(),
-  synonyms: z.array(z.string()).optional(),
+  synonyms: z.string().optional(), // TODO: Looks like this is a string, should change to array of strings
   definition: z.string().optional(),
   question: z.string().optional(),
   version: versionElementSchema,
@@ -22,7 +23,7 @@ export const baseElementSchema = z.object({
   authors: z.array(authorSchema).optional(),
   history: z.array(eventSchema).optional(),
   specialty: z.array(specialtySchema).optional(),
-  references: z.array(z.string()).optional(),
+  references: z.array(referenceSchema).optional(),
   source: z.string().optional(),
 });
 
@@ -30,10 +31,13 @@ export const valueSetValueSchema = z.object({
   value: z.string(),
   name: z.string(),
   definition: z.string().optional(),
+  index_codes: z.array(indexCodeSchema).optional(),
+  // TODO: Include images, eventually
 });
 
 export const valueSetElementSchema = baseElementSchema.extend({
   value_set: z.object({
+    value_type: z.literal('valueSet'),
     cardinality: z.object({
       min_cardinality: z.number(),
       max_cardinality: z.number(),
@@ -44,6 +48,7 @@ export const valueSetElementSchema = baseElementSchema.extend({
 
 export const floatElementSchema = baseElementSchema.extend({
   float_values: z.object({
+    value_type: z.literal('float'),
     value_min_max: z.object({
       value_min: z.number().optional(),
       value_max: z.number().optional(),
@@ -55,6 +60,7 @@ export const floatElementSchema = baseElementSchema.extend({
 
 export const integerElementSchema = baseElementSchema.extend({
   integer_values: z.object({
+    value_type: z.literal('integer'),
     value_min_max: z.object({
       value_min: z.number().optional(),
       value_max: z.number().optional(),

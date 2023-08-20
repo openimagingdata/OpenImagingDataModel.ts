@@ -6,13 +6,14 @@ import {
   ValueSetElementData,
 } from './cdElement';
 
-const valueSetElementJson = {
+const valueSetElementJson: ValueSetElementData = {
   id: 'RDE818',
   parent_id: 126,
   name: 'Aortic dissection',
   definition: '',
   question: '',
   version: {
+    name: 'Initial Version',
     version_date: '03/27/2023',
     status_date: '03/27/2023',
     status: 'Proposed',

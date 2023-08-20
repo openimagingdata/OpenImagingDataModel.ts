@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const statusField = z.enum(['Proposed', 'Published', 'Retired']);
 
-const datePattern = /^\d{1,2}[-\/]\d{1,2}[-\/]d{4}$/;
+const datePattern = /^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/;
 
 export const versionSchema = z.object({
   name: z.string(),
