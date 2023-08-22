@@ -4,6 +4,7 @@ import {
   elementSchema,
   ValueSetElement,
   ValueSetElementData,
+  BooleanElementData,
 } from './cdElement';
 
 const valueSetElementJson: ValueSetElementData = {
@@ -96,3 +97,45 @@ describe('ValueSetElement', () => {
     expect(valueSetElement2).toBeInstanceOf(ValueSetElement);
   });
 });
+
+const booleanElementJson: BooleanElementData = {
+  id: 'RDE49',
+  parent_id: 3,
+  name: 'Uniformly cystic',
+  short_name: '',
+  editor: 'cek',
+  instructions: '',
+  synonyms: '',
+  definition: 'Indicates if the adrenal nodule is uniformly cystic. ',
+  question: 'Is the adrenal nodule uniformly cystic?',
+  version: {
+    name: '1',
+    version_date: '01/03/2016',
+    status_date: '01/03/2016',
+    status: 'Published',
+  },
+  index_codes: [],
+  authors: {
+    person: [],
+    organization: [],
+  },
+  history: [],
+  specialty: [],
+  references: [],
+  source: 'CAR/DS Adrenal Nodule',
+  boolean_values: {
+    cardinality: {
+      min_cardinality: 1,
+      max_cardinality: 1,
+    },
+    value_min_max: {
+      value_min: null,
+      value_max: null,
+    },
+    step_value: null,
+    unit: '',
+    value_type: 'boolean',
+    value_size: 1,
+    values: [],
+  },
+};

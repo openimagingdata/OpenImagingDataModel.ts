@@ -1,7 +1,12 @@
 import { z } from 'zod';
 
 import { bodyPartSchema, BodyPart } from './bodyPart';
-import { elementSchema } from './cdElement';
+import {
+  elementSchema,
+  ElementData,
+  CdElement,
+  CdElementFactory,
+} from './cdElement';
 import { indexCodeSchema, IndexCode } from './indexCode';
 import {
   specialtySchema,
@@ -40,7 +45,8 @@ export class CdeSet {
   private _body_parts: BodyPart[] = [];
 
   // TODO: add elements
-  // private _elements: FloatElement[];
+  // private _elements: FloatElement[]; --Should only need ElementData as it was created from union of the 4 types
+  private _elements: CdElement[] = [];
 
   constructor(inData: CdeSetData) {
     this._data = { ...inData };
@@ -63,13 +69,16 @@ export class CdeSet {
     this._data.body_parts.forEach((bodyPartData) => {
       this._body_parts.push(new BodyPart(bodyPartData));
     });
-    // TODO: add elements
+    // TODO: add elements --- I dont think we need each subtype because of the factory.
     // this._elements = this._data.elements.map((elementData) => {
     //   return new FloatElement(elementData);
     // });
+    this._data.elements.forEach((elementData) => {
+      this._elements.push(CdElementFactory.create(elementData));
+    });
   }
-  //use spread syntax only on iterables, not primative datatypes.
 
+  //use spread syntax only on iterables, not primative datatypes.
   get id() {
     return this._data.id;
   }

@@ -14,13 +14,14 @@ export const baseElementSchema = z.object({
   parent_id: z.number(),
   name: z.string(),
   short_name: z.string().optional(),
+  editor: z.string(),
   instructions: z.string().optional(),
   synonyms: z.string().optional(), // TODO: Looks like this is a string, should change to array of strings
   definition: z.string().optional(),
   question: z.string().optional(),
   version: versionElementSchema,
   index_codes: z.array(indexCodeSchema),
-  authors: z.array(authorSchema).optional(),
+  authors: authorSchema.optional(),
   history: z.array(eventSchema).optional(),
   specialty: z.array(specialtySchema).optional(),
   references: z.array(referenceSchema).optional(),
@@ -73,6 +74,18 @@ export const integerElementSchema = baseElementSchema.extend({
 export const booleanElementSchema = baseElementSchema.extend({
   boolean_values: z.object({
     value_type: z.literal('boolean'),
+    cardinality: z.object({
+      min_cardinality: z.number(),
+      max_cardinality: z.number(),
+    }),
+    value_min_max: z.object({
+      value_min: z.number().optional().nullable(),
+      value_max: z.number().optional().nullable(),
+    }),
+    step_value: z.number().optional().nullable(),
+    unit: z.string(),
+    value_size: z.number(),
+    values: z.array(z.string()), //TODO: need to fix this
   }),
 });
 
