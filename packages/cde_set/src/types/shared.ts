@@ -81,8 +81,8 @@ export const organizationSchema = z.object({
 });
 
 export const authorSchema = z.object({
-  person: z.array(personSchema).optional(),
-  organization: z.array(organizationSchema).optional(),
+  person: z.array(personSchema),
+  organization: z.array(organizationSchema),
 });
 
 export const referenceSchema = z.object({

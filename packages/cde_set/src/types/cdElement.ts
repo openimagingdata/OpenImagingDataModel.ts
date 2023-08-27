@@ -14,7 +14,7 @@ export const baseElementSchema = z.object({
   parent_id: z.number(),
   name: z.string(),
   short_name: z.string().optional(),
-  editor: z.string(),
+  editor: z.string().optional(),
   instructions: z.string().optional(),
   synonyms: z.string().optional(), // TODO: Looks like this is a string, should change to array of strings
   definition: z.string().optional(),
@@ -73,7 +73,6 @@ export const integerElementSchema = baseElementSchema.extend({
 
 export const booleanElementSchema = baseElementSchema.extend({
   boolean_values: z.object({
-    value_type: z.literal('boolean'),
     cardinality: z.object({
       min_cardinality: z.number(),
       max_cardinality: z.number(),
@@ -84,6 +83,7 @@ export const booleanElementSchema = baseElementSchema.extend({
     }),
     step_value: z.number().optional().nullable(),
     unit: z.string(),
+    value_type: z.literal('boolean'),
     value_size: z.number(),
     values: z.array(z.string()), //TODO: need to fix this
   }),
@@ -163,7 +163,19 @@ export class IntegerElement extends CdElement<IntegerElementData> {
   }
 }
 
-export class BooleanElement extends CdElement<BooleanElementData> {}
+export class BooleanElement extends CdElement<BooleanElementData> {
+  get min() {
+    return this._data.boolean_values.value_min_max.value_min;
+  }
+
+  get max() {
+    return this._data.boolean_values.value_min_max.value_max;
+  }
+
+  get stepValue() {
+    return this._data.boolean_values.step_value;
+  }
+}
 
 export class ValueSetElement extends CdElement<ValueSetElementData> {
   get values(): ValueSetValue[] {

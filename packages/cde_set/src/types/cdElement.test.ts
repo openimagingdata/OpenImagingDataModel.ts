@@ -3,6 +3,7 @@ import {
   CdElementFactory,
   elementSchema,
   ValueSetElement,
+  BooleanElement,
   ValueSetElementData,
   BooleanElementData,
 } from './cdElement';
@@ -139,3 +140,29 @@ const booleanElementJson: BooleanElementData = {
     values: [],
   },
 };
+
+describe('boolean cdElement', () => {
+  it('should parse cdElement JSON for Boolean type', () => {
+    const booleanElementData = elementSchema.safeParse(booleanElementJson);
+    expect(booleanElementData.success).toBe(true);
+    if (booleanElementData.success) {
+      //const booleanElementJson = booleanElementData.data as BooleanElementData;
+      expect(booleanElementJson).toHaveProperty('id', 'RDE49');
+      expect(booleanElementJson).toHaveProperty('boolean_values');
+      expect(booleanElementJson.boolean_values).toHaveProperty('cardinality');
+      expect(booleanElementJson.boolean_values).toHaveProperty(
+        'step_value',
+        null
+      );
+    }
+  });
+});
+
+describe('BooleanElement', () => {
+  it('should create a BooleanElement object from JSON', () => {
+    const booleanElementData: BooleanElementData =
+      elementSchema.safeParse(booleanElementJson);
+    const booleanElement = new BooleanElement(booleanElementData);
+    expect(booleanElement).toHaveProperty('id', 'RDE49');
+  });
+});
