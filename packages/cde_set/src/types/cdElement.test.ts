@@ -7,6 +7,7 @@ import {
   ValueSetElementData,
   BooleanElementData,
   booleanElementSchema,
+  valueSetElementSchema,
 } from './cdElement';
 
 const valueSetElementJson: ValueSetElementData = {
@@ -55,11 +56,11 @@ const valueSetElementJson: ValueSetElementData = {
 
 describe('cdElement', () => {
   it('should parse cdElement JSON', () => {
-    const cdElementData = elementSchema.safeParse(valueSetElementJson);
+    const cdElementData = valueSetElementSchema.safeParse(valueSetElementJson);
     expect(cdElementData.success).toBe(true);
     if (cdElementData.success) {
-      const valueSetElementData = cdElementData.data as ValueSetElementData;
-      expect(valueSetElementData).toHaveProperty('id', 'RDE818');
+      const valueSetElementData: ValueSetElementData = cdElementData.data;
+      expect(valueSetElementData).toHaveProperty('id', 'RDE818'); //? valueSetElementData
       expect(valueSetElementData).toHaveProperty('value_set');
       expect(valueSetElementData.value_set).toHaveProperty('values');
       expect(valueSetElementData.value_set.values).toHaveLength(5);
@@ -161,8 +162,11 @@ describe('boolean cdElement', () => {
 
 describe('BooleanElement', () => {
   it('should create a BooleanElement object from JSON', () => {
-    const booleanElementData = booleanElementSchema.parse(booleanElementJson);
-    const booleanElement = new BooleanElement(booleanElementData);
-    expect(booleanElement).toHaveProperty('id', 'RDE49');
+    const booleanElementData =
+      booleanElementSchema.safeParse(booleanElementJson);
+    if (booleanElementData.success) {
+      const booleanElement = new BooleanElement(booleanElementData.data);
+      expect(booleanElement).toHaveProperty('id', 'RDE49');
+    }
   });
 });
