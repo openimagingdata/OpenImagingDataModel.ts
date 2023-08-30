@@ -6,6 +6,7 @@ import {
   BooleanElement,
   ValueSetElementData,
   BooleanElementData,
+  booleanElementSchema,
 } from './cdElement';
 
 const valueSetElementJson: ValueSetElementData = {
@@ -160,8 +161,7 @@ describe('boolean cdElement', () => {
 
 describe('BooleanElement', () => {
   it('should create a BooleanElement object from JSON', () => {
-    const booleanElementData: BooleanElementData =
-      elementSchema.safeParse(booleanElementJson);
+    const booleanElementData = booleanElementSchema.parse(booleanElementJson);
     const booleanElement = new BooleanElement(booleanElementData);
     expect(booleanElement).toHaveProperty('id', 'RDE49');
   });
