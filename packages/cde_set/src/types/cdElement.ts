@@ -20,7 +20,7 @@ export const baseElementSchema = z.object({
   definition: z.string().optional(),
   question: z.string().optional(),
   version: versionElementSchema,
-  index_codes: z.array(indexCodeSchema),
+  index_codes: z.array(indexCodeSchema).optional(),
   authors: authorSchema.optional(),
   history: z.array(eventSchema).optional(),
   specialty: z.array(specialtySchema).optional(),
@@ -85,7 +85,7 @@ export const booleanElementSchema = baseElementSchema.extend({
     unit: z.string(),
     value_type: z.literal('boolean'),
     value_size: z.number(),
-    values: z.array(z.string()), //TODO: need to fix this
+    values: z.array(z.string()).optional().nullable(), //TODO: need to fix this
   }),
 });
 
@@ -133,6 +133,10 @@ export class CdElement<T extends ElementData = ElementData> {
 
   get indexCodes() {
     return [...this._indexCodes];
+  }
+
+  get references() {
+    return this._data.references;
   }
 }
 export class FloatElement extends CdElement<FloatElementData> {
@@ -211,6 +215,7 @@ export class CdElementFactory {
       );
   }
 
+  //create a CdElement object from JSON data
   static createFromJson(json: string | object): CdElement {
     const parsedJson: object =
       typeof json === 'string' ? JSON.parse(json) : json;

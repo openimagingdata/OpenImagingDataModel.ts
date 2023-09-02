@@ -4,6 +4,7 @@ import {
   elementSchema,
   ValueSetElement,
   BooleanElement,
+  IntegerElement,
   ValueSetElementData,
   BooleanElementData,
 } from './cdElement';
@@ -71,6 +72,11 @@ describe('ValueSetElement', () => {
     const valueSetElementData = elementSchema.parse(
       valueSetElementJson
     ) as ValueSetElementData;
+    // By using a type assertion to override the type,
+    //you're telling TypeScript to trust your assertion,
+    //and it won't raise type-related warnings or errors based
+    //on that assertion.
+    //this is going to lead to false positive tests no?
     const valueSetElement = new ValueSetElement(valueSetElementData);
     expect(valueSetElement).toHaveProperty('id', 'RDE818');
     expect(valueSetElement).toHaveProperty('values');
@@ -146,7 +152,6 @@ describe('boolean cdElement', () => {
     const booleanElementData = elementSchema.safeParse(booleanElementJson);
     expect(booleanElementData.success).toBe(true);
     if (booleanElementData.success) {
-      //const booleanElementJson = booleanElementData.data as BooleanElementData;
       expect(booleanElementJson).toHaveProperty('id', 'RDE49');
       expect(booleanElementJson).toHaveProperty('boolean_values');
       expect(booleanElementJson.boolean_values).toHaveProperty('cardinality');
@@ -159,10 +164,15 @@ describe('boolean cdElement', () => {
 });
 
 describe('BooleanElement', () => {
-  it('should create a BooleanElement object from JSON', () => {
-    const booleanElementData: BooleanElementData =
-      elementSchema.safeParse(booleanElementJson);
-    const booleanElement = new BooleanElement(booleanElementData);
-    expect(booleanElement).toHaveProperty('id', 'RDE49');
+  it('should create a BooleanElement object from JSON using factory', () => {
+    const booleanFactoryElement =
+      CdElementFactory.createFromJson(booleanElementJson);
+    expect(booleanFactoryElement).toBeInstanceOf(BooleanElement);
+    expect(booleanFactoryElement).not.toBeInstanceOf(IntegerElement);
+    expect(booleanFactoryElement).toHaveProperty('id', 'RDE49');
+    expect(booleanFactoryElement).toHaveProperty('references');
+    //only attributes of booleanFactoryElement are: definition, id, index_codes
+    //****got this to pass by adding getter method to the CdeElement (base) class
+    //TODO: need to add getters for all attributes in CdeElement? */
   });
 });
