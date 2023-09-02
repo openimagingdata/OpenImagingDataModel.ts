@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import {
   CdElementFactory,
   elementSchema,
@@ -7,8 +8,9 @@ import {
   IntegerElement,
   ValueSetElementData,
   BooleanElementData,
-  booleanElementSchema,
   valueSetElementSchema,
+  isValueSetElementData,
+  isBooleanElementData,
 } from './cdElement';
 
 const valueSetElementJson: ValueSetElementData = {
@@ -57,28 +59,23 @@ const valueSetElementJson: ValueSetElementData = {
 
 describe('cdElement', () => {
   it('should parse cdElement JSON', () => {
-    const cdElementData = valueSetElementSchema.safeParse(valueSetElementJson);
-    expect(cdElementData.success).toBe(true);
-    if (cdElementData.success) {
-      const valueSetElementData: ValueSetElementData = cdElementData.data;
-      expect(valueSetElementData).toHaveProperty('id', 'RDE818'); //? valueSetElementData
-      expect(valueSetElementData).toHaveProperty('value_set');
-      expect(valueSetElementData.value_set).toHaveProperty('values');
-      expect(valueSetElementData.value_set.values).toHaveLength(5);
-    }
+    const parsed = valueSetElementSchema.safeParse(valueSetElementJson);
+    if (!parsed.success) throw new Error('Failed to parse valueSetElementJson');
+    if (!isValueSetElementData(parsed.data))
+      throw new Error('parsed valueSetElementJson is not ValueSetElementData');
+    const valueSetElementData: ValueSetElementData = parsed.data;
+    expect(valueSetElementData).toHaveProperty('id', 'RDE818'); //? valueSetElementData
+    expect(valueSetElementData).toHaveProperty('value_set');
+    expect(valueSetElementData.value_set).toHaveProperty('values');
+    expect(valueSetElementData.value_set.values).toHaveLength(5);
   });
 });
 
 describe('ValueSetElement', () => {
   it('should create a ValueSetElement object from JSON', () => {
-    const valueSetElementData = elementSchema.parse(
-      valueSetElementJson
-    ) as ValueSetElementData;
-    // By using a type assertion to override the type,
-    //you're telling TypeScript to trust your assertion,
-    //and it won't raise type-related warnings or errors based
-    //on that assertion.
-    //this is going to lead to false positive tests no?
+    const valueSetElementData = elementSchema.parse(valueSetElementJson);
+    if (!isValueSetElementData(valueSetElementData))
+      throw new Error('parsed valueSetElementJson is not ValueSetElementData');
     const valueSetElement = new ValueSetElement(valueSetElementData);
     expect(valueSetElement).toHaveProperty('id', 'RDE818');
     expect(valueSetElement).toHaveProperty('values');
@@ -151,17 +148,16 @@ const booleanElementJson: BooleanElementData = {
 
 describe('boolean cdElement', () => {
   it('should parse cdElement JSON for Boolean type', () => {
-    const booleanElementData = elementSchema.safeParse(booleanElementJson);
-    expect(booleanElementData.success).toBe(true);
-    if (booleanElementData.success) {
-      expect(booleanElementJson).toHaveProperty('id', 'RDE49');
-      expect(booleanElementJson).toHaveProperty('boolean_values');
-      expect(booleanElementJson.boolean_values).toHaveProperty('cardinality');
-      expect(booleanElementJson.boolean_values).toHaveProperty(
-        'step_value',
-        null
-      );
-    }
+    const parsed = elementSchema.safeParse(booleanElementJson);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) throw new Error('Failed to parse booleanElementJson');
+    if (!isBooleanElementData(parsed.data))
+      throw new Error('parsed booleanElementJson is not BooleanElementData');
+    const booleanElementData: BooleanElementData = parsed.data;
+    expect(booleanElementData).toHaveProperty('id', 'RDE49');
+    expect(booleanElementData).toHaveProperty('boolean_values');
+    expect(booleanElementData.boolean_values).toHaveProperty('cardinality');
+    expect(booleanElementData.boolean_values).toHaveProperty('step_value');
   });
 });
 

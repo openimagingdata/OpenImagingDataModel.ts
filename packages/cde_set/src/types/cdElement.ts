@@ -110,7 +110,7 @@ export class CdElement<T extends ElementData = ElementData> {
 
   constructor(baseElementData: T) {
     this._data = { ...baseElementData };
-    this._indexCodes = this._data.index_codes.map((indexCode) => {
+    this._indexCodes = (this._data.index_codes || []).map((indexCode) => {
       return new IndexCode(indexCode);
     });
   }
@@ -189,30 +189,52 @@ export class ValueSetElement extends CdElement<ValueSetElementData> {
   }
 }
 
+export function isValueSetElementData(
+  elementData: ElementData
+): elementData is ValueSetElementData {
+  return (
+    'value_set' in elementData &&
+    elementData.value_set?.value_type === 'valueSet'
+  );
+}
+
+export function isFloatElementData(
+  elementData: ElementData
+): elementData is FloatElementData {
+  return (
+    'float_values' in elementData &&
+    elementData.float_values?.value_type === 'float'
+  );
+}
+
+export function isIntegerElementData(
+  elementData: ElementData
+): elementData is IntegerElementData {
+  return (
+    'integer_values' in elementData &&
+    elementData.integer_values?.value_type === 'integer'
+  );
+}
+
+export function isBooleanElementData(
+  elementData: ElementData
+): elementData is BooleanElementData {
+  return (
+    'boolean_values' in elementData &&
+    elementData.boolean_values?.value_type === 'boolean'
+  );
+}
+
 export class CdElementFactory {
   // create a factory method taking in CdElementData and returning the right sub-class of CdElement
   static create(inData: ElementData): CdElement {
-    if ('value_set' in inData && inData.value_set?.value_type === 'valueSet')
-      return new ValueSetElement(inData);
-    else if (
-      'float_values' in inData &&
-      inData.float_values?.value_type === 'float'
-    )
-      return new FloatElement(inData);
-    else if (
-      'integer_values' in inData &&
-      inData.integer_values?.value_type === 'integer'
-    )
-      return new IntegerElement(inData);
-    else if (
-      'boolean_values' in inData &&
-      inData.boolean_values?.value_type === 'boolean'
-    )
-      return new BooleanElement(inData);
-    else
-      throw new Error(
-        `Unknown element type: doesn't seem to have value_set, float_values, integer_values, or boolean_values.`
-      );
+    if (isValueSetElementData(inData)) return new ValueSetElement(inData);
+    if (isFloatElementData(inData)) return new FloatElement(inData);
+    if (isIntegerElementData(inData)) return new IntegerElement(inData);
+    if (isBooleanElementData(inData)) return new BooleanElement(inData);
+    throw new Error(
+      `Unknown element type: doesn't seem to have value_set, float_values, integer_values, or boolean_values.`
+    );
   }
 
   //create a CdElement object from JSON data
