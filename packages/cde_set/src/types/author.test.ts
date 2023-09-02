@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { AuthorData } from './author';
+import { AuthorData } from './shared';
 
 describe('Author', () => {
   const authorJson: AuthorData = {

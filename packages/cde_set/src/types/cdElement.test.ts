@@ -7,6 +7,8 @@ import {
   IntegerElement,
   ValueSetElementData,
   BooleanElementData,
+  booleanElementSchema,
+  valueSetElementSchema,
 } from './cdElement';
 
 const valueSetElementJson: ValueSetElementData = {
@@ -55,11 +57,11 @@ const valueSetElementJson: ValueSetElementData = {
 
 describe('cdElement', () => {
   it('should parse cdElement JSON', () => {
-    const cdElementData = elementSchema.safeParse(valueSetElementJson);
+    const cdElementData = valueSetElementSchema.safeParse(valueSetElementJson);
     expect(cdElementData.success).toBe(true);
     if (cdElementData.success) {
-      const valueSetElementData = cdElementData.data as ValueSetElementData;
-      expect(valueSetElementData).toHaveProperty('id', 'RDE818');
+      const valueSetElementData: ValueSetElementData = cdElementData.data;
+      expect(valueSetElementData).toHaveProperty('id', 'RDE818'); //? valueSetElementData
       expect(valueSetElementData).toHaveProperty('value_set');
       expect(valueSetElementData.value_set).toHaveProperty('values');
       expect(valueSetElementData.value_set.values).toHaveLength(5);
