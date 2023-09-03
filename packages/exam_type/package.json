@@ -9,7 +9,8 @@
     "lint": "eslint 'src/**/*.ts'",
     "prettier": "prettier --write 'src/**/*.ts'",
     "clean": "rimraf dist .cache .tmp lib build",
-    "test": "vitest"
+    "test": "vitest",
+    "convert_xlsx": "pnpm tsc && node dist/exam_type_excel_loader.js > data/exam_types.json"
   },
   "keywords": [],
   "author": "",

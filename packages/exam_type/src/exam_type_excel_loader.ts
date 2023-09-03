@@ -3,7 +3,22 @@ import { parse } from 'node-xlsx';
 const EXAM_TYPE_WORKSHEET_NAME = 'Exam Types';
 const MACROS_WORKSHEET_NAME = 'Macros';
 
-type ExamTypeModality = 'CT' | 'MR' | 'US' | 'NM' | 'XR' | 'MG';
+const LOINC_ID_COLUMN = 0;
+const COMMON_NAME_COLUMN = 1;
+const PLAYBOOK_ID_COLUMN = 2;
+const MODALITY_COLUMN = 3;
+const LATERAL_COLUMN = 4;
+const CONTRAST_COLUMN = 5;
+const FOCUSED_BODY_PARTS_COLUMN = 6;
+const INCLUDED_BODY_PARTS_COLUMN = 7;
+const FOCUSED_BODY_PARTS_LEFT_COLUMN = 8;
+const FOCUSED_BODY_PARTS_RIGHT_COLUMN = 9;
+const INCLUDED_BODY_PARTS_LEFT_COLUMN = 10;
+const INCLUDED_BODY_PARTS_RIGHT_COLUMN = 11;
+const LOCAL_ID_COLUMN = 12;
+
+type ExamTypeModality = 'CT' | 'MR' | 'US' | 'NM' | 'XR' | 'MG' | 'PT+CT';
+type ContrastType = 'W' | 'WO' | 'WWO';
 
 interface ExamTypeData {
   loincId: string;
@@ -11,6 +26,7 @@ interface ExamTypeData {
   playbookId?: string;
   modality: ExamTypeModality;
   lateral: boolean;
+  contrast?: ContrastType;
   focusedBodyParts?: string[];
   includedBodyParts?: string[];
   focusedBodyPartsLeft?: string[];
@@ -42,68 +58,6 @@ export class ExamTypeExcelLoader {
   }
 
   private load(): void {
-    const loadMacros = (worksheet: Worksheet) => {
-      worksheet.data.forEach((row: unknown[], rowNumber: number) => {
-        if (rowNumber === 0 || !row[0] || !row[1]) {
-          return;
-        }
-        const name = row[0].toString().trim();
-        const bodyPartIdString = row[1].toString().trim();
-        const bodyPartIds = bodyPartIdString.split(/\s+/);
-        this.macros.set(name, bodyPartIds);
-      });
-    };
-
-    const loadExamTypes = (worksheet: Worksheet) => {
-      worksheet.data.forEach((row: unknown[], rowNumber: number) => {
-        if (rowNumber === 0 || !row[0]) {
-          return;
-        }
-        const rowStrings = row as string[];
-        const loincId = rowStrings[0].toString().trim();
-        const commonName = rowStrings[1].toString().trim();
-        const playbookId = rowStrings[2]?.toString().trim();
-        const modality = rowStrings[3]?.toString().trim() as ExamTypeModality;
-        const lateral = rowStrings[4] ? true : false;
-        const focusedBodyParts = rowStrings[5]?.toString().trim().split(/\s+/);
-        const includedBodyParts = rowStrings[6]?.toString().trim().split(/\s+/);
-        const focusedBodyPartsLeft = rowStrings[7]
-          ?.toString()
-          .trim()
-          .split(/\s+/);
-        const focusedBodyPartsRight = rowStrings[8]
-          ?.toString()
-          .trim()
-          .split(/\s+/);
-        const includedBodyPartsLeft = rowStrings[9]
-          ?.toString()
-          .trim()
-          .split(/\s+/);
-        const includedBodyPartsRight = rowStrings[10]
-          ?.toString()
-          .trim()
-          .split(/\s+/);
-        const examType: ExamTypeData = {
-          loincId,
-          commonName,
-          playbookId,
-          modality,
-          lateral,
-          focusedBodyParts: expandMacros(focusedBodyParts),
-          includedBodyParts: expandMacros(includedBodyParts),
-          focusedBodyPartsLeft: expandMacros(focusedBodyPartsLeft),
-          focusedBodyPartsRight: expandMacros(focusedBodyPartsRight),
-          includedBodyPartsLeft: expandMacros(includedBodyPartsLeft),
-          includedBodyPartsRight: expandMacros(includedBodyPartsRight),
-        };
-        this.examTypes.push(examType);
-        if (row[11]) {
-          const localId = rowStrings[11].toString().trim();
-          this.localMappings.push({ loincId, localId });
-        }
-      });
-    };
-
     const expandMacros = (rawBodyParts: string[] | undefined) => {
       if (!rawBodyParts || this.macros.size === 0) {
         return rawBodyParts;
@@ -118,6 +72,88 @@ export class ExamTypeExcelLoader {
         }
       });
       return expandedBodyParts;
+    };
+
+    const loadMacros = (worksheet: Worksheet) => {
+      worksheet.data.forEach((row: unknown[], rowNumber: number) => {
+        if (rowNumber === 0 || !row[0] || !row[1]) {
+          return;
+        }
+        const name = row[0].toString().trim();
+        const bodyPartIdString = row[1].toString().trim();
+        const bodyPartIds = bodyPartIdString.split(/\s+/);
+        const expandedBodyPartIds = expandMacros(bodyPartIds);
+        if (expandedBodyPartIds && expandedBodyPartIds.length > 0)
+          this.macros.set(name, expandedBodyPartIds);
+      });
+    };
+
+    const loadExamTypes = (worksheet: Worksheet) => {
+      worksheet.data.forEach((row: unknown[], rowNumber: number) => {
+        if (rowNumber === 0 || !row[0]) {
+          return;
+        }
+        const rowStrings = row as string[];
+        const loincId = rowStrings[LOINC_ID_COLUMN].toString().trim();
+        const commonName = rowStrings[COMMON_NAME_COLUMN].toString().trim();
+        const playbookId = rowStrings[PLAYBOOK_ID_COLUMN]?.toString().trim();
+        const modality = rowStrings[
+          MODALITY_COLUMN
+        ]?.toString().trim() as ExamTypeModality;
+        const lateral = rowStrings[LATERAL_COLUMN] ? true : false;
+        const contrast = rowStrings[
+          CONTRAST_COLUMN
+        ]?.toString().trim() as ContrastType;
+        const focusedBodyParts = rowStrings[
+          FOCUSED_BODY_PARTS_COLUMN
+        ]?.toString()
+          .trim()
+          .split(/\s+/);
+        const includedBodyParts = rowStrings[
+          INCLUDED_BODY_PARTS_COLUMN
+        ]?.toString()
+          .trim()
+          .split(/\s+/);
+        const focusedBodyPartsLeft = rowStrings[
+          FOCUSED_BODY_PARTS_LEFT_COLUMN
+        ]?.toString()
+          .trim()
+          .split(/\s+/);
+        const focusedBodyPartsRight = rowStrings[
+          FOCUSED_BODY_PARTS_RIGHT_COLUMN
+        ]?.toString()
+          .trim()
+          .split(/\s+/);
+        const includedBodyPartsLeft = rowStrings[
+          INCLUDED_BODY_PARTS_LEFT_COLUMN
+        ]?.toString()
+          .trim()
+          .split(/\s+/);
+        const includedBodyPartsRight = rowStrings[
+          INCLUDED_BODY_PARTS_RIGHT_COLUMN
+        ]?.toString()
+          .trim()
+          .split(/\s+/);
+        const examType: ExamTypeData = {
+          loincId,
+          commonName,
+          playbookId,
+          modality,
+          lateral,
+          contrast,
+          focusedBodyParts: expandMacros(focusedBodyParts),
+          includedBodyParts: expandMacros(includedBodyParts),
+          focusedBodyPartsLeft: expandMacros(focusedBodyPartsLeft),
+          focusedBodyPartsRight: expandMacros(focusedBodyPartsRight),
+          includedBodyPartsLeft: expandMacros(includedBodyPartsLeft),
+          includedBodyPartsRight: expandMacros(includedBodyPartsRight),
+        };
+        this.examTypes.push(examType);
+        if (row[LOCAL_ID_COLUMN]) {
+          const localId = rowStrings[LOCAL_ID_COLUMN].toString().trim();
+          this.localMappings.push({ loincId, localId });
+        }
+      });
     };
 
     const workbook = parse(this.filePath);
@@ -146,7 +182,7 @@ export class ExamTypeExcelLoader {
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   const loader = new ExamTypeExcelLoader('data/Exam Types.xlsx');
   loader.printExamTypes();
 }
