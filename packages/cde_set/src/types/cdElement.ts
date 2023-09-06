@@ -176,6 +176,10 @@ export class CdElement<T extends ElementData = ElementData> {
   }
 }
 export class FloatElement extends CdElement<FloatElementData> {
+  get valueType() {
+    return this._data.float_values.value_type;
+  }
+
   get min() {
     return this._data.float_values.value_min_max.value_min;
   }
@@ -187,9 +191,17 @@ export class FloatElement extends CdElement<FloatElementData> {
   get stepValue() {
     return this._data.float_values.step_value;
   }
+
+  get unit() {
+    return this._data.float_values.unit;
+  }
 }
 
 export class IntegerElement extends CdElement<IntegerElementData> {
+  get valueType() {
+    return this._data.integer_values.value_type;
+  }
+
   get min() {
     return this._data.integer_values.value_min_max.value_min;
   }
@@ -201,9 +213,21 @@ export class IntegerElement extends CdElement<IntegerElementData> {
   get stepValue() {
     return this._data.integer_values.step_value;
   }
+
+  get unit() {
+    return this._data.integer_values.unit;
+  }
 }
 
 export class BooleanElement extends CdElement<BooleanElementData> {
+  get minCardinality() {
+    return this._data.boolean_values.cardinality.min_cardinality;
+  }
+
+  get maxCardinality() {
+    return this._data.boolean_values.cardinality.max_cardinality;
+  }
+
   get min() {
     return this._data.boolean_values.value_min_max.value_min;
   }
@@ -214,6 +238,22 @@ export class BooleanElement extends CdElement<BooleanElementData> {
 
   get stepValue() {
     return this._data.boolean_values.step_value;
+  }
+
+  get unit() {
+    return this._data.boolean_values.unit;
+  }
+
+  get valueType() {
+    return this._data.boolean_values.value_type;
+  }
+
+  get valueSize() {
+    return this._data.boolean_values.value_size;
+  }
+
+  get values() {
+    return this._data.boolean_values.values;
   }
 }
 
