@@ -119,8 +119,24 @@ export class CdElement<T extends ElementData = ElementData> {
     return this._data.id;
   }
 
+  get parent_id() {
+    return this._data.parent_id;
+  }
+
   get name() {
     return this._data.name;
+  }
+
+  get editor() {
+    return this._data.editor;
+  }
+
+  get instructions() {
+    return this._data.instructions;
+  }
+
+  get synonyms() {
+    return this._data.synonyms;
   }
 
   get definition() {
@@ -131,12 +147,32 @@ export class CdElement<T extends ElementData = ElementData> {
     return this._data.question;
   }
 
+  get version() {
+    return this._data.version;
+  }
+
   get indexCodes() {
     return [...this._indexCodes];
   }
 
+  get authors() {
+    return this._data.authors;
+  }
+
+  get history() {
+    return this._data.history;
+  }
+
+  get specialty() {
+    return this._data.specialty;
+  }
+
   get references() {
     return this._data.references;
+  }
+
+  get source() {
+    return this._data.source;
   }
 }
 export class FloatElement extends CdElement<FloatElementData> {
