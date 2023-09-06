@@ -127,6 +127,10 @@ export class CdElement<T extends ElementData = ElementData> {
     return this._data.name;
   }
 
+  get short_name() {
+    return this._data.short_name;
+  }
+
   get editor() {
     return this._data.editor;
   }
