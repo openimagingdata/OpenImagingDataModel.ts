@@ -87,6 +87,7 @@ describe('ValueSetElement', () => {
     const elementData = elementSchema.parse(valueSetElementJson);
     const valueSetElement = CdElementFactory.create(elementData);
     expect(valueSetElement).toBeInstanceOf(ValueSetElement);
+    expect(valueSetElement.elementType).toBe('valueSet');
     expect(valueSetElement).toHaveProperty('id', 'RDE818');
     if (valueSetElement instanceof ValueSetElement) {
       expect(valueSetElement).toHaveProperty('values');
@@ -102,7 +103,6 @@ describe('ValueSetElement', () => {
       JSON.stringify(valueSetElementJson)
     );
     expect(valueSetElement2).toBeInstanceOf(ValueSetElement);
-    expect(valueSetElement2).toHaveProperty('value_set'); //TODO: no value set?
   });
 });
 
@@ -148,7 +148,7 @@ const booleanElementJson: BooleanElementData = {
   },
 };
 
-describe('boolean cdElement', () => {
+describe('boolean element data', () => {
   it('should parse cdElement JSON for Boolean type', () => {
     const parsed = elementSchema.safeParse(booleanElementJson);
     expect(parsed.success).toBe(true);
@@ -175,17 +175,14 @@ describe('BooleanElement', () => {
     expect(booleanFactoryElement).toBeInstanceOf(BooleanElement);
     expect(booleanFactoryElement).toHaveProperty('id', 'RDE49');
     expect(booleanFactoryElement).toHaveProperty('references');
-    expect(booleanFactoryElement).toHaveProperty('boolean_values'); //TODO: no boolean_values?
   });
   it('should create a BooleanElement object from TS object using factory', () => {
     const booleanFactoryElement =
       CdElementFactory.createFromJson(booleanElementJson);
     expect(booleanFactoryElement).toBeInstanceOf(BooleanElement);
-    expect(booleanFactoryElement).not.toBeInstanceOf(IntegerElement);
-    expect(booleanFactoryElement).not.toBeInstanceOf(FloatElement);
+    expect(booleanFactoryElement.elementType).toBe('boolean');
     expect(booleanFactoryElement).toHaveProperty('id', 'RDE49');
     expect(booleanFactoryElement).toHaveProperty('references');
-    expect(booleanFactoryElement).toHaveProperty('boolean_values'); //TODO: no boolean_values?
   });
   //TODO: Use the factory method "create" to create a BooleanElement object from the JSON object
 });

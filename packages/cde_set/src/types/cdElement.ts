@@ -103,6 +103,8 @@ export type IntegerElementData = z.infer<typeof integerElementSchema>;
 export type BooleanElementData = z.infer<typeof booleanElementSchema>;
 export type ElementData = z.infer<typeof elementSchema>;
 
+type ElementType = 'float' | 'valueSet' | 'integer' | 'boolean';
+
 export class CdElement<T extends ElementData = ElementData> {
   protected _data: T;
 
@@ -178,10 +180,13 @@ export class CdElement<T extends ElementData = ElementData> {
   get source() {
     return this._data.source;
   }
+
+  abstract get elementType(): ElementType;
 }
+
 export class FloatElement extends CdElement<FloatElementData> {
-  get valueType() {
-    return this._data.float_values.value_type;
+  get elementType() {
+    return 'float';
   }
 
   get min() {
@@ -202,8 +207,8 @@ export class FloatElement extends CdElement<FloatElementData> {
 }
 
 export class IntegerElement extends CdElement<IntegerElementData> {
-  get valueType() {
-    return this._data.integer_values.value_type;
+  get elementType() {
+    return 'integer';
   }
 
   get min() {
@@ -224,40 +229,8 @@ export class IntegerElement extends CdElement<IntegerElementData> {
 }
 
 export class BooleanElement extends CdElement<BooleanElementData> {
-  get minCardinality() {
-    return this._data.boolean_values.cardinality.min_cardinality;
-  }
-
-  get maxCardinality() {
-    return this._data.boolean_values.cardinality.max_cardinality;
-  }
-
-  get min() {
-    return this._data.boolean_values.value_min_max.value_min;
-  }
-
-  get max() {
-    return this._data.boolean_values.value_min_max.value_max;
-  }
-
-  get stepValue() {
-    return this._data.boolean_values.step_value;
-  }
-
-  get unit() {
-    return this._data.boolean_values.unit;
-  }
-
-  get valueType() {
-    return this._data.boolean_values.value_type;
-  }
-
-  get valueSize() {
-    return this._data.boolean_values.value_size;
-  }
-
-  get values() {
-    return this._data.boolean_values.values;
+  get elementType() {
+    return 'boolean';
   }
 }
 
@@ -266,6 +239,10 @@ export class ValueSetElement extends CdElement<ValueSetElementData> {
     return this._data.value_set.values.map((value) => {
       return { ...value };
     });
+  }
+
+  get elementType() {
+    return 'valueSet';
   }
 }
 
