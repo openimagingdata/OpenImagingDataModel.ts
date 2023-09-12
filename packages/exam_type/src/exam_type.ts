@@ -1,9 +1,10 @@
-import { z } from 'zod';
+import { never, z } from 'zod';
 
 const contrastEnum = z.enum(['W', 'WO', 'WWO']);
 const modalityEnum = z.enum(['CT', 'MR', 'US', 'NM', 'XR', 'MG', 'PT+CT']);
 type ContrastType = z.infer<typeof contrastEnum>;
 type ModalityType = z.infer<typeof modalityEnum>;
+const CONTRASTS_WITH_CONTRAST = ['W', 'WWO'];
 
 export const examTypeSchema = z.object({
   loincId: z.string(),
@@ -89,5 +90,12 @@ export default class ExamType {
 
   public get includedBodyPartsRight(): string[] | undefined {
     return this._data.includedBodyPartsRight;
+  }
+
+  public hasContrast(): boolean {
+    if (this.contrast === undefined) {
+      return false;
+    }
+    return CONTRASTS_WITH_CONTRAST.includes(this.contrast);
   }
 }

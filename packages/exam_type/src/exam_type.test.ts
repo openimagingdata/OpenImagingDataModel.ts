@@ -89,4 +89,35 @@ describe('ExamType', () => {
       expect(examType.includedBodyParts).toEqual(includedBodyParts);
     }
   });
+
+  describe('test for contrast', () => {
+    it('should be false if not set', () => {
+      const examType = new ExamType(examTypeSampleData);
+      expect(examType.hasContrast()).toBe(false);
+    });
+
+    it('should be true if set to W', () => {
+      const examType = new ExamType({
+        ...examTypeSampleData,
+        contrast: 'W',
+      });
+      expect(examType.hasContrast()).toBe(true);
+    });
+
+    it('should be true if set to WWO', () => {
+      const examType = new ExamType({
+        ...examTypeSampleData,
+        contrast: 'WWO',
+      });
+      expect(examType.hasContrast()).toBe(true);
+    });
+
+    it('should be false if set to WO', () => {
+      const examType = new ExamType({
+        ...examTypeSampleData,
+        contrast: 'WO',
+      });
+      expect(examType.hasContrast()).toBe(false);
+    });
+  });
 });
