@@ -241,6 +241,10 @@ export class ValueSetElement extends CdElement<ValueSetElementData> {
     });
   }
 
+  get cardinality() {
+    return this._data.value_set.cardinality;
+  }
+
   get elementType() {
     return 'valueSet';
   }

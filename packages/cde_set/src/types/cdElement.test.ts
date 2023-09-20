@@ -5,7 +5,7 @@ import {
   elementSchema,
   ValueSetElement,
   BooleanElement,
-  IntegerElement,
+  booleanElementSchema,
   FloatElement,
   ValueSetElementData,
   BooleanElementData,
@@ -69,6 +69,7 @@ describe('cdElement', () => {
     expect(valueSetElementData).toHaveProperty('value_set');
     expect(valueSetElementData.value_set).toHaveProperty('values');
     expect(valueSetElementData.value_set.values).toHaveLength(5);
+    expect(valueSetElementData.value_set).toHaveProperty('cardinality');
   });
 });
 
@@ -81,6 +82,9 @@ describe('ValueSetElement', () => {
     expect(valueSetElement).toHaveProperty('id', 'RDE818');
     expect(valueSetElement).toHaveProperty('values');
     expect(valueSetElement.values).toHaveLength(5);
+    expect(valueSetElement).toHaveProperty('cardinality');
+    //TODO: Want cardinality, currently only have array of values?
+    //TODO: need to add getter for cardinality at the object level
   });
 
   it('should create a ValueSetElement object from ElementData using the factory', () => {
@@ -150,7 +154,7 @@ const booleanElementJson: BooleanElementData = {
 
 describe('boolean element data', () => {
   it('should parse cdElement JSON for Boolean type', () => {
-    const parsed = elementSchema.safeParse(booleanElementJson);
+    const parsed = booleanElementSchema.safeParse(booleanElementJson);
     expect(parsed.success).toBe(true);
     if (!parsed.success) throw new Error('Failed to parse booleanElementJson');
     if (!isBooleanElementData(parsed.data))
