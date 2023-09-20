@@ -83,8 +83,7 @@ describe('ValueSetElement', () => {
     expect(valueSetElement).toHaveProperty('values');
     expect(valueSetElement.values).toHaveLength(5);
     expect(valueSetElement).toHaveProperty('cardinality');
-    //TODO: Want cardinality, currently only have array of values?
-    //TODO: need to add getter for cardinality at the object level
+    expect(valueSetElement).not.toHaveProperty('value_size');
   });
 
   it('should create a ValueSetElement object from ElementData using the factory', () => {
@@ -96,6 +95,8 @@ describe('ValueSetElement', () => {
     if (valueSetElement instanceof ValueSetElement) {
       expect(valueSetElement).toHaveProperty('values');
       expect(valueSetElement.values).toHaveLength(5);
+      expect(valueSetElement).toHaveProperty('cardinality');
+      expect(valueSetElement).not.toHaveProperty('value_size');
     }
   });
 
@@ -106,6 +107,7 @@ describe('ValueSetElement', () => {
     const valueSetElement2 = CdElementFactory.createFromJson(
       JSON.stringify(valueSetElementJson)
     );
+    expect(valueSetElement).toBeInstanceOf(ValueSetElement);
     expect(valueSetElement2).toBeInstanceOf(ValueSetElement);
   });
 });
@@ -155,7 +157,6 @@ const booleanElementJson: BooleanElementData = {
 describe('boolean element data', () => {
   it('should parse cdElement JSON for Boolean type', () => {
     const parsed = booleanElementSchema.safeParse(booleanElementJson);
-    expect(parsed.success).toBe(true);
     if (!parsed.success) throw new Error('Failed to parse booleanElementJson');
     if (!isBooleanElementData(parsed.data))
       throw new Error('parsed booleanElementJson is not BooleanElementData');
@@ -164,29 +165,41 @@ describe('boolean element data', () => {
     expect(booleanElementData).toHaveProperty('boolean_values');
     expect(booleanElementData.boolean_values).toHaveProperty('cardinality');
     expect(booleanElementData.boolean_values).toHaveProperty('step_value');
+    expect(booleanElementData.boolean_values).toHaveProperty('cardinality');
   });
 });
 
-/*
-This part of the code takes the JavaScript object 
-valueSetElementJson and converts it into a JSON-formatted string.
-*/
 describe('BooleanElement', () => {
-  it('should create a booleanElement Obj from JSOn formatted string', () => {
-    const booleanFactoryElement = CdElementFactory.createFromJson(
+  it('should create a booleanElement object from JSON', () => {
+    const booleanElementData = elementSchema.parse(booleanElementJson);
+    if (!isBooleanElementData(booleanElementData))
+      throw new Error('parsed booleanElementJson is not booleanElementData');
+    const booleanElement = new BooleanElement(booleanElementData);
+    expect(booleanElement).toBeInstanceOf(BooleanElement);
+    expect(booleanElement).toHaveProperty('id', 'RDE49');
+    expect(booleanElement).toHaveProperty('references');
+    expect(booleanElement).not.toHaveProperty('boolean_values');
+  });
+  //TODO: Need to take out "not relevant" properties from the base class.
+
+  it('should create a BooleanElement object from BooleanData using the factory', () => {
+    const elementData = elementSchema.parse(booleanElementJson);
+    const booleanElement = CdElementFactory.create(elementData);
+    expect(booleanElement).toBeInstanceOf(BooleanElement);
+    expect(booleanElement.elementType).toBe('boolean');
+    expect(booleanElement).toHaveProperty('id', 'RDE49');
+    if (booleanElement instanceof BooleanElement) {
+      //TODO" No relevant data under "boolean" in "guide_to_elements"
+    }
+  });
+
+  it('should create a BooleanElement object from JSON using the factory', () => {
+    const booleanElement = CdElementFactory.createFromJson(booleanElementJson);
+    expect(booleanElement).toBeInstanceOf(BooleanElement);
+    const booleanElement2 = CdElementFactory.createFromJson(
       JSON.stringify(booleanElementJson)
     );
-    expect(booleanFactoryElement).toBeInstanceOf(BooleanElement);
-    expect(booleanFactoryElement).toHaveProperty('id', 'RDE49');
-    expect(booleanFactoryElement).toHaveProperty('references');
+    expect(booleanElement).toBeInstanceOf(BooleanElement);
+    expect(booleanElement2).toBeInstanceOf(BooleanElement);
   });
-  it('should create a BooleanElement object from TS object using factory', () => {
-    const booleanFactoryElement =
-      CdElementFactory.createFromJson(booleanElementJson);
-    expect(booleanFactoryElement).toBeInstanceOf(BooleanElement);
-    expect(booleanFactoryElement.elementType).toBe('boolean');
-    expect(booleanFactoryElement).toHaveProperty('id', 'RDE49');
-    expect(booleanFactoryElement).toHaveProperty('references');
-  });
-  //TODO: Use the factory method "create" to create a BooleanElement object from the JSON object
 });
