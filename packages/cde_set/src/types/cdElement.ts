@@ -185,7 +185,7 @@ export class CdElement<T extends ElementData = ElementData> {
 }
 
 export class FloatElement extends CdElement<FloatElementData> {
-  get elementType() {
+  get elementType(): ElementType {
     return 'float';
   }
   get floatValues() {
@@ -210,7 +210,7 @@ export class FloatElement extends CdElement<FloatElementData> {
 }
 
 export class IntegerElement extends CdElement<IntegerElementData> {
-  get elementType() {
+  get elementType(): ElementType {
     return 'integer';
   }
 
@@ -236,7 +236,7 @@ export class IntegerElement extends CdElement<IntegerElementData> {
 }
 
 export class BooleanElement extends CdElement<BooleanElementData> {
-  get elementType() {
+  get elementType(): ElementType {
     return 'boolean';
   }
 }
@@ -252,7 +252,7 @@ export class ValueSetElement extends CdElement<ValueSetElementData> {
     return this._data.value_set.cardinality;
   }
 
-  get elementType() {
+  get elementType(): ElementType {
     return 'valueSet';
   }
 }
