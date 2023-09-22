@@ -54,7 +54,7 @@ export const floatElementSchema = baseElementSchema.extend({
       value_min: z.number().optional(),
       value_max: z.number().optional(),
     }),
-    step_value: z.number().optional(),
+    step_value: z.number().optional().nullable(),
     unit: z.string(),
   }),
 });
@@ -188,6 +188,9 @@ export class FloatElement extends CdElement<FloatElementData> {
   get elementType() {
     return 'float';
   }
+  get floatValues() {
+    return this._data.float_values;
+  }
 
   get min() {
     return this._data.float_values.value_min_max.value_min;
@@ -209,6 +212,10 @@ export class FloatElement extends CdElement<FloatElementData> {
 export class IntegerElement extends CdElement<IntegerElementData> {
   get elementType() {
     return 'integer';
+  }
+
+  get integerValues() {
+    return this._data.integer_values;
   }
 
   get min() {

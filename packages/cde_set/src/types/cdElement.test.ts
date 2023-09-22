@@ -5,12 +5,19 @@ import {
   elementSchema,
   ValueSetElement,
   BooleanElement,
-  booleanElementSchema,
   FloatElement,
+  IntegerElement,
+  booleanElementSchema,
+  integerElementSchema,
   ValueSetElementData,
   BooleanElementData,
+  IntegerElementData,
+  FloatElementData,
   valueSetElementSchema,
+  floatElementSchema,
+  isFloatElementData,
   isValueSetElementData,
+  isIntegerElementData,
   isBooleanElementData,
 } from './cdElement';
 
@@ -57,6 +64,8 @@ const valueSetElementJson: ValueSetElementData = {
     ],
   },
 };
+
+//Tests for ValueSet
 
 describe('cdElement', () => {
   it('should parse cdElement JSON', () => {
@@ -154,6 +163,8 @@ const booleanElementJson: BooleanElementData = {
   },
 };
 
+//Tests for BooleanElement
+
 describe('boolean element data', () => {
   it('should parse cdElement JSON for Boolean type', () => {
     const parsed = booleanElementSchema.safeParse(booleanElementJson);
@@ -201,5 +212,252 @@ describe('BooleanElement', () => {
     );
     expect(booleanElement).toBeInstanceOf(BooleanElement);
     expect(booleanElement2).toBeInstanceOf(BooleanElement);
+  });
+});
+
+const integerElementJson: IntegerElementData = {
+  id: 'RDE81',
+  parent_id: 5,
+  name: 'Diameter',
+  short_name: '',
+  editor: '',
+  instructions:
+    'Diameter should be measured in the sequence, phase, and imaging plane in which the margins are most sharply demarcated and in which there is no anatomic distortion. If margins are sharply demarcated on more than one sequence or phase, do not measure in the arterial phase.',
+  synonyms: '',
+  definition:
+    'The largest dimension (outer edge to outer edge) of an observation, measured in millimeters.',
+  question: '',
+  version: {
+    name: '',
+    version_date: '09/02/2016',
+    status_date: '09/02/2016',
+    status: 'Proposed',
+  },
+  index_codes: [],
+  authors: {
+    person: [],
+    organization: [],
+  },
+  history: [],
+  specialty: [],
+  references: [],
+  source: '',
+  integer_values: {
+    cardinality: {
+      min_cardinality: 1,
+      max_cardinality: 1,
+    },
+    value_min_max: {
+      value_min: 0,
+      value_max: 999,
+    },
+    step_value: 1,
+    unit: 'mm',
+    value_type: 'integer',
+    value_size: 0,
+    values: [],
+  },
+};
+
+describe('integer element data', () => {
+  it('should parse cdElement JSON for Integer type', () => {
+    const parsed = integerElementSchema.safeParse(integerElementJson);
+    if (!parsed.success) throw new Error('Failed to parse integerElementJson');
+    if (!isIntegerElementData(parsed.data))
+      throw new Error('parsed integerElementJson is not IntegerElementData');
+    const integerElementData: IntegerElementData = parsed.data;
+    expect(integerElementData).toHaveProperty('id', 'RDE81');
+    expect(integerElementData).toHaveProperty('integer_values');
+    expect(integerElementData.integer_values).toHaveProperty('unit');
+    expect(integerElementData.integer_values).toHaveProperty('step_value');
+    expect(integerElementData.integer_values).toHaveProperty('value_min_max');
+  });
+});
+
+//HERE change rest to integer vs boolean.
+
+describe('IntegerElement', () => {
+  it('should create a IntegerElement object from JSON', () => {
+    const integerElementData = elementSchema.parse(integerElementJson);
+    if (!isIntegerElementData(integerElementData))
+      throw new Error('parsed integerElementJson is not integerElementData');
+    const integerElement = new IntegerElement(integerElementData);
+    expect(integerElement).toBeInstanceOf(IntegerElement);
+    expect(integerElement.integerValues).toHaveProperty('step_value', 1);
+    expect(integerElement.integerValues).toHaveProperty('unit', 'mm');
+    expect(integerElement.integerValues.value_min_max).toHaveProperty(
+      'value_max',
+      999
+    );
+    expect(integerElement.integerValues.value_min_max).toHaveProperty(
+      'value_min',
+      0
+    );
+    expect(integerElement).not.toHaveProperty('boolean_values');
+  });
+
+  it('should create a IntegerElement object from IntegerData using the factory', () => {
+    const elementData = elementSchema.parse(integerElementJson);
+    const integerElement = CdElementFactory.create(elementData);
+    expect(integerElement).toBeInstanceOf(IntegerElement);
+    expect(integerElement.elementType).toBe('integer');
+    expect(integerElement).toHaveProperty('id', 'RDE81');
+    if (integerElement instanceof IntegerElement) {
+      expect(integerElement.integerValues).toHaveProperty('step_value', 1);
+      expect(integerElement.integerValues).toHaveProperty('unit', 'mm');
+      expect(integerElement.integerValues.value_min_max).toHaveProperty(
+        'value_max',
+        999
+      );
+      expect(integerElement.integerValues.value_min_max).toHaveProperty(
+        'value_min',
+        0
+      );
+      expect(integerElement).not.toHaveProperty('float_values');
+    }
+  });
+
+  it('should create a IntegerElement object from JSON using the factory', () => {
+    const integerElement = CdElementFactory.createFromJson(integerElementJson);
+    expect(integerElement).toBeInstanceOf(IntegerElement);
+    const integerElement2 = CdElementFactory.createFromJson(
+      JSON.stringify(integerElementJson)
+    );
+    expect(integerElement).toBeInstanceOf(IntegerElement);
+    expect(integerElement2).toBeInstanceOf(IntegerElement);
+  });
+
+  const floatElementJson: FloatElementData = {
+    id: 'RDE31',
+    parent_id: 1,
+    name: 'Gunshot wound caliber number',
+    short_name: '',
+    editor: 'cek',
+    instructions: '',
+    synonyms: '',
+    definition: '',
+    question: '',
+    version: {
+      name: '3.0',
+      version_date: '01/13/2016',
+      status_date: '01/13/2016',
+      status: 'Published',
+    },
+    index_codes: [
+      {
+        system: 'SNOMEDCT',
+        code: '56768003',
+        display: 'gunshot wound',
+        href: 'http://purl.bioontology.org/ontology/SNOMEDCT/56768003',
+      },
+      {
+        system: 'SNOMEDCT',
+        code: '283545005',
+        display: 'gunshot wound',
+        href: 'http://purl.bioontology.org/ontology/SNOMEDCT/283545005',
+      },
+      {
+        system: 'LOINC',
+        code: 'LA17212-4',
+        display: 'gunshot wound',
+        href: 'http://purl.bioontology.org/ontology/LNC/LA17212-4',
+      },
+      {
+        system: 'SNOMEDCT',
+        code: '102343009',
+        display: 'bullet caliber',
+        href: 'http://purl.bioontology.org/ontology/SNOMEDCT/102343009',
+      },
+    ],
+    authors: {
+      person: [],
+      organization: [],
+    },
+    history: [],
+    specialty: [],
+    references: [],
+    source: '',
+    float_values: {
+      cardinality: {
+        min_cardinality: 1,
+        max_cardinality: 1,
+      },
+      value_min_max: {
+        value_min: 0.17,
+        value_max: 0.5,
+      },
+      step_value: null,
+      unit: '',
+      value_type: 'float',
+      value_size: 0,
+      values: [],
+    },
+  };
+
+  describe('float element data', () => {
+    it('should parse cdElement JSON for float type', () => {
+      const parsed = floatElementSchema.safeParse(floatElementJson);
+      if (!parsed.success) throw new Error('Failed to parse floatElementJson');
+      if (!isFloatElementData(parsed.data))
+        throw new Error('parsed floatElementJson is not FloatElementData');
+      const floatElementData: FloatElementData = parsed.data;
+      expect(floatElementData).toHaveProperty('id', 'RDE31');
+      expect(floatElementData).toHaveProperty('float_values');
+      expect(floatElementData.float_values).toHaveProperty('unit');
+      expect(floatElementData.float_values).toHaveProperty('step_value');
+      expect(floatElementData.float_values).toHaveProperty('value_min_max');
+    });
+  });
+
+  describe('FloatElement', () => {
+    it('should create a FloatElement object from JSON', () => {
+      const floatElementData = elementSchema.parse(floatElementJson);
+      if (!isFloatElementData(floatElementData))
+        throw new Error('parsed floatElementJson is not floatElementData');
+      const floatElement = new FloatElement(floatElementData);
+      expect(floatElement).toBeInstanceOf(FloatElement);
+      expect(floatElement.floatValues).toHaveProperty('step_value', null);
+      expect(floatElement.floatValues).toHaveProperty('unit', '');
+      expect(floatElement.floatValues.value_min_max).toHaveProperty(
+        'value_max',
+        0.5
+      );
+      expect(floatElement.floatValues.value_min_max).toHaveProperty(
+        'value_min',
+        0.17
+      );
+      expect(floatElement).not.toHaveProperty('boolean_values');
+    });
+
+    it('should create a FloatElement object from FloatData using the factory', () => {
+      const elementData = elementSchema.parse(floatElementJson);
+      const floatElement = CdElementFactory.create(elementData);
+      expect(floatElement).toBeInstanceOf(FloatElement);
+      expect(floatElement.elementType).toBe('float');
+      expect(floatElement).toHaveProperty('id', 'RDE31');
+      if (floatElement instanceof FloatElement) {
+        expect(floatElement.floatValues).toHaveProperty('step_value', null);
+        expect(floatElement.floatValues).toHaveProperty('unit', '');
+        expect(floatElement.floatValues.value_min_max).toHaveProperty(
+          'value_max',
+          0.5
+        );
+        expect(floatElement.floatValues.value_min_max).toHaveProperty(
+          'value_min',
+          0.17
+        );
+        expect(floatElement).not.toHaveProperty('integer_values');
+      }
+    });
+
+    it('should create a FloatElement object from JSON using the factory', () => {
+      const floatElement = CdElementFactory.createFromJson(floatElementJson);
+      expect(floatElement).toBeInstanceOf(FloatElement);
+      const floatElement2 = CdElementFactory.createFromJson(
+        JSON.stringify(floatElementJson)
+      );
+      expect(floatElement).toBeInstanceOf(FloatElement);
+      expect(floatElement2).toBeInstanceOf(FloatElement);
+    });
   });
 });
