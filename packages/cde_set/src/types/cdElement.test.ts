@@ -458,6 +458,9 @@ describe('IntegerElement', () => {
       );
       expect(floatElement).toBeInstanceOf(FloatElement);
       expect(floatElement2).toBeInstanceOf(FloatElement);
+      expect(floatElement2).toHaveProperty('id', 'RDE31');
+      expect(floatElement).toHaveProperty('floatValues');
+      expect(floatElement2).toHaveProperty('floatValues');
     });
   });
 });

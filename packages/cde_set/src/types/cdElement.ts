@@ -105,7 +105,7 @@ export type ElementData = z.infer<typeof elementSchema>;
 
 type ElementType = 'float' | 'valueSet' | 'integer' | 'boolean';
 
-export class CdElement<T extends ElementData = ElementData> {
+export abstract class CdElement<T extends ElementData = ElementData> {
   protected _data: T;
 
   protected _indexCodes;
