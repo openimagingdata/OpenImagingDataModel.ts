@@ -21,7 +21,7 @@ import {
 const idPattern = /^rdes\d{1,2}$/;
 
 export const cdeSetSchema = z.object({
-  id: z.string().regex(idPattern, 'Invalid id format'), // TODO: add format validation
+  id: z.string().regex(idPattern, 'Invalid id format'),
   name: z.string().length(5),
   description: z.string().length(10),
   version: versionSchema,
@@ -33,7 +33,6 @@ export const cdeSetSchema = z.object({
   specialty: z.array(specialtySchema),
   references: z.array(referenceSchema),
   elements: z.array(elementSchema),
-  // TODO: add elements schema - and have multiple schemas for the four different types of elements
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;
@@ -44,8 +43,6 @@ export class CdeSet {
   private _index_codes: IndexCode[] = [];
   private _body_parts: BodyPart[] = [];
 
-  // TODO: add elements
-  // private _elements: FloatElement[]; --Should only need ElementData as it was created from union of the 4 types
   private _elements: CdElement[] = [];
 
   constructor(inData: CdeSetData) {
@@ -69,16 +66,13 @@ export class CdeSet {
     this._data.body_parts.forEach((bodyPartData) => {
       this._body_parts.push(new BodyPart(bodyPartData));
     });
-    // TODO: add elements --- I dont think we need each subtype because of the factory.
-    // this._elements = this._data.elements.map((elementData) => {
-    //   return new FloatElement(elementData);
-    // });
+
+    //load elements
     this._data.elements.forEach((elementData) => {
       this._elements.push(CdElementFactory.create(elementData));
     });
   }
 
-  //use spread syntax only on iterables, not primative datatypes.
   get id() {
     return this._data.id;
   }
