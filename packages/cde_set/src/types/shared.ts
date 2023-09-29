@@ -62,12 +62,13 @@ export const eventSchema = z.object({
 
 export const personSchema = z.object({
   name: z.string(),
-  orcid_id: z.string().optional(),
-  twitter_handle: z.string().optional(),
-  url: z.string().optional(),
+  orcid_id: z.string().optional().nullable(),
+  twitter_handle: z.string().optional().nullable(),
+  url: z.string().optional().nullable(),
   role: z
     .enum(['author', 'editor', 'translator', 'reviewer', 'contributor'])
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 export const organizationSchema = z.object({
