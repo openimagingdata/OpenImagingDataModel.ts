@@ -57,12 +57,18 @@ export const valueSetElementSchema = baseElementSchema.extend({
 export const floatElementSchema = baseElementSchema.extend({
   float_values: z.object({
     value_type: z.literal('float'),
+    cardinality: z.object({
+      min_cardinality: z.number(),
+      max_cardinality: z.number(),
+    }),
     value_min_max: z.object({
       value_min: z.number().optional().nullable(),
       value_max: z.number().optional().nullable(),
     }),
     step_value: z.number().optional().nullable(),
     unit: z.string(),
+    value_size: z.number(),
+    values: z.array(z.string()).optional().nullable(),
   }),
 });
 
