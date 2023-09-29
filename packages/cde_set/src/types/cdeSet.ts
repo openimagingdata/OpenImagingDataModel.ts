@@ -16,11 +16,11 @@ import {
 const idPattern = /^rdes\d{1,3}$/i;
 
 export const cdeSetSchema = z.object({
-  id: z.string().regex(idPattern, { message: 'Must be a valid RDES ID' }),
+  id: z.string().regex(idPattern, { message: 'Must be a valid ID' }),
   name: z.string().max(50, { message: 'Must be 50 or fewer characters long' }),
   description: z
     .string()
-    .max(5, { message: 'Must be 50 or fewer characters long' }),
+    .max(50, { message: 'Must be 50 or fewer characters long' }),
   version: versionSchema,
   url: z.string().url(),
   index_codes: z.array(indexCodeSchema),
@@ -50,7 +50,7 @@ export class CdeSet {
       this._authors.push(new Person(personData));
     });
 
-    inData.authors.organization.forEach((organizationData) => {
+    inData.authors.organization?.forEach((organizationData) => {
       this._authors.push(new Organization(organizationData));
     });
 

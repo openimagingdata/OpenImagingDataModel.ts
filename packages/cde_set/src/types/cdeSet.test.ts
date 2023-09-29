@@ -162,7 +162,8 @@ const cdeSetJson: CdeSetData = {
 describe('cdeSet', () => {
   it('should parse cdeSet JSON', () => {
     const parsed = cdeSetSchema.safeParse(cdeSetJson);
-    if (!parsed.success) throw new Error('Failed to parse cdeSetJson');
+    if (!parsed.success) throw new Error(parsed.error.message);
+    //add error information
     const cdeSetData: CdeSetData = parsed.data;
     expect(cdeSetData).toHaveProperty('id', 'RDES231');
     expect(cdeSetData).toHaveProperty('name', 'Acute Clavicle Fracture');

@@ -70,7 +70,7 @@ export const floatElementSchema = baseElementSchema.extend({
     step_value: z.number().optional().nullable(),
     unit: z.string(),
     value_size: z.number(),
-    values: z.array(z.string()).optional().nullable(),
+    values: z.tuple([]).optional().nullable(),
   }),
 });
 
@@ -86,7 +86,10 @@ export const integerElementSchema = baseElementSchema.extend({
       value_max: z.number().optional().nullable(),
     }),
     step_value: z.number().optional(),
-    unit: z.string(),
+    unit: z.string().optional(),
+    value_size: z.number().optional(),
+    //values: z.array(),
+    values: z.tuple([]).optional().nullable(),
   }),
 });
 
@@ -104,7 +107,7 @@ export const booleanElementSchema = baseElementSchema.extend({
     unit: z.string(),
     value_type: z.literal('boolean'),
     value_size: z.number(),
-    values: z.array(z.string()).optional().nullable(), //TODO: need to fix this
+    values: z.tuple([]).optional().nullable(),
   }),
 });
 
