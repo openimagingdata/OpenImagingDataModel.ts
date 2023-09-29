@@ -39,18 +39,20 @@ export const valueSetValueSchema = z.object({
 export const valueSetElementSchema = baseElementSchema.extend({
   value_set: z.object({
     value_type: z.literal('valueSet'),
-    value_min_max: z.object({
-      value_min: z.number().optional().nullable(),
-      value_max: z.number().optional().nullable(),
-    }),
     cardinality: z.object({
       min_cardinality: z.number(),
       max_cardinality: z.number(),
     }),
+    value_min_max: z
+      .object({
+        value_min: z.number().optional().nullable(),
+        value_max: z.number().optional().nullable(),
+      })
+      .optional(),
     values: z.array(valueSetValueSchema),
     step_value: z.number().optional().nullable(),
-    unit: z.string(),
-    value_size: z.number(),
+    unit: z.string().optional(),
+    value_size: z.number().optional(),
   }),
 });
 

@@ -7,9 +7,11 @@ const datePattern = /^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/;
 export const versionSchema = z.object({
   name: z.string(),
   version_date: z.string().regex(datePattern),
+  status_date: z.string().regex(datePattern),
   status: statusField,
 });
 
+//TODO: Is this redundant delete?
 export const versionElementSchema = z.object({
   name: z.string(),
   version_date: z.string().regex(datePattern),

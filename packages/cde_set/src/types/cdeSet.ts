@@ -22,8 +22,8 @@ const idPattern = /^rdes\d{1,2}$/;
 
 export const cdeSetSchema = z.object({
   id: z.string().regex(idPattern, 'Invalid id format'),
-  name: z.string().length(5),
-  description: z.string().length(10),
+  name: z.string().length(50),
+  description: z.string().length(50),
   version: versionSchema,
   url: z.string().url(),
   index_codes: z.array(indexCodeSchema),
@@ -31,8 +31,8 @@ export const cdeSetSchema = z.object({
   authors: authorSchema,
   history: z.array(eventSchema),
   specialty: z.array(specialtySchema),
-  references: z.array(referenceSchema),
   elements: z.array(elementSchema),
+  references: z.array(referenceSchema),
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;
