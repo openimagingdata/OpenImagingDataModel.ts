@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { IndexCode, indexCodeSchema } from './indexCode';
 import {
   authorSchema,
-  versionElementSchema,
+  versionSchema,
   eventSchema,
   specialtySchema,
   referenceSchema,
@@ -19,7 +19,7 @@ export const baseElementSchema = z.object({
   synonyms: z.string().optional(), // TODO: Looks like this is a string, should change to array of strings
   definition: z.string().optional(),
   question: z.string().optional(),
-  version: versionElementSchema,
+  version: versionSchema,
   index_codes: z.array(indexCodeSchema).optional(),
   authors: authorSchema.optional(),
   history: z.array(eventSchema).optional(),

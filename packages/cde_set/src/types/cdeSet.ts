@@ -1,12 +1,7 @@
 import { z } from 'zod';
 
 import { bodyPartSchema, BodyPart } from './bodyPart';
-import {
-  elementSchema,
-  ElementData,
-  CdElement,
-  CdElementFactory,
-} from './cdElement';
+import { elementSchema, CdElement, CdElementFactory } from './cdElement';
 import { indexCodeSchema, IndexCode } from './indexCode';
 import {
   specialtySchema,
@@ -18,12 +13,14 @@ import {
   referenceSchema,
 } from './shared';
 
-const idPattern = /^rdes\d{1,2}$/;
+const idPattern = /^rdes\d{1,3}$/i;
 
 export const cdeSetSchema = z.object({
-  id: z.string().regex(idPattern, 'Invalid id format'),
-  name: z.string().length(50),
-  description: z.string().length(50),
+  id: z.string().regex(idPattern, { message: 'Must be a valid RDES ID' }),
+  name: z.string().max(50, { message: 'Must be 50 or fewer characters long' }),
+  description: z
+    .string()
+    .max(5, { message: 'Must be 50 or fewer characters long' }),
   version: versionSchema,
   url: z.string().url(),
   index_codes: z.array(indexCodeSchema),

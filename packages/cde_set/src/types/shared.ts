@@ -11,14 +11,6 @@ export const versionSchema = z.object({
   status: statusField,
 });
 
-//TODO: Is this redundant delete?
-export const versionElementSchema = z.object({
-  name: z.string(),
-  version_date: z.string().regex(datePattern),
-  status_date: z.string().regex(datePattern),
-  status: statusField,
-});
-
 export const specialtySchema = z.object({
   name: z.string(),
   abbreviation: z.enum([
@@ -85,7 +77,7 @@ export const organizationSchema = z.object({
 
 export const authorSchema = z.object({
   person: z.array(personSchema),
-  organization: z.array(organizationSchema),
+  organization: z.array(organizationSchema).optional(),
 });
 
 export const referenceSchema = z.object({
