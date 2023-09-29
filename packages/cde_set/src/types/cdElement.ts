@@ -62,6 +62,10 @@ export const floatElementSchema = baseElementSchema.extend({
 export const integerElementSchema = baseElementSchema.extend({
   integer_values: z.object({
     value_type: z.literal('integer'),
+    cardinality: z.object({
+      min_cardinality: z.number(),
+      max_cardinality: z.number(),
+    }),
     value_min_max: z.object({
       value_min: z.number().optional(),
       value_max: z.number().optional(),
@@ -216,6 +220,10 @@ export class IntegerElement extends CdElement<IntegerElementData> {
 
   get integerValues() {
     return this._data.integer_values;
+  }
+
+  get cardinality() {
+    return this._data.integer_values.cardinality;
   }
 
   get min() {
