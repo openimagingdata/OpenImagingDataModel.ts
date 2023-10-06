@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 
-import { CdeSetData, cdeSetSchema } from './cdeSet';
+import { CdeSetData, cdeSetSchema, CdeSet } from './cdeSet';
+
+import { Organization, Person } from './shared';
 
 const cdeSetJson: CdeSetData = {
   id: 'RDES231',
@@ -13,7 +15,14 @@ const cdeSetJson: CdeSetData = {
     status: 'Proposed',
   },
   url: 'https://api3.rsna.org/radelement/public/sets/231',
-  index_codes: [],
+  index_codes: [
+    {
+      system: 'RADLEX',
+      code: 'RID6434',
+      display: 'Brain',
+      href: 'http://www.radlex.org/RID/RID6434',
+    },
+  ],
   body_parts: [],
   authors: {
     person: [
@@ -163,9 +172,57 @@ describe('cdeSet', () => {
   it('should parse cdeSet JSON', () => {
     const parsed = cdeSetSchema.safeParse(cdeSetJson);
     if (!parsed.success) throw new Error(parsed.error.message);
-    //add error information
     const cdeSetData: CdeSetData = parsed.data;
     expect(cdeSetData).toHaveProperty('id', 'RDES231');
     expect(cdeSetData).toHaveProperty('name', 'Acute Clavicle Fracture');
+    expect(cdeSetData).toHaveProperty('body_parts');
+    expect(cdeSetData).toHaveProperty('index_codes');
+    expect(cdeSetData.elements).toHaveLength(2);
+    expect(cdeSetData.elements[0]).toHaveProperty('index_codes');
+  });
+
+  it('should create isntance of CdeSet class', () => {
+    const parsed = cdeSetSchema.safeParse(cdeSetJson);
+    if (!parsed.success) throw new Error(parsed.error.message);
+    const cdeSetData: CdeSetData = parsed.data;
+    const cdeSet = new CdeSet(cdeSetData);
+    expect(cdeSet).toHaveProperty('id', 'RDES231');
+    expect(cdeSet).toHaveProperty('specialty');
+    expect(cdeSet).toHaveProperty('name', 'Acute Clavicle Fracture');
+    expect(cdeSet).toHaveProperty('authors');
+    expect(cdeSet).toHaveProperty('_index_codes');
+    expect(typeof cdeSet.specialty).toBe('object');
+    expect(cdeSet.version).toHaveProperty('version_date', '01/01/0001');
+    expect(cdeSet.authors[0]).toBeInstanceOf(Person);
+    expect(cdeSet.authors).toHaveLength(1);
+  });
+
+  it('Should appropriately load elements', () => {
+    const parsed = cdeSetSchema.safeParse(cdeSetJson);
+    if (!parsed.success) throw new Error(parsed.error.message);
+    const cdeSetData: CdeSetData = parsed.data;
+    const cdeSet = new CdeSet(cdeSetData);
+    expect(cdeSet.elements).toHaveLength(2);
+    expect(cdeSet.elements[0]).toHaveProperty('index_codes');
+    expect(cdeSet.elements[0]).toHaveProperty('version');
+    expect(cdeSet.elements[0]).toHaveProperty('id', 'RDE1474');
+    expect(cdeSet.elements[1]).toHaveProperty('id', 'RDE1475');
+    expect(cdeSet.elements[1]).toHaveProperty('value_set');
+  });
+
+  //Load index codes
+  it('Should appropriately load index_codes', () => {
+    const parsed = cdeSetSchema.safeParse(cdeSetJson);
+    if (!parsed.success) throw new Error(parsed.error.message);
+    const cdeSetData: CdeSetData = parsed.data;
+    const cdeSet = new CdeSet(cdeSetData);
+    expect(cdeSet.indexCodes).toHaveLength(1);
+    expect(cdeSet.indexCodes[0]).toHaveProperty('system', 'RADLEX');
+    expect(cdeSet.indexCodes[0]).toHaveProperty('code', 'RID6434');
+    expect(cdeSet.indexCodes[0]).toHaveProperty('display', 'Brain');
+    expect(cdeSet.indexCodes[0]).toHaveProperty(
+      'href',
+      'http://www.radlex.org/RID/RID6434'
+    );
   });
 });

@@ -11,6 +11,7 @@ import {
   Person,
   authorSchema,
   referenceSchema,
+  //Specialty, //TODO: create specialty class in shared
 } from './shared';
 
 const idPattern = /^rdes\d{1,3}$/i;
@@ -36,16 +37,16 @@ export type CdeSetData = z.infer<typeof cdeSetSchema>;
 
 export class CdeSet {
   private _data: CdeSetData;
-  private _authors: (Person | Organization)[] = []; // Note: not an array in schema/JSON, just an object
+  private _authors: (Person | Organization)[] = [];
   private _index_codes: IndexCode[] = [];
   private _body_parts: BodyPart[] = [];
+  //private _specialty: Specialty[] = [];
 
   private _elements: CdElement[] = [];
 
   constructor(inData: CdeSetData) {
     this._data = { ...inData };
 
-    // Load authors
     inData.authors.person.forEach((personData) => {
       this._authors.push(new Person(personData));
     });
@@ -59,12 +60,6 @@ export class CdeSet {
       this._index_codes.push(new IndexCode(indexCodeData));
     });
 
-    //load body parts
-    this._data.body_parts.forEach((bodyPartData) => {
-      this._body_parts.push(new BodyPart(bodyPartData));
-    });
-
-    //load elements
     this._data.elements.forEach((elementData) => {
       this._elements.push(CdElementFactory.create(elementData));
     });

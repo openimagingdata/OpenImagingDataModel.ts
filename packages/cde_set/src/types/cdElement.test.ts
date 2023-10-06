@@ -106,6 +106,7 @@ describe('ValueSetElement', () => {
       expect(valueSetElement.values).toHaveLength(5);
       expect(valueSetElement).toHaveProperty('cardinality');
       expect(valueSetElement).not.toHaveProperty('value_size');
+      expect(valueSetElement).not.toHaveProperty('index_codes');
     }
   });
 
