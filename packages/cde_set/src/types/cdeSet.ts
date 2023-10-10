@@ -21,7 +21,7 @@ export const cdeSetSchema = z.object({
   name: z.string().max(50, { message: 'Must be 50 or fewer characters long' }),
   description: z
     .string()
-    .max(50, { message: 'Must be 50 or fewer characters long' }),
+    .max(100, { message: 'Must be 100 or fewer characters long' }),
   version: versionSchema,
   url: z.string().url(),
   index_codes: z.array(indexCodeSchema),
