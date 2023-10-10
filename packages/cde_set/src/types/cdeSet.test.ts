@@ -434,4 +434,12 @@ describe('cdeSet', () => {
     const cdeSet = new CdeSet(cdeSetData);
     expect(cdeSet).toHaveProperty('id', 'RDES112');
   });
+
+  it('should create isntance of CdeSet class from ribFractureJson data', () => {
+    const parsed = cdeSetSchema.safeParse(ribFractureJson);
+    if (!parsed.success) throw new Error(parsed.error.message);
+    const cdeSetData: CdeSetData = parsed.data;
+    const cdeSet = new CdeSet(cdeSetData);
+    expect(cdeSet).toHaveProperty('id', 'RDES112');
+  });
 });
