@@ -435,19 +435,22 @@ describe('cdeSet', () => {
     expect(cdeSet).toHaveProperty('id', 'RDES112');
   });
 
-  it('should create isntance of CdeSet class from ribFractureJson data', () => {
+  it('should create instance of CdeSet class from ribFractureJson data', () => {
     const parsed = cdeSetSchema.safeParse(ribFractureJson);
     if (!parsed.success) throw new Error(parsed.error.message);
     const cdeSetData: CdeSetData = parsed.data;
     const cdeSet = new CdeSet(cdeSetData);
     expect(cdeSet).toHaveProperty('id', 'RDES112');
   });
-
-  it('Should appropriately load cdeSets using the fetchCdeSet method', () => {
-    (async () => {
-      const rdesId = '94';
-      const cdeSet = await CdeSet.fetchCdeSet(rdesId);
-      expect(cdeSet).toHaveProperty('id', 'RDES94');
-    })();
+  it('Should appropriately load cdeSets using the fetchCdeSet method', async () => {
+    const rdesId = '94';
+    const cdeSet = await CdeSet.fetchCdeSet(rdesId);
+    expect(cdeSet).toBeInstanceOf(CdeSet);
+    expect(cdeSet).toHaveProperty('id', 'RDES94');
+    expect(cdeSet).toHaveProperty(
+      'name',
+      'Incidental Pulmonary Nodules on Chest Radiographs'
+    );
+    expect(cdeSet?.elements).toHaveLength(6);
   });
 });

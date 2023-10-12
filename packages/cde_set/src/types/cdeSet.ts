@@ -71,12 +71,19 @@ export class CdeSet {
     try {
       const response = await fetch(radElementAPI);
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`HTTP error: ${response.status}`);
       }
       const elements = await response.json();
-      console.log(elements);
+      console.log(elements.data);
+      const parsed = cdeSetSchema.safeParse(elements.data);
+      if (!parsed.success) throw new Error(parsed.error.message);
+      const cdeSetData: CdeSetData = parsed.data;
+      console.log(cdeSetData);
+      const cdeSetInstance = new CdeSet(cdeSetData);
+      return cdeSetInstance;
     } catch (error) {
       console.error('Error:', error);
+      return null;
     }
   }
 

@@ -8,7 +8,7 @@ const rl = readline.createInterface({
 rl.question('Enter rdes ID number (number only): ', (rdesId) => {
   const radElementAPI = `https://api3.rsna.org/radelement/v1/sets/${rdesId}`;
 
-  async function logElement() {
+  async function fetchElement() {
     try {
       const response = await fetch(radElementAPI);
       if (!response.ok) {
@@ -23,7 +23,7 @@ rl.question('Enter rdes ID number (number only): ', (rdesId) => {
     }
   }
 
-  logElement();
+  //fetchElement();
 
   rl.close();
 });
