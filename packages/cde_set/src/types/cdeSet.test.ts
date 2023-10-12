@@ -442,4 +442,12 @@ describe('cdeSet', () => {
     const cdeSet = new CdeSet(cdeSetData);
     expect(cdeSet).toHaveProperty('id', 'RDES112');
   });
+
+  it('Should appropriately load cdeSets using the fetchCdeSet method', () => {
+    (async () => {
+      const rdesId = '94';
+      const cdeSet = await CdeSet.fetchCdeSet(rdesId);
+      expect(cdeSet).toHaveProperty('id', 'RDES94');
+    })();
+  });
 });

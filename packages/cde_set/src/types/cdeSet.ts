@@ -65,6 +65,21 @@ export class CdeSet {
     });
   }
 
+  static async fetchCdeSet(rdesId: string) {
+    const radElementAPI = `https://api3.rsna.org/radelement/v1/sets/${rdesId}`;
+
+    try {
+      const response = await fetch(radElementAPI);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const elements = await response.json();
+      console.log(elements);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
   get id() {
     return this._data.id;
   }
