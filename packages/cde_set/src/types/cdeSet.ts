@@ -73,9 +73,9 @@ export class CdeSet {
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
       }
-      const elements = await response.json();
-      console.log(elements.data);
-      const parsed = cdeSetSchema.safeParse(elements.data);
+      const jsonData = await response.json();
+      console.log(jsonData.data);
+      const parsed = cdeSetSchema.safeParse(jsonData.data);
       if (!parsed.success) throw new Error(parsed.error.message);
       const cdeSetData: CdeSetData = parsed.data;
       console.log(cdeSetData);
