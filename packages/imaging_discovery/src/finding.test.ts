@@ -106,4 +106,5 @@ describe('finding', () => {
   expect(finding).toHaveProperty('name', 'calcified pulmonary granuloma');
   console.log(finding.attributes);
   expect(finding.attributes[0]).toHaveProperty('name', 'size');
+  //TODO: Need to continue to test attributes and add getters to the two different subclasses.
 });
