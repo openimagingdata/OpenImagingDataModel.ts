@@ -50,7 +50,6 @@ export class CdeSet {
     inData.authors.person.forEach((personData) => {
       this._authors.push(new Person(personData));
     });
-
     inData.authors.organization?.forEach((organizationData) => {
       this._authors.push(new Organization(organizationData));
     });
@@ -65,7 +64,7 @@ export class CdeSet {
     });
   }
 
-  static async fetchCdeSet(rdesId: string) {
+  static async fetchFromRepo(rdesId: string): Promise<CdeSet | null> {
     const radElementAPI = `https://api3.rsna.org/radelement/v1/sets/${rdesId}`;
 
     try {

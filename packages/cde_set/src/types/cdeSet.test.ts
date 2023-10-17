@@ -1,7 +1,5 @@
 import { describe, it, expect } from 'vitest';
 
-import fs from 'fs';
-
 import { CdeSetData, cdeSetSchema, CdeSet } from './cdeSet';
 
 import { Person } from './shared';
@@ -444,7 +442,7 @@ describe('cdeSet', () => {
   });
   it('Should appropriately load cdeSets using the fetchCdeSet method', async () => {
     const rdesId = '94';
-    const cdeSet = await CdeSet.fetchCdeSet(rdesId);
+    const cdeSet = await CdeSet.fetchFromRepo(rdesId);
     expect(cdeSet).toBeInstanceOf(CdeSet);
     expect(cdeSet).toHaveProperty('id', 'RDES94');
     expect(cdeSet).toHaveProperty(
