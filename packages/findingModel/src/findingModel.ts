@@ -3,47 +3,52 @@ import { z } from 'zod';
 //Schemas
 export const valuesSchema = z.object({
   name: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
 });
+
+const typeSchema = z.union([z.literal('choice'), z.literal('numeric')]);
 
 export const baseAttributesSchema = z.object({
-  name: z.enum(['size', 'location', 'consistency', 'change']),
-  description: z.string(),
-  type: z.enum(['choice', 'numeric']), //TODO: Other options?
+  name: z.string(),
+  description: z.string().optional(),
+  type: typeSchema,
 });
 
-export const sizeAttributesSchema = baseAttributesSchema.extend({
+export const numericAttributesSchema = baseAttributesSchema.extend({
   minimum: z.number(), //TODO: Nullable?
   maximum: z.number().nullable(),
 });
 
-export const qualitativeAttributesSchema = baseAttributesSchema.extend({
+export const choiceAttributesSchema = baseAttributesSchema.extend({
   values: z.array(valuesSchema),
 });
 
 export const attributesSchema = z.union([
-  sizeAttributesSchema,
-  qualitativeAttributesSchema,
+  numericAttributesSchema,
+  choiceAttributesSchema,
 ]);
+
+/*
+export const attributesSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('numeric') }),
+  z.object({ type: z.literal('choice') }),
+]); */
 
 export const findingSchema = z.object({
   name: z.string().max(75),
-  description: z.string().max(500),
+  description: z.string().max(500).optional(),
   attributes: z.array(attributesSchema), //TODO: array of attributes
 });
 
 //Types
 export type BaseAttributesData = z.infer<typeof baseAttributesSchema>;
 export type ValuesData = z.infer<typeof valuesSchema>;
-export type SizeAttributesData = z.infer<typeof sizeAttributesSchema>;
-export type QualitativeAttributesData = z.infer<
-  typeof qualitativeAttributesSchema
->;
+export type NumericAttributesData = z.infer<typeof numericAttributesSchema>;
+export type ChoiceAttributesData = z.infer<typeof choiceAttributesSchema>;
 export type AttributesData = z.infer<typeof attributesSchema>;
 export type FindingData = z.infer<typeof findingSchema>;
 
 //classes
-
 export abstract class Attributes<
   T extends BaseAttributesData = BaseAttributesData
 > {
@@ -66,7 +71,7 @@ export abstract class Attributes<
   }
 }
 
-export class QualitativeAttributes extends Attributes<QualitativeAttributesData> {
+export class ChoiceAttribute extends Attributes<ChoiceAttributesData> {
   get values() {
     return this._data.values;
     //return this._data.values[0].name;
@@ -74,7 +79,7 @@ export class QualitativeAttributes extends Attributes<QualitativeAttributesData>
   }
 }
 
-export class SizeAttributes extends Attributes<SizeAttributesData> {
+export class NumericAttribute extends Attributes<NumericAttributesData> {
   get minimum() {
     return this._data.minimum;
   }
@@ -84,23 +89,19 @@ export class SizeAttributes extends Attributes<SizeAttributesData> {
   }
 }
 
-export function isSizeAttribute(
+export function isNumericAttribute(
   attributeData: AttributesData
-): attributeData is SizeAttributesData {
-  return 'minimum' in attributeData && attributeData.name === 'size';
+): attributeData is NumericAttributesData {
+  return 'type' in attributeData && attributeData.type === 'numeric';
 }
 
-export function isQualitativeAttribute(
+export function isChoiceAttribute(
   attributeData: AttributesData
-): attributeData is QualitativeAttributesData {
-  return (
-    ('values' in attributeData && attributeData.name === 'location') ||
-    attributeData.name === 'consistency' ||
-    attributeData.name === 'change'
-  );
+): attributeData is ChoiceAttributesData {
+  return 'type' in attributeData && attributeData.type === 'choice';
 }
 
-export class Finding {
+export class FindingModel {
   private _data: FindingData;
   private _attributes: AttributesData[] = [];
 
@@ -108,10 +109,10 @@ export class Finding {
     this._data = { ...inData };
 
     this._data.attributes.forEach((attributeData) => {
-      if (isSizeAttribute(attributeData)) {
-        this._attributes.push(new SizeAttributes(attributeData));
-      } else if (isQualitativeAttribute(attributeData)) {
-        this._attributes.push(new QualitativeAttributes(attributeData));
+      if (isNumericAttribute(attributeData)) {
+        this._attributes.push(new NumericAttribute(attributeData));
+      } else if (isChoiceAttribute(attributeData)) {
+        this._attributes.push(new ChoiceAttribute(attributeData));
       }
     });
   }
@@ -127,3 +128,5 @@ export class Finding {
     return this._attributes;
   }
 }
+
+//TODO: need to indentify attribute tpye based on type field.

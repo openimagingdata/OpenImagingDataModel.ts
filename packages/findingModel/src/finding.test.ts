@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { Finding, FindingData, findingSchema } from './finding';
+import { FindingModel, FindingData, findingSchema } from './findingModel';
 
 const findingJson: FindingData = {
   name: 'calcified pulmonary granuloma',
@@ -101,7 +101,7 @@ describe('finding', () => {
   const parsed = findingSchema.safeParse(findingJson);
   if (!parsed.success) throw new Error(parsed.error.message);
   const findingData: FindingData = parsed.data;
-  const finding = new Finding(findingData);
+  const finding = new FindingModel(findingData);
   //console.log(findingData);
   expect(finding).toHaveProperty('name', 'calcified pulmonary granuloma');
   console.log(finding.attributes);
