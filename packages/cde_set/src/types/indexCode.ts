@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
 export const indexCodeSchema = z.object({
-  system: z.string(),
+  system: z.enum(['RADLEX', 'SNOMEDCT', 'LOINC']),
   code: z.string(),
   display: z.string().optional(),
-  href: z.string().optional(),
+  href: z.string().url().optional(),
 });
 
 export type IndexCodeData = z.infer<typeof indexCodeSchema>;

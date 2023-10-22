@@ -1,35 +1,89 @@
 import { z } from 'zod';
 
-import { bodyPartSchema } from './bodyPart';
-import { floatElementSchema, valueSetElementSchema } from './cdElement';
-import { indexCodeSchema } from './indexCode';
+import { bodyPartSchema, BodyPart } from './bodyPart';
+import { elementSchema, CdElement, CdElementFactory } from './cdElement';
+import { indexCodeSchema, IndexCode } from './indexCode';
+import {
+  specialtySchema,
+  versionSchema,
+  eventSchema,
+  Organization,
+  Person,
+  authorSchema,
+  referenceSchema,
+  //Specialty, //TODO: create specialty class in shared
+} from './shared';
+
+const idPattern = /^rdes\d{1,3}$/i;
 
 export const cdeSetSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  index_codes: z.array(indexCodeSchema), // TODO: add index codes schema
-  body_parts: z.array(bodyPartSchema), // TODO: add body parts schema
-  elements: z.array(
-    // TODO: add elements schema - and have multiple schemas for the four different types of elements
-    z.union([valueSetElementSchema, floatElementSchema])
-  ),
+  id: z.string().regex(idPattern, { message: 'Must be a valid ID' }),
+  name: z.string().max(50, { message: 'Must be 50 or fewer characters long' }),
+  description: z
+    .string()
+    .max(100, { message: 'Must be 100 or fewer characters long' }),
+  version: versionSchema,
+  url: z.string().url(),
+  index_codes: z.array(indexCodeSchema),
+  body_parts: z.array(bodyPartSchema),
+  authors: authorSchema,
+  history: z.array(eventSchema),
+  specialty: z.array(specialtySchema),
+  elements: z.array(elementSchema),
+  references: z.array(referenceSchema),
 });
 
 export type CdeSetData = z.infer<typeof cdeSetSchema>;
 
 export class CdeSet {
   private _data: CdeSetData;
+  private _authors: (Person | Organization)[] = [];
+  private _index_codes: IndexCode[] = [];
+  private _body_parts: BodyPart[] = [];
+  //private _specialty: Specialty[] = [];
 
-  // TODO: add elements
-  // private _elements: FloatElement[];
+  private _elements: CdElement[] = [];
 
   constructor(inData: CdeSetData) {
     this._data = { ...inData };
-    // TODO: add elements
-    // this._elements = this._data.elements.map((elementData) => {
-    //   return new FloatElement(elementData);
-    // });
+
+    inData.authors.person.forEach((personData) => {
+      this._authors.push(new Person(personData));
+    });
+    inData.authors.organization?.forEach((organizationData) => {
+      this._authors.push(new Organization(organizationData));
+    });
+
+    //Load index codes
+    this._data.index_codes.forEach((indexCodeData) => {
+      this._index_codes.push(new IndexCode(indexCodeData));
+    });
+
+    this._data.elements.forEach((elementData) => {
+      this._elements.push(CdElementFactory.create(elementData));
+    });
+  }
+
+  static async fetchFromRepo(rdesId: string): Promise<CdeSet | null> {
+    const radElementAPI = `https://api3.rsna.org/radelement/v1/sets/${rdesId}`;
+
+    try {
+      const response = await fetch(radElementAPI);
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      const jsonData = await response.json();
+      console.log(jsonData.data);
+      const parsed = cdeSetSchema.safeParse(jsonData.data);
+      if (!parsed.success) throw new Error(parsed.error.message);
+      const cdeSetData: CdeSetData = parsed.data;
+      console.log(cdeSetData);
+      const cdeSetInstance = new CdeSet(cdeSetData);
+      return cdeSetInstance;
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
   }
 
   get id() {
@@ -44,17 +98,39 @@ export class CdeSet {
     return this._data.description;
   }
 
+  get version() {
+    return this._data.version;
+  }
+
   get indexCodes() {
-    // should we convert this to the IndexCode class?
-    return this._data.index_codes;
+    return [...this._index_codes];
+  }
+
+  get url() {
+    return this._data.url;
   }
 
   get bodyParts() {
-    return this._data.body_parts;
+    return [...this._body_parts];
   }
 
-  // TODO: add elements
-  // get elements() {
-  //   return [...this._elements];
-  // }
+  get authors() {
+    return [...this._authors];
+  }
+
+  get history() {
+    return [...this._data.history];
+  }
+
+  get specialty() {
+    return [...this._data.specialty];
+  }
+
+  get references() {
+    return [...this._data.references];
+  }
+
+  get elements() {
+    return [...this._data.elements];
+  }
 }

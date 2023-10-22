@@ -1,0 +1,465 @@
+{
+  "id": "RDES3",
+  "name": "Adrenal Nodule",
+  "description": "Computer-assisted reporting for characterization of an adrenal nodule on CT or MR.",
+  "version": {
+    "name": "Adrenal Nodule",
+    "version_date": "01/01/0001",
+    "status": "Published"
+  },
+  "url": "https://api3.rsna.org/radelement/public/sets/3",
+  "index_codes": [],
+  "body_parts": [
+    {
+      "name": "Adrenal Gland",
+      "index_codes": {
+        "system": "RADLEX",
+        "code": "RID88",
+        "display": "Adrenal Gland",
+        "href": "http://www.radlex.org/RID/RID88"
+      }
+    }
+  ],
+  "authors": {
+    "person": [
+      {
+        "name": "Farish, Natalia",
+        "orcid_id": null,
+        "twitter_handle": null,
+        "url": null,
+        "role": null
+      }
+    ],
+    "organization": []
+  },
+  "history": [],
+  "specialty": [
+    {
+      "abbreviation": "GI",
+      "name": "Gastrointestinal Radiology"
+    },
+    {
+      "abbreviation": "GU",
+      "name": "Genitourinary Radiology"
+    },
+    {
+      "abbreviation": "OI",
+      "name": "Oncologic Imaging"
+    }
+  ],
+  "elements": [
+    {
+      "id": "RDE41",
+      "parent_id": 3,
+      "name": "Nodule size",
+      "short_name": "noduleSize",
+      "editor": "cek",
+      "instructions": "",
+      "synonyms": "",
+      "definition": "The greatest linear dimension of the adrenal nodule.",
+      "question": "Enter the greatest diameter of the adrenal nodule",
+      "version": {
+        "name": "1",
+        "version_date": "01/03/2016",
+        "status_date": "01/03/2016",
+        "status": "Published"
+      },
+      "index_codes": [
+        {
+          "system": "SNOMEDCT",
+          "code": "246120007",
+          "display": "nodule size",
+          "href": "http://purl.bioontology.org/ontology/SNOMEDCT/246120007"
+        }
+      ],
+      "authors": {
+        "person": [],
+        "organization": []
+      },
+      "history": [],
+      "specialty": [],
+      "references": [],
+      "source": "CAR/DS Adrenal Nodule",
+      "integer_values": {
+        "cardinality": {
+          "min_cardinality": 1,
+          "max_cardinality": 1
+        },
+        "value_min_max": {
+          "value_min": 0,
+          "value_max": 999
+        },
+        "step_value": 1,
+        "unit": "mm",
+        "value_type": "integer",
+        "value_size": 8,
+        "values": [
+          {
+            "value": "Present",
+            "name": "Cisternal compression is present in at least one location",
+            "definition": null
+          },
+          {
+            "value": "Indeterminate",
+            "name": "Indeterminate",
+            "definition": null
+          },
+          {
+            "value": "Absent",
+            "name": "Cisterns normal",
+            "definition": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "RDE43",
+      "parent_id": 3,
+      "name": "Unenhanced attenuation",
+      "short_name": "",
+      "editor": "cek",
+      "instructions": "",
+      "synonyms": "",
+      "definition": "Mean attenuation in Hounsfield units (HU) of the region of interest on CT images obtained without IV contrast.",
+      "question": "Enter the attenuation of the region of interest on the unenhnaced CT.",
+      "version": {
+        "name": "1",
+        "version_date": "01/03/2016",
+        "status_date": "01/03/2016",
+        "status": "Published"
+      },
+      "index_codes": [
+        {
+          "system": "RADLEX",
+          "code": "RID28662",
+          "display": "Attenuation",
+          "href": "http://www.radlex.org/RID/RID28662"
+        },
+        {
+          "system": "RADLEX",
+          "code": "RID11086",
+          "display": "Unenhanced phase",
+          "href": "http://www.radlex.org/RID/RID11086"
+        }
+      ],
+      "authors": {
+        "person": [],
+        "organization": []
+      },
+      "history": [],
+      "specialty": [],
+      "references": [],
+      "source": "CAR/DS Adrenal Nodule",
+      "integer_values": {
+        "cardinality": {
+          "min_cardinality": 1,
+          "max_cardinality": 1
+        },
+        "value_min_max": {
+          "value_min": -1024,
+          "value_max": 1024
+        },
+        "step_value": 1,
+        "unit": "HU",
+        "value_type": "integer",
+        "value_size": 5,
+        "values": []
+      }
+    },
+    {
+      "id": "RDE44",
+      "parent_id": 3,
+      "name": "Enhanced attenuation",
+      "short_name": "",
+      "editor": "",
+      "instructions": "",
+      "synonyms": "",
+      "definition": "Mean attenuation in Hounsfield units (HU) of the region of interest on CT images obtained immediately after IV contrast administration.",
+      "question": "",
+      "version": {
+        "name": "",
+        "version_date": "06/21/2023",
+        "status_date": "06/21/2023",
+        "status": "Published"
+      },
+      "index_codes": [],
+      "authors": {
+        "person": [],
+        "organization": []
+      },
+      "history": [],
+      "specialty": [],
+      "references": [
+        {
+          "citation": " CDE URL ",
+          "doi_uri": null,
+          "pubmed_id": 0,
+          "url": "https://radelement.org/"
+        }
+      ],
+      "source": "",
+      "integer_values": {
+        "cardinality": {
+          "min_cardinality": 1,
+          "max_cardinality": 1
+        },
+        "value_min_max": {
+          "value_min": -1024,
+          "value_max": 1024
+        },
+        "step_value": 1,
+        "unit": "HU",
+        "value_type": "integer",
+        "value_size": 0,
+        "values": []
+      }
+    },
+    {
+      "id": "RDE45",
+      "parent_id": 3,
+      "name": "Delayed attenuation",
+      "short_name": "",
+      "editor": "cek",
+      "instructions": "",
+      "synonyms": "",
+      "definition": "Mean attenuation in Hounsfield units (HU) of the region of interest on CT images otained at least 3 min after IV contrast administration.",
+      "question": "Enter the attenuation of the region of interest on delayed CT images.",
+      "version": {
+        "name": "1",
+        "version_date": "01/03/2016",
+        "status_date": "01/03/2016",
+        "status": "Published"
+      },
+      "index_codes": [
+        {
+          "system": "RADLEX",
+          "code": "RID28662",
+          "display": "Attenuation",
+          "href": "http://www.radlex.org/RID/RID28662"
+        },
+        {
+          "system": "RADLEX",
+          "code": "RID11081",
+          "display": "delayed phase",
+          "href": "http://www.radlex.org/RID/RID11081"
+        }
+      ],
+      "authors": {
+        "person": [],
+        "organization": []
+      },
+      "history": [],
+      "specialty": [],
+      "references": [],
+      "source": "CAR/DS Adrenal Nodule",
+      "integer_values": {
+        "cardinality": {
+          "min_cardinality": 1,
+          "max_cardinality": 1
+        },
+        "value_min_max": {
+          "value_min": -1024,
+          "value_max": 1024
+        },
+        "step_value": 1,
+        "unit": "HU",
+        "value_type": "integer",
+        "value_size": 5,
+        "values": []
+      }
+    },
+    {
+      "id": "RDE49",
+      "parent_id": 3,
+      "name": "Uniformly cystic",
+      "short_name": "",
+      "editor": "cek",
+      "instructions": "",
+      "synonyms": "",
+      "definition": "Indicates if the adrenal nodule is uniformly cystic. ",
+      "question": "Is the adrenal nodule uniformly cystic?",
+      "version": {
+        "name": "1",
+        "version_date": "01/03/2016",
+        "status_date": "01/03/2016",
+        "status": "Published"
+      },
+      "index_codes": [],
+      "authors": {
+        "person": [],
+        "organization": []
+      },
+      "history": [],
+      "specialty": [],
+      "references": [],
+      "source": "CAR/DS Adrenal Nodule",
+      "boolean_values": {
+        "cardinality": {
+          "min_cardinality": 1,
+          "max_cardinality": 1
+        },
+        "value_min_max": {
+          "value_min": null,
+          "value_max": null
+        },
+        "step_value": null,
+        "unit": "",
+        "value_type": "boolean",
+        "value_size": 1,
+        "values": []
+      }
+    },
+    {
+      "id": "RDE42",
+      "parent_id": 3,
+      "name": "Side",
+      "short_name": "",
+      "editor": "cek",
+      "instructions": "",
+      "synonyms": "",
+      "definition": "The side of the body (right or left).",
+      "question": "",
+      "version": {
+        "name": "1",
+        "version_date": "01/03/2016",
+        "status_date": "01/03/2016",
+        "status": "Published"
+      },
+      "index_codes": [
+        {
+          "system": "RADLEX",
+          "code": "RID5824",
+          "display": "Left",
+          "href": "http://www.radlex.org/RID/RID5824"
+        },
+        {
+          "system": "RADLEX",
+          "code": "RID5825",
+          "display": "Right",
+          "href": "http://www.radlex.org/RID/RID5825"
+        },
+        {
+          "system": "SNOMEDCT",
+          "code": "7771000",
+          "display": "Left",
+          "href": "http://purl.bioontology.org/ontology/SNOMEDCT/7771000"
+        },
+        {
+          "system": "SNOMEDCT",
+          "code": "24028007",
+          "display": "Right",
+          "href": "http://purl.bioontology.org/ontology/SNOMEDCT/24028007"
+        },
+        {
+          "system": "SNOMEDCT",
+          "code": "272741003",
+          "display": "Laterality",
+          "href": "http://purl.bioontology.org/ontology/SNOMEDCT/272741003"
+        },
+        {
+          "system": "RADLEX",
+          "code": "RID5821",
+          "display": "laterality",
+          "href": "http://www.radlex.org/RID/RID5821"
+        }
+      ],
+      "authors": {
+        "person": [],
+        "organization": []
+      },
+      "history": [],
+      "specialty": [],
+      "references": [],
+      "source": "CAR/DS Adrenal Nodule",
+      "value_set": {
+        "cardinality": {
+          "min_cardinality": 1,
+          "max_cardinality": 1
+        },
+        "value_min_max": {
+          "value_min": 1,
+          "value_max": 1
+        },
+        "step_value": null,
+        "unit": "",
+        "value_type": "valueSet",
+        "value_size": 0,
+        "values": [
+          {
+            "value": "R",
+            "name": "Right",
+            "definition": null
+          },
+          {
+            "value": "L",
+            "name": "Left",
+            "definition": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "RDE1695",
+      "parent_id": 3,
+      "name": "Microscopic fat",
+      "short_name": "",
+      "editor": "",
+      "instructions": "",
+      "synonyms": "",
+      "definition": "The adrenal nodule contains macroscopic fat, as evidenced by at least one pixel attenuation value less than -10 HU.",
+      "question": "",
+      "version": {
+        "name": "",
+        "version_date": "06/23/2023",
+        "status_date": "06/23/2023",
+        "status": "Published"
+      },
+      "index_codes": [],
+      "authors": {
+        "person": [],
+        "organization": []
+      },
+      "history": [],
+      "specialty": [],
+      "references": [],
+      "source": "",
+      "value_set": {
+        "cardinality": {
+          "min_cardinality": 1,
+          "max_cardinality": 1
+        },
+        "value_min_max": {
+          "value_min": null,
+          "value_max": null
+        },
+        "step_value": null,
+        "unit": "",
+        "value_type": "valueSet",
+        "value_size": 0,
+        "values": [
+          {
+            "value": "1",
+            "name": "present",
+            "definition": ""
+          },
+          {
+            "value": "2",
+            "name": "absent",
+            "definition": ""
+          },
+          {
+            "value": "3",
+            "name": "unknown",
+            "definition": ""
+          },
+          {
+            "value": "4",
+            "name": "indeterminate",
+            "definition": ""
+          }
+        ]
+      }
+    }
+  ],
+  "references": []
+}
