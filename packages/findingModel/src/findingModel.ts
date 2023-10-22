@@ -15,11 +15,13 @@ export const baseAttributesSchema = z.object({
 });
 
 export const numericAttributesSchema = baseAttributesSchema.extend({
+  //create type as numeric
   minimum: z.number(), //TODO: Nullable?
   maximum: z.number().nullable(),
 });
 
 export const choiceAttributesSchema = baseAttributesSchema.extend({
+  //tpye: choice literal
   values: z.array(valuesSchema),
 });
 
@@ -32,7 +34,10 @@ export const attributesSchema = z.union([
 export const attributesSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('numeric') }),
   z.object({ type: z.literal('choice') }),
+  list numeric attribute schema an choice
 ]); */
+
+//
 
 export const findingSchema = z.object({
   name: z.string().max(75),
@@ -79,7 +84,7 @@ export class ChoiceAttribute extends Attributes<ChoiceAttributesData> {
   }
 }
 
-export class NumericAttribute extends Attributes<NumericAttributesData> {
+export class SizeAttributes extends Attributes<NumericAttributesData> {
   get minimum() {
     return this._data.minimum;
   }
@@ -110,7 +115,7 @@ export class FindingModel {
 
     this._data.attributes.forEach((attributeData) => {
       if (isNumericAttribute(attributeData)) {
-        this._attributes.push(new NumericAttribute(attributeData));
+        this._attributes.push(new SizeAttributes(attributeData));
       } else if (isChoiceAttribute(attributeData)) {
         this._attributes.push(new ChoiceAttribute(attributeData));
       }
