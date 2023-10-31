@@ -97,14 +97,40 @@ describe('finding', () => {
     expect(findingData.attributes[0]).toHaveProperty('name', 'size');
   });
 
-  it('should create instance of Finding class', () => {});
-  const parsed = findingSchema.safeParse(findingJson);
-  if (!parsed.success) throw new Error(parsed.error.message);
-  const findingData: FindingData = parsed.data;
-  const finding = new FindingModel(findingData);
-  //console.log(findingData);
-  expect(finding).toHaveProperty('name', 'calcified pulmonary granuloma');
-  console.log(finding.attributes);
-  expect(finding.attributes[0]).toHaveProperty('name', 'size');
+  it('should create instance of Finding class', () => {
+    const parsed = findingSchema.safeParse(findingJson);
+    if (!parsed.success) throw new Error(parsed.error.message);
+    const findingData: FindingData = parsed.data;
+    const finding = new FindingModel(findingData);
+    console.log('This is entire finding structure: ');
+    //console.log(findingData);
+    console.log(finding);
+    expect(finding).toHaveProperty(
+      'description',
+      'A type of small lesion in the lungs, often caused by inflammation from diseases such as tuberculosis. These granulomas become calcified as they heal, leaving behind a small area of lung tissue that is harder than normal due to the deposition of calcium salts.'
+    );
+    expect(finding).toHaveProperty('name', 'calcified pulmonary granuloma');
+    expect(finding).toHaveProperty('attributes');
+  });
+
+  it('should appropriately load attributes', () => {
+    const parsed = findingSchema.safeParse(findingJson);
+    if (!parsed.success) throw new Error(parsed.error.message);
+    const findingData: FindingData = parsed.data;
+    const finding = new FindingModel(findingData);
+    console.log('This is finding.attributes[1]: ');
+    console.log(finding.attributes[1]);
+    expect(finding.attributes[0]).toHaveProperty('name', 'size');
+    expect(finding.attributes[0]).toHaveProperty('name', 'location');
+    expect(finding.attributes[0]).toHaveProperty('type', 'numeric');
+    expect(finding.attributes[0]).toHaveProperty('minimum', 0);
+    expect(finding.attributes[1]).toHaveProperty('name', 'location');
+    expect(finding.attributes[1]).toHaveProperty('type', 'choice');
+    expect(finding.attributes[1]).toHaveProperty('values');
+  });
+
+  //TODO: Currently the getters in the Finding class are working but the subclasses cannot be accessed?
+  //TODO: DO i need to add the attributes (fields) to the subclasses, only have the getters currently.
+  //for example minimum attribute in the numeric subclass, not only the getter.
   //TODO: Need to continue to test attributes and add getters to the two different subclasses.
 });
