@@ -16,7 +16,7 @@ export const baseAttributesSchema = z.object({
 
 export const numericAttributesSchema = baseAttributesSchema.extend({
   type: z.literal('numeric'),
-  minimum: z.number(), //TODO: Nullable?
+  minimum: z.number().nullable(),
   maximum: z.number().nullable(),
 });
 
@@ -53,6 +53,23 @@ export type AttributeData = z.infer<typeof attributesSchema>;
 export type FindingData = z.infer<typeof findingSchema>;
 
 //classes
+
+export class Values {
+  private _data: ValuesData;
+
+  constructor(valuesData: ValuesData) {
+    this._data = { ...valuesData };
+  }
+
+  get name() {
+    return this._data.name;
+  }
+
+  get description() {
+    return this._data.description;
+  }
+}
+
 export abstract class Attributes<
   T extends BaseAttributeData = BaseAttributeData
 > {
@@ -72,30 +89,23 @@ export abstract class Attributes<
 }
 
 export class ChoiceAttribute extends Attributes<ChoiceAttributeData> {
+  private _values: Values[] = [];
+
+  constructor(inData: ChoiceAttributeData) {
+    super(inData);
+    inData.values.forEach((valueData) => {
+      this._values.push(new Values(valueData));
+    });
+  }
+
   get type() {
     return this._data.type;
   }
 
   get values() {
-    return this._data.values;
+    return this._values;
     //return this._data.values[0].name;
     //need a values object to get the attributes of values?
-  }
-
-  get valueNames() {
-    return this._data.values;
-  }
-
-  /*
-  get valueNames() {
-    return this._data.values.map((value) => value.name);
-    //this will return an array of value.name
-  }
-  */
-
-  get valueDescriptions() {
-    return this._data.values.map((value) => value.description);
-    //return array of value.descriptions
   }
 }
 
@@ -127,7 +137,7 @@ export function isChoiceAttribute(
 
 export class FindingModel {
   private _data: FindingData;
-  private _attributes: AttributeData[] = [];
+  private _attributes: Attributes[] = [];
 
   constructor(inData: FindingData) {
     this._data = { ...inData };
@@ -151,9 +161,4 @@ export class FindingModel {
   get attributes() {
     return this._attributes;
   }
-
-  /*
-  get attributeValue() {
-    return this._attributes[0];
-  }*/
 }

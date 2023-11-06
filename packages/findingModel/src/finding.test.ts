@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 
-import { FindingModel, FindingData, findingSchema } from './findingModel';
+import {
+  FindingModel,
+  FindingData,
+  findingSchema,
+  NumericAttribute,
+  ChoiceAttribute,
+} from './findingModel';
 
 const findingJson: FindingData = {
   name: 'calcified pulmonary granuloma',
@@ -110,6 +116,10 @@ describe('finding', () => {
       'A type of small lesion in the lungs, often caused by inflammation from diseases such as tuberculosis. These granulomas become calcified as they heal, leaving behind a small area of lung tissue that is harder than normal due to the deposition of calcium salts.'
     );
     expect(finding).toHaveProperty('name', 'calcified pulmonary granuloma');
+    expect(finding).toHaveProperty(
+      'description',
+      'A type of small lesion in the lungs, often caused by inflammation from diseases such as tuberculosis. These granulomas become calcified as they heal, leaving behind a small area of lung tissue that is harder than normal due to the deposition of calcium salts.'
+    );
     expect(finding).toHaveProperty('attributes');
   });
 
@@ -118,19 +128,49 @@ describe('finding', () => {
     if (!parsed.success) throw new Error(parsed.error.message);
     const findingData: FindingData = parsed.data;
     const finding = new FindingModel(findingData);
-    console.log('This is finding.attributes[1]: ');
+    console.log('This is finding.attributes[0], a numericAttribute: ');
+    console.log(finding.attributes[0]);
+    console.log('This is finding.attributes[1], a choice attribute: ');
     console.log(finding.attributes[1]);
+    expect(finding.attributes[0]).toBeInstanceOf(NumericAttribute);
     expect(finding.attributes[0]).toHaveProperty('name', 'size');
-    expect(finding.attributes[0]).toHaveProperty('name', 'location');
     expect(finding.attributes[0]).toHaveProperty('type', 'numeric');
     expect(finding.attributes[0]).toHaveProperty('minimum', 0);
+    expect(finding.attributes[0]).toHaveProperty('maximum', null);
+    expect(finding.attributes[1]).toBeInstanceOf(ChoiceAttribute);
     expect(finding.attributes[1]).toHaveProperty('name', 'location');
     expect(finding.attributes[1]).toHaveProperty('type', 'choice');
+    expect(finding.attributes[1]).toHaveProperty(
+      'description',
+      'The anatomical location of the granuloma in the lungs'
+    );
     expect(finding.attributes[1]).toHaveProperty('values');
+  });
+
+  it('should appropriately load values', () => {
+    const parsed = findingSchema.safeParse(findingJson);
+    if (!parsed.success) throw new Error(parsed.error.message);
+    const findingData: FindingData = parsed.data;
+    const finding = new FindingModel(findingData);
+    const numericAttribute = finding.attributes[0] as NumericAttribute;
+    expect(numericAttribute).toHaveProperty('minimum', 0);
+    console.log('This is finding.attributes[1]: ');
+    console.log(finding.attributes[1]);
+    console.log('This is finding.attributes[0]: ');
+    console.log(finding.attributes[0]);
+    console.log('This is finding.attributes[1].values[0]: ');
+    //console.log(finding.attributes[1].values[0]);
   });
 
   //TODO: Currently the getters in the Finding class are working but the subclasses cannot be accessed?
   //TODO: DO i need to add the attributes (fields) to the subclasses, only have the getters currently.
   //for example minimum attribute in the numeric subclass, not only the getter.
   //TODO: Need to continue to test attributes and add getters to the two different subclasses.
+
+  //TODO: Do i need a values object?
+  //TODO: I think within a choice attribute, the values need to be loaded into the values attibute from the constructor
+  //TODO: Why can I not access the values attribute of the choice attribute?
+  //Is the finding class wrong.
+  //Everything seems to be defualting to the baseAttributes class?
+  //Are my getters not there?
 });
