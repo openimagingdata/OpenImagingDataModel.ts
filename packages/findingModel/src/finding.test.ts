@@ -173,4 +173,5 @@ describe('finding', () => {
   //Is the finding class wrong.
   //Everything seems to be defualting to the baseAttributes class?
   //Are my getters not there?
+  //This is the edit to test if its working
 });
