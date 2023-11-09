@@ -104,8 +104,6 @@ export class ChoiceAttribute extends Attributes<ChoiceAttributeData> {
 
   get values() {
     return this._values;
-    //return this._data.values[0].name;
-    //need a values object to get the attributes of values?
   }
 }
 

@@ -147,7 +147,7 @@ describe('finding', () => {
     expect(finding.attributes[1]).toHaveProperty('values');
   });
 
-  it('should appropriately load values', () => {
+  it('should appropriately load choiceAttribute.values', () => {
     const parsed = findingSchema.safeParse(findingJson);
     if (!parsed.success) throw new Error(parsed.error.message);
     const findingData: FindingData = parsed.data;
@@ -160,6 +160,14 @@ describe('finding', () => {
     expect(choiceAttribute).toHaveProperty('type', 'choice');
     expect(choiceAttribute).toHaveProperty('values');
     expect(choiceAttribute.values).toHaveLength(5);
+    expect(choiceAttribute.values[0]).toHaveProperty(
+      'name',
+      'right upper lobe'
+    );
+    expect(choiceAttribute.values[0]).toHaveProperty(
+      'description',
+      'Upper section of the right lung'
+    );
     console.log('This is finding.attributes[1]: ');
     console.log(finding.attributes[1]);
     console.log('This is finding.attributes[0]: ');
@@ -167,23 +175,4 @@ describe('finding', () => {
     console.log('This is finding.attributes[1].values[0]: ');
     //console.log(finding.attributes[1].values[0]);
   });
-
-<<<<<<< HEAD
-  //TODO: Is the type assertion going to lead to false passing tests?
-  //TypeScript infers the type of finding.attributes[0] based on the declared type of the array
-  //Need to perform type casting to access specific attributes of a derrivation of 'Attributes'.
-=======
-  //TODO: Currently the getters in the Finding class are working but the subclasses cannot be accessed?
-  //TODO: DO i need to add the attributes (fields) to the subclasses, only have the getters currently.
-  //for example minimum attribute in the numeric subclass, not only the getter.
-  //TODO: Need to continue to test attributes and add getters to the two different subclasses.
-
-  //TODO: Do i need a values object?
-  //TODO: I think within a choice attribute, the values need to be loaded into the values attibute from the constructor
-  //TODO: Why can I not access the values attribute of the choice attribute?
-  //Is the finding class wrong.
-  //Everything seems to be defualting to the baseAttributes class?
-  //Are my getters not there?
-  //This is the edit to test if its working
->>>>>>> 4daf877c7e0f0a8d4f13c6efec554125a7face9e
 });
