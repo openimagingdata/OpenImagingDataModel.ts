@@ -153,7 +153,13 @@ describe('finding', () => {
     const findingData: FindingData = parsed.data;
     const finding = new FindingModel(findingData);
     const numericAttribute = finding.attributes[0] as NumericAttribute;
+    expect(numericAttribute).toHaveProperty('type', 'numeric');
     expect(numericAttribute).toHaveProperty('minimum', 0);
+    expect(numericAttribute).toHaveProperty('maximum', null);
+    const choiceAttribute = finding.attributes[1] as ChoiceAttribute;
+    expect(choiceAttribute).toHaveProperty('type', 'choice');
+    expect(choiceAttribute).toHaveProperty('values');
+    expect(choiceAttribute.values).toHaveLength(5);
     console.log('This is finding.attributes[1]: ');
     console.log(finding.attributes[1]);
     console.log('This is finding.attributes[0]: ');
@@ -162,15 +168,7 @@ describe('finding', () => {
     //console.log(finding.attributes[1].values[0]);
   });
 
-  //TODO: Currently the getters in the Finding class are working but the subclasses cannot be accessed?
-  //TODO: DO i need to add the attributes (fields) to the subclasses, only have the getters currently.
-  //for example minimum attribute in the numeric subclass, not only the getter.
-  //TODO: Need to continue to test attributes and add getters to the two different subclasses.
-
-  //TODO: Do i need a values object?
-  //TODO: I think within a choice attribute, the values need to be loaded into the values attibute from the constructor
-  //TODO: Why can I not access the values attribute of the choice attribute?
-  //Is the finding class wrong.
-  //Everything seems to be defualting to the baseAttributes class?
-  //Are my getters not there?
+  //TODO: Is the type assertion going to lead to false passing tests?
+  //TypeScript infers the type of finding.attributes[0] based on the declared type of the array
+  //Need to perform type casting to access specific attributes of a derrivation of 'Attributes'.
 });
