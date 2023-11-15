@@ -53,6 +53,7 @@ export const observationSchema = z.object({
 });
 
 //Types
+export type observationData = z.infer<typeof observationSchema>;
 export type codeData = z.infer<typeof codeSchema>;
 export type valueCodeableConceptData = z.infer<typeof valueCodeableConceptSchema>;
 export type stringValueData = z.infer<typeof stringValueSchema>;
@@ -61,6 +62,13 @@ export type floatValueData = z.infer<typeof floatValueSchema>;
 
 //classes
 
+
+export class Observation <observationData> {
+  protected _data : observationData;
+
+  constructor(ob)
+
+}
 
 ///////////////////////////////
 /*
