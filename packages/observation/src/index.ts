@@ -1,6 +1,69 @@
 import { CdeSet, CdeSetData } from '@openimagingdata/cde_set';
 import { z } from 'zod';
 
+//Schemas
+export const codeSchema = z.object({
+  system: z.string(),
+  code: z.string(), //This is an RDES
+  display: z.string(),
+});
+
+export const valueCodeableConceptSchema = z.object({
+  system: z.string().url(), //Need this here? On the whiteboard diagram but not JSON examples
+  code: z.string(), //This is an RDE
+  display: z.string(),
+})
+
+export const stringValueSchema = z.object({
+  value: z.string(),
+})
+
+export const integerValueSchema = z.object({
+  value: z.number().int(),
+})
+
+export const floatValueSchema = z.object({
+  value: z.number(),
+})
+
+export const valueSchema = z.union([
+  valueCodeableConceptSchema,
+  stringValueSchema,
+  integerValueSchema,
+  floatValueSchema,
+])
+
+export const componentSchema = z.union([
+  codeableConceptValueSchema,
+  stringValueSchema,
+  integerValueSchema,
+  floatValueSchema,
+]);
+
+export const componentSchema = z.object({
+  code: z.array(codeSchema),
+  valueCodeableConcept: z.array(valueSchema)
+})
+
+export const observationSchema = z.object({
+  id: z.string(),
+  code: z.array(codeSchema),
+  bodySite: z.array(codeSchema),
+  component: z.array(componentSchema),
+});
+
+//Types
+export type codeData = z.infer<typeof codeSchema>;
+export type valueCodeableConceptData = z.infer<typeof valueCodeableConceptSchema>;
+export type stringValueData = z.infer<typeof stringValueSchema>;
+export type integerValueData = z.infer<typeof integerValueSchema>;
+export type floatValueData = z.infer<typeof floatValueSchema>;
+
+//classes
+
+
+///////////////////////////////
+/*
 export const systemCodeSchema = z.object({
   system: z.string().url(),
   code: z.string(),
@@ -95,3 +158,4 @@ export class Observation {
     return this._cdeSet;
   }
 }
+*/
