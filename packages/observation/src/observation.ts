@@ -34,14 +34,14 @@ export const valueSchema = z.union([
 ])
 
 export const componentSchema = z.object({
-  code: z.array(codeSchema), //TODO: Supposed to be array?
-  value: z.array(valueSchema)    //TODO: Change the name of this because 4 types (maybe good now)
+  code: codeSchema, 
+  value: valueSchema,    //TODO: Change the name of this because 4 types (maybe good now)
 })
 
 export const observationSchema = z.object({
   id: z.string(),
-  code: z.array(codeSchema),
-  bodySite: z.array(codeSchema), //TODO: Supposed to be an array? 
+  code: codeSchema,
+  bodySite: codeSchema, //TODO: Supposed to be an array? 
   component: z.array(componentSchema),
 });
 
@@ -124,10 +124,9 @@ export class Component{
     return this._data.code;
   }
 
-  get codeableConcept(){      //TODO: if array need to change
-    return this._data.codeableConcept;
+  get value(){      //TODO: if array need to change
+    return this._data.value;
   }
-
 }
 
 export class Observation <T extends observationData> {

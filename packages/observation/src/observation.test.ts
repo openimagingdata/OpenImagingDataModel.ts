@@ -44,20 +44,22 @@ describe('Observation', () => {
   });
 
   it('should parse observation JSON', () => {
-    const goodParsed = observationSchema.safeParse(observationJson);
-    expect(goodParsed.success).toBe(true);
-    if (goodParsed.success) {
-      expect(goodParsed.data).toHaveProperty('id', '1');
-      expect(goodParsed.data).toHaveProperty('code');
+    const parsed = observationSchema.safeParse(observationJson);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const observationData: ObservationData = parsed.data;
+      expect(observationData).toHaveProperty('id', '1');
+      expect(observationData).toHaveProperty('code');
+      expect(observationData).toHaveProperty('component');
     }
   });
 
   // Test that we get a CdeSet object back from the Observation
   it('should return a CdeSet object', () => {
-    const goodParsed = observationSchema.safeParse(observationJson);
-    expect(goodParsed.success).toBe(true);
-    if (goodParsed.success) {
-      const observation = new Observation(goodParsed.data);
+    const parsed = observationSchema.safeParse(observationJson);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const observation = new Observation(parsed.data);
       expect(observation).toHaveProperty('cdeSet');
       expect(observation.cdeSet).toHaveProperty('id', '1');
       expect(observation.cdeSet).toHaveProperty('name', 'Sample CDE Set');
