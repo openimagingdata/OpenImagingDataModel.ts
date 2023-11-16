@@ -9,7 +9,7 @@ export const codeSchema = z.object({
 });
 
 export const valueCodeableConceptSchema = z.object({
-  system: z.string().url(), //Need this here? On the whiteboard diagram but not JSON examples
+  system: z.string().url(), //TODO: Need this here? On the whiteboard diagram but not JSON examples
   code: z.string(), //This is an RDE
   display: z.string(),
 })
@@ -33,28 +33,23 @@ export const valueSchema = z.union([
   floatValueSchema,
 ])
 
-export const componentSchema = z.union([
-  codeableConceptValueSchema,
-  stringValueSchema,
-  integerValueSchema,
-  floatValueSchema,
-]);
-
 export const componentSchema = z.object({
-  code: z.array(codeSchema),
-  valueCodeableConcept: z.array(valueSchema)
+  code: z.array(codeSchema), //TODO: Supposed to be array?
+  value: z.array(valueSchema)    //TODO: Change the name of this because 4 types (maybe good now)
 })
 
 export const observationSchema = z.object({
   id: z.string(),
   code: z.array(codeSchema),
-  bodySite: z.array(codeSchema),
+  bodySite: z.array(codeSchema), //TODO: Supposed to be an array? 
   component: z.array(componentSchema),
 });
 
 //Types
+export type componentData = z.infer<typeof componentSchema>;
 export type observationData = z.infer<typeof observationSchema>;
 export type codeData = z.infer<typeof codeSchema>;
+export type valueData = z.infer<typeof valueSchema>;
 export type valueCodeableConceptData = z.infer<typeof valueCodeableConceptSchema>;
 export type stringValueData = z.infer<typeof stringValueSchema>;
 export type integerValueData = z.infer<typeof integerValueSchema>;
@@ -62,11 +57,105 @@ export type floatValueData = z.infer<typeof floatValueSchema>;
 
 //classes
 
+export class stringValue{
+  protected _data: stringValueData;
 
-export class Observation <observationData> {
-  protected _data : observationData;
+  constructor(inData: stringValueData){
+    this._data = {...inData };
+  }
 
-  constructor(ob)
+  get value(){
+    return this._data.value;
+  }
+}
+
+export class integerValue{
+  protected _data: integerValueData;
+
+  constructor(inData: integerValueData){
+    this._data = {...inData };
+  }
+
+  get value(){
+    return this._data.value;
+  }
+}
+
+export class floatValue{
+  protected _data: floatValueData;
+
+  constructor(inData: floatValueData){
+    this._data = {...inData };
+  }
+
+  get value(){
+    return this._data.value;
+  }
+}
+
+export class valueCodeableConcept{
+  protected _data: valueCodeableConceptData;
+
+  constructor(inData: valueCodeableConceptData){
+    this._data = {...inData };
+  }
+
+  get system(){
+    return this._data.system;
+  }
+
+  get code(){
+    return this._data.code;
+  }
+
+  get display(){
+    return this._data.display
+  }
+}
+
+export class Component{
+  protected _data: componentData;
+
+  constructor(inData: componentData){
+    this._data = {...inData};
+  }
+
+  get code(){                 //TODO: if array need to change
+    return this._data.code;
+  }
+
+  get codeableConcept(){      //TODO: if array need to change
+    return this._data.codeableConcept;
+  }
+
+}
+
+export class Observation <T extends observationData> {
+  protected _data: observationData;
+  protected _component: componentData[]=[];
+
+  constructor(inData: observationData){
+    this._data = {...inData};
+    this._data.component.forEach((componentData) => {
+      this._component.push(new Component(componentData));
+    });
+  }
+
+  get id() {
+    return this._data.id;
+  }
+
+  get code() {
+    return this._data.code;
+  }
+
+  get bodySite() {
+    return this._data.bodySite;
+  }
+
+  get component() {
+    return this._component
+  }
 
 }
 
