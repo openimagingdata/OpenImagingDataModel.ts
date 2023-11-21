@@ -1,140 +1,162 @@
-import { CdeSet, CdeSetData } from '@openimagingdata/cde_set';
+import { CdeSet, CdeSetData } from '../../cde_set/src/types/cdeSet';
 import { z } from 'zod';
 
 //Schemas
-export const codeSchema = z.object({
+
+export const codingSchema = z.object({
   system: z.string(),
   code: z.string(), //This is an RDES
   display: z.string(),
+});
+
+export const codeSchema = z.object({
+  code: z.array(codingSchema),
+});
+
+export const bodySiteSchema = z.object({
+  code: codingSchema,
 });
 
 export const valueCodeableConceptSchema = z.object({
   system: z.string().url(), //TODO: Need this here? On the whiteboard diagram but not JSON examples
   code: z.string(), //This is an RDE
   display: z.string(),
-})
+});
 
 export const stringValueSchema = z.object({
   value: z.string(),
-})
+});
 
 export const integerValueSchema = z.object({
   value: z.number().int(),
-})
+});
 
 export const floatValueSchema = z.object({
   value: z.number(),
-})
+});
 
 export const valueSchema = z.union([
   valueCodeableConceptSchema,
   stringValueSchema,
   integerValueSchema,
   floatValueSchema,
-])
+]);
+
+/*
+export const componentSchema = z.object({
+  code: codingSchema, //TODO: Change this to coding???
+  value: valueSchema, //TODO: Change the name of this because 4 types (maybe good now)
+}); */
 
 export const componentSchema = z.object({
-  code: codeSchema, 
-  value: valueSchema,    //TODO: Change the name of this because 4 types (maybe good now)
-})
+  code: z.array(codingSchema),
+  valueCodeableConcept: z.array(valueSchema).optional(), //TODO: Why does this need to be names valueCodeableConcept to match the test type?
+  //TODO: add the other schemas here as optional
+});
+
+//TODO: need to create bodySite schema/type/obj wich has one attribute code-->codeSchema
 
 export const observationSchema = z.object({
   id: z.string(),
-  code: codeSchema,
-  bodySite: codeSchema, //TODO: Supposed to be an array? 
+  code: codingSchema,
+  bodySite: bodySiteSchema, //TODO: Supposed to be an array?
   component: z.array(componentSchema),
 });
 
 //Types
 export type componentData = z.infer<typeof componentSchema>;
 export type observationData = z.infer<typeof observationSchema>;
-export type codeData = z.infer<typeof codeSchema>;
+export type codingData = z.infer<typeof codingSchema>;
 export type valueData = z.infer<typeof valueSchema>;
-export type valueCodeableConceptData = z.infer<typeof valueCodeableConceptSchema>;
+export type valueCodeableConceptData = z.infer<
+  typeof valueCodeableConceptSchema
+>;
 export type stringValueData = z.infer<typeof stringValueSchema>;
 export type integerValueData = z.infer<typeof integerValueSchema>;
 export type floatValueData = z.infer<typeof floatValueSchema>;
 
 //classes
 
-export class stringValue{
+export class stringValue {
   protected _data: stringValueData;
 
-  constructor(inData: stringValueData){
-    this._data = {...inData };
+  constructor(inData: stringValueData) {
+    this._data = { ...inData };
   }
 
-  get value(){
+  get value() {
     return this._data.value;
   }
 }
 
-export class integerValue{
+export class integerValue {
   protected _data: integerValueData;
 
-  constructor(inData: integerValueData){
-    this._data = {...inData };
+  constructor(inData: integerValueData) {
+    this._data = { ...inData };
   }
 
-  get value(){
+  get value() {
     return this._data.value;
   }
 }
 
-export class floatValue{
+export class floatValue {
   protected _data: floatValueData;
 
-  constructor(inData: floatValueData){
-    this._data = {...inData };
+  constructor(inData: floatValueData) {
+    this._data = { ...inData };
   }
 
-  get value(){
+  get value() {
     return this._data.value;
   }
 }
 
-export class valueCodeableConcept{
+export class valueCodeableConcept {
   protected _data: valueCodeableConceptData;
 
-  constructor(inData: valueCodeableConceptData){
-    this._data = {...inData };
+  constructor(inData: valueCodeableConceptData) {
+    this._data = { ...inData };
   }
 
-  get system(){
+  get system() {
     return this._data.system;
   }
 
-  get code(){
+  get code() {
     return this._data.code;
   }
 
-  get display(){
-    return this._data.display
+  get display() {
+    return this._data.display;
   }
 }
 
-export class Component{
+export class Component {
   protected _data: componentData;
 
-  constructor(inData: componentData){
-    this._data = {...inData};
+  constructor(inData: componentData) {
+    this._data = { ...inData };
   }
 
-  get code(){                 //TODO: if array need to change
+  get code() {
+    //TODO: if array need to change
     return this._data.code;
   }
 
-  get value(){      //TODO: if array need to change
-    return this._data.value;
+  get valueCodeableConcept() {
+    //TODO: if array need to change
+    return this._data.valueCodeableConcept;
   }
 }
 
-export class Observation <T extends observationData> {
+export class Observation<T extends observationData> {
   protected _data: observationData;
-  protected _component: componentData[]=[];
+  protected _component: componentData[] = [];
 
-  constructor(inData: observationData){
-    this._data = {...inData};
+  constructor(inData: observationData) {
+    this._data = { ...inData };
     this._data.component.forEach((componentData) => {
       this._component.push(new Component(componentData));
     });
@@ -153,9 +175,8 @@ export class Observation <T extends observationData> {
   }
 
   get component() {
-    return this._component
+    return this._component;
   }
-
 }
 
 ///////////////////////////////
