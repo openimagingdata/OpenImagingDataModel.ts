@@ -42,21 +42,18 @@ export const valueSchema = z.union([
   floatValueSchema,
 ]);
 
-/*
-export const componentSchema = z.object({
-  code: codingSchema, //TODO: Change this to coding???
-  value: valueSchema, //TODO: Change the name of this because 4 types (maybe good now)
-}); */
-
 export const componentSchema = z.object({
   code: z.array(codingSchema),
   valueCodeableConcept: z.array(valueSchema).optional(), //TODO: Why does this need to be names valueCodeableConcept to match the test type?
-  //TODO: add the other schemas here as optional
+  valueString: z.string().optional(),
+  valueInteger: z.number().int().optional(),
+  valueFloat: z.number().optional(),
 });
 
 //TODO: need to create bodySite schema/type/obj wich has one attribute code-->codeSchema
 
 export const observationSchema = z.object({
+  resourceType: z.literal('Observation'),
   id: z.string(),
   code: codingSchema,
   bodySite: bodySiteSchema, //TODO: Supposed to be an array?

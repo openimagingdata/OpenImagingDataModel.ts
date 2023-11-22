@@ -42,13 +42,7 @@ describe('Observation', () => {
             display: 'Test Observation',
           },
         ],
-        integerSchema: [
-          {
-            system: 'http://snomed.info/sct',
-            code: '123456789',
-            display: 'Aorta',
-          },
-        ],
+        valueString: '6',
       },
     ],
   };
