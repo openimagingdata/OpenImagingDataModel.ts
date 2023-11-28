@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { Observation, observationData, observationSchema } from './observation';
+import {
+  Observation,
+  observationData,
+  observationSchema,
+  codingData,
+} from './observation';
 
 describe('Observation', () => {
   const observationJson: observationData = {
@@ -76,6 +81,26 @@ describe('Observation', () => {
       console.log(observation.component);
       expect(observation).toHaveProperty('id', '1');
       expect(observation.component).toHaveLength(2);
+    }
+  });
+  it('should properly load component data', () => {
+    const parsed = observationSchema.safeParse(observationJson);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const observation = new Observation(parsed.data);
+      expect(observation.component[0]).toHaveProperty('code');
+      expect(observation.component[0]).toHaveProperty('valueCodeableConcept');
+      console.log(observation.component[0].code);
+      const code: codingData = observation.component[0].code[0] as codingData;
+      expect(code).toHaveProperty('system', 'http://loinc.org');
+      expect(code).toHaveProperty('code', '12345-6');
+      expect(observation.component[0].valueCodeableConcept[0]).toHaveProperty(
+        'system'
+      );
+      expect(observation.component[0].valueCodeableConcept[0]).toHaveProperty(
+        'code',
+        '123456789'
+      );
     }
   });
 });
