@@ -18,8 +18,8 @@ export const bodySiteSchema = z.object({
 });
 
 export const valueCodeableConceptSchema = z.object({
-  system: z.string().url(), //TODO: Need this here? On the whiteboard diagram but not JSON examples
-  code: z.string(), //This is an RDE
+  system: z.string().url(),
+  code: z.string(), //This is an RDE?
   display: z.string(),
 });
 
@@ -42,15 +42,20 @@ export const valueSchema = z.union([
   floatValueSchema,
 ]);
 
+/**
+ * component has two attributes
+ *  code which is an array
+ *  value: which is one of several types of values string, float, codeableConcept etc...
+ */
 export const componentSchema = z.object({
   code: z.array(codingSchema),
-  valueCodeableConcept: z.array(valueSchema).optional(), //TODO: Why does this need to be names valueCodeableConcept to match the test type?
-  valueString: z.string().optional(),
+  // Needed to make these optional despite the union d/t the different names ie int, value, string rtc...
+  valueCodeableConcept: z.array(valueSchema).optional(),
+  valueString: z.string().optional(), //TODO: arrays or single value
   valueInteger: z.number().int().optional(),
   valueFloat: z.number().optional(),
+  //TODO: add more if needed
 });
-
-//TODO: need to create bodySite schema/type/obj wich has one attribute code-->codeSchema
 
 export const observationSchema = z.object({
   resourceType: z.literal('Observation'),
@@ -174,55 +179,24 @@ export class Observation<T extends observationData> {
   get component() {
     return this._component;
   }
+
+  toJSON(): string {
+    const json: observationData = {
+      resourceType: 'Observation',
+      id: this._data.id,
+      code: { ...this._data.code },
+      bodySite: this._data.bodySite
+        ? { code: { ...this._data.bodySite.code } }
+        : undefined,
+      component: this._component.map((component) => component.toJSON()),
+    };
+
+    return JSON.stringify(json);
+  }
 }
 
 ///////////////////////////////
 /*
-export const systemCodeSchema = z.object({
-  system: z.string().url(),
-  code: z.string(),
-  display: z.string().optional(),
-});
-
-export type SystemCodeData = z.infer<typeof systemCodeSchema>;
-
-export const codeableConceptValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  valueCodeableConcept: z.array(systemCodeSchema),
-});
-
-export const stringValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  valueString: z.string(),
-});
-
-export const integerValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  valueInteger: z.number().int(),
-});
-
-export const floatValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  valueFloat: z.number(),
-});
-
-export const componentSchema = z.union([
-  codeableConceptValueSchema,
-  stringValueSchema,
-  integerValueSchema,
-  floatValueSchema,
-]); //
-
-export type ComponentData = z.infer<typeof componentSchema>;
-
-export const observationSchema = z.object({
-  resourceType: z.literal('Observation'),
-  id: z.string(),
-  code: systemCodeSchema,
-  bodySite: z.object({ code: systemCodeSchema }).optional(),
-  component: z.array(componentSchema),
-});
-
 export type ObservationData = z.infer<typeof observationSchema>;
 export const sampleCdeSetData: CdeSetData = {
   id: '1',
