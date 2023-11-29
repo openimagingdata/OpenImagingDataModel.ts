@@ -197,94 +197,27 @@ export class Observation<T extends observationData> {
               display: this._data.bodySite.display
             },
       },
-      //TODO: Do the same for component as above ^^
-      component: {
-        code: { 
-              system: this._data.component.system,
-              code: this._data.component.code, 
-              display: this._data.component.display
-            },
-        //TODO: optional?
-        valueCodeableConcept?: [
-
-        ],
-        //TODO: optional
+      component: this._component.map((componentItem) => ({
+        code: {
+          coding: componentItem.code.map((codeItem) => ({
+            system: codeItem.system,
+            code: codeItem.code,
+            display: codeItem.display
+          }))
+        },
+        valueCodeableConcept?: {
+          coding: valueItem.code.map((valueItem) => ({ 
+            system: this._component.valueCodeableConcept.system,
+            code: this._component.valueCodeableConcept.code,
+            display: this._component.valueCodeableConcept.display
+            }))
+        },
+        valueString?: this._data.component.valueString,
         valueString?: this._data.component.valueString,
         valueInteger?: this._data.component.valueInteger,
         valueFloat?: this._data.component.valueFloat,
-        //TODO: Add more if adding more types of values. 
-      }
+      })),
     };
     return JSON.stringify(json);
   }
 };
-
-/*
-component: 
-
-export const componentSchema = z.object({
-  code: z.array(codingSchema),
-  // Needed to make these optional despite the union d/t the different names ie int, value, string rtc...
-  valueCodeableConcept: z.array(valueSchema).optional(),
-  valueString: z.string().optional(), //TODO: arrays or single value
-  valueInteger: z.number().int().optional(),
-  valueFloat: z.number().optional(),
-  //TODO: add more if needed
-});
-
-
-
-*/
-
-///////////////////////////////
-/*
-export type ObservationData = z.infer<typeof observationSchema>;
-export const sampleCdeSetData: CdeSetData = {
-  id: '1',
-  name: 'Sample CDE Set',
-  description: 'A sample CDE set',
-  version: {
-    status: 'Proposed',
-    name: 'Starting',
-    version_date: '2021-01-01',
-  },
-  url: 'https://example.com',
-  index_codes: [],
-  body_parts: [],
-  authors: [],
-  specialty: [],
-  elements: [],
-};
-
-export class Observation {
-  private readonly _data: ObservationData;
-  private _cdeSet: CdeSet;
-  // TODO: set up private readonly _cdeSet: CdeSet;
-  constructor(inData: ObservationData) {
-    // TODO: initialize this._cdeSet
-    this._data = { ...inData };
-    this._cdeSet = new CdeSet(sampleCdeSetData); // do we want a lookup here?
-  }
-
-  // TODO: Implement accessors, including components; do we need wrapper classes for component data?
-  get id() {
-    return this._data.id;
-  }
-
-  get code() {
-    return this._data.code;
-  }
-
-  get bodySite() {
-    return this._data.bodySite;
-  }
-
-  get component() {
-    return this._data.component;
-  }
-
-  get cdeSet() {
-    return this._cdeSet;
-  }
-}
-*/
