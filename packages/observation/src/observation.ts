@@ -184,16 +184,57 @@ export class Observation<T extends observationData> {
     const json: observationData = {
       resourceType: 'Observation',
       id: this._data.id,
-      code: { ...this._data.code },
-      bodySite: this._data.bodySite
-        ? { code: { ...this._data.bodySite.code } }
-        : undefined,
-      component: this._component.map((component) => component.toJSON()),
-    };
+      code: { 
+              system: this._data.code.system,
+              code: this._data.code.code, 
+              display: this._data.code.display
+            },
+      //TODO: add ? for optionals?
+      bodySite: {
+        code: { 
+              system: this._data.bodySite.system,
+              code: this._data.bodySite.code, 
+              display: this._data.bodySite.display
+            },
+      },
+      //TODO: Do the same for component as above ^^
+      component: {
+        code: { 
+              system: this._data.component.system,
+              code: this._data.component.code, 
+              display: this._data.component.display
+            },
+        //TODO: optional?
+        valueCodeableConcept?: [
 
+        ],
+        //TODO: optional
+        valueString?: this._data.component.valueString,
+        valueInteger?: this._data.component.valueInteger,
+        valueFloat?: this._data.component.valueFloat,
+        //TODO: Add more if adding more types of values. 
+      }
+    };
     return JSON.stringify(json);
   }
-}
+};
+
+/*
+component: 
+
+export const componentSchema = z.object({
+  code: z.array(codingSchema),
+  // Needed to make these optional despite the union d/t the different names ie int, value, string rtc...
+  valueCodeableConcept: z.array(valueSchema).optional(),
+  valueString: z.string().optional(), //TODO: arrays or single value
+  valueInteger: z.number().int().optional(),
+  valueFloat: z.number().optional(),
+  //TODO: add more if needed
+});
+
+
+
+*/
 
 ///////////////////////////////
 /*
