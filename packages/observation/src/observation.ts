@@ -3,9 +3,9 @@ import { z } from 'zod';
 
 //Schemas
 
-export const codingSchema = z.object({
+export const codingSchema = z.object({    //This is really a CDE or CDEs, rename????
   system: z.string(),
-  code: z.string(), //This is an RDES
+  code: z.string(), //This is the CDES id ex RDES195
   display: z.string(),
 });
 
@@ -14,7 +14,7 @@ export const codeSchema = z.object({
 });
 
 export const bodySiteSchema = z.object({
-  code: codingSchema,
+  code: z.array(codingSchema), //This is an RID, which refers to a body site, dont have this yet? 
 });
 
 export const valueCodeableConceptSchema = z.object({
@@ -48,7 +48,7 @@ export const valueSchema = z.union([
  *  value: which is one of several types of values string, float, codeableConcept etc...
  */
 export const componentSchema = z.object({
-  code: z.array(codingSchema),
+  code: z.array(codingSchema), //These are CDE's
   // Needed to make these optional despite the union d/t the different names ie int, value, string rtc...
   valueCodeableConcept: z.array(valueSchema).optional(),
   valueString: z.string().optional(), //TODO: arrays or single value
@@ -60,8 +60,8 @@ export const componentSchema = z.object({
 export const observationSchema = z.object({
   resourceType: z.literal('Observation'),
   id: z.string(),
-  code: codingSchema,
-  bodySite: bodySiteSchema, //TODO: Supposed to be an array?
+  code: codingSchema, //This is a CDES
+  bodySite: bodySiteSchema, //had code attribute which is am array of codes or CDE's
   component: z.array(componentSchema),
 });
 
@@ -156,9 +156,12 @@ export class Component {
 export class Observation<T extends observationData> {
   protected _data: observationData;
   protected _component: componentData[] = [];
+  protected _cdeSet: CdeSet;
 
-  constructor(inData: observationData) {
+  constructor(inData: observationData) {  //Do we want the inData to be of type CdeSet
     this._data = { ...inData };
+    this._cdeSet = new CdeSet(); //what data us used to generate the CdeSet?
+    //this._cdeSet = new CdeSet(this._data.code.code);//What data are we generating the CdeSet from? This returns the rdesID// Cant use this need fetch from repo
     this._data.component.forEach((componentData) => {
       this._component.push(new Component(componentData));
     });
@@ -167,7 +170,7 @@ export class Observation<T extends observationData> {
   get id() {
     return this._data.id;
   }
-
+  
   get code() {
     return this._data.code;
   }
