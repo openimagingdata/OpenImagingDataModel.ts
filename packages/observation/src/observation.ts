@@ -118,7 +118,7 @@ export class Observation {
 
 
   addComponentFromCDElement(cdElement: CdElement) {
-      let value;
+      let componentValue;
       switch (cdElement.elementType) {
         case 'integer':
           value = cdElement.integerValues;
@@ -141,7 +141,7 @@ export class Observation {
         code: cdElement.id,
         display: cdElement.name,
       },
-      valueString: value,
+      value: componentValue,
     };
     const newComponent = new Component(newComponentData);
     this._component.push(newComponent);
