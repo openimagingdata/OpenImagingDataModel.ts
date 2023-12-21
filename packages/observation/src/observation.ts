@@ -135,25 +135,55 @@ export class valueCodeableConcept {
   }
 }
 
-import { Component, componentData, CdElement, CdeSet, observationData } from './path-to-your-classes';
-
 export class Observation {
   protected _data: observationData;
   protected _components: Component[] = [];
   protected _cdeSet: CdeSet;
 
-  constructor(cdeSet: CdeSet) {
+  constructor(cdeSet: CdeSet) {  //Is there going to be other inData, for example what would observation.ID be? 
     this._cdeSet = cdeSet;
     this._data = {
-      id: cdeSet.id,
-      code: cdeSet.code,
-      // other attributes 
-
+      code: {
+        system: cdeSet.url,
+        code: cdeSet.id, 
+        display: cdeSet.name,
+      }
+      //bodySite: RID???
+      //component
     };
-
-    // Get the elements from the CDEset and use them to generate the components
     cdeSet.elements.forEach((element) => {
-      const cdElement = CdElementFactory.create(element); // assuming CdElementFactory is accessible
+      const cdElement = CdElementFactory.create(element);
+
+      let value;
+      let valueSchema;
+
+      switch (cdElement.elementType) {
+        case 'integer':
+          value = cdElement.integerValues;
+          valueSchema = integerValueSchema;
+          break;
+        case 'boolean':
+          // Value does not follow the same structure as the cdeElement value??
+          value = cdElement.booleanValues;
+          valueSchema = z.object({ value: z.boolean() });
+          break;
+        case 'float':
+          value = cdElement.floatValues;
+          valueSchema = floatValueSchema;
+          break;
+        case 'valueSet':
+          value = cdElement.values;
+          valueSchema = valueCodeableConceptSchema; 
+          break;
+        default:
+          throw new Error(`Unknown elementType: ${cdElement.elementType}`);
+      }
+
+      const validatedValue = valueSchema.safeParse(value);
+
+      if (!validatedValue.success) {
+        throw new Error(`Value validation failed: ${validatedValue.error.message}`);
+      }
 
       const newComponentData: componentData = {
         code: {
@@ -161,12 +191,14 @@ export class Observation {
           code: cdElement.id,
           display: cdElement.name,
         },
-        value: cdElement.values, //Need to update for specific cdeElement type, how to get correct type and struct
+        ...validatedValue.data,
       };
 
       const newComponent = new Component(newComponentData);
       this._components.push(newComponent);
     });
+
+    this._data.component = [...this._components];
   }
 
   get id() {
