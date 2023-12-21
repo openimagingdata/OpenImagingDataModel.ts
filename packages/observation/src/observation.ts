@@ -1,4 +1,4 @@
-import { CdeSet, CdeSetData } from '../../cde_set/src/types/cdeSet';
+import { CdeSet, CdeSetData, CdeElement } from '../../cde_set/src/types/cdeSet';
 import { z } from 'zod';
 
 //Schemas
@@ -135,42 +135,44 @@ export class valueCodeableConcept {
   }
 }
 
-export class Component {
-  protected _data: componentData;
+import { Component, componentData, CdElement, CdeSet, observationData } from './path-to-your-classes';
 
-  constructor(inData: componentData) {
-    this._data = { ...inData };
-  }
-
-  get code() {
-    //TODO: if array need to change
-    return this._data.code;
-  }
-
-  get valueCodeableConcept() {
-    //TODO: if array need to change
-    return this._data.valueCodeableConcept;
-  }
-}
-
-export class Observation<T extends observationData> {
+export class Observation {
   protected _data: observationData;
-  protected _component: componentData[] = [];
+  protected _components: Component[] = [];
   protected _cdeSet: CdeSet;
 
-  constructor(inData: observationData) {  //Do we want the inData to be of type CdeSet
-    this._data = { ...inData };
-    this._cdeSet = new CdeSet(); //what data us used to generate the CdeSet?
-    //this._cdeSet = new CdeSet(this._data.code.code);//What data are we generating the CdeSet from? This returns the rdesID// Cant use this need fetch from repo
-    this._data.component.forEach((componentData) => {
-      this._component.push(new Component(componentData));
+  constructor(cdeSet: CdeSet) {
+    this._cdeSet = cdeSet;
+    this._data = {
+      id: cdeSet.id,
+      code: cdeSet.code,
+      // other attributes 
+
+    };
+
+    // Get the elements from the CDEset and use them to generate the components
+    cdeSet.elements.forEach((element) => {
+      const cdElement = CdElementFactory.create(element); // assuming CdElementFactory is accessible
+
+      const newComponentData: componentData = {
+        code: {
+          system: cdElement.source,
+          code: cdElement.id,
+          display: cdElement.name,
+        },
+        value: cdElement.values, //Need to update for specific cdeElement type, how to get correct type and struct
+      };
+
+      const newComponent = new Component(newComponentData);
+      this._components.push(newComponent);
     });
   }
 
   get id() {
     return this._data.id;
   }
-  
+
   get code() {
     return this._data.code;
   }
@@ -179,8 +181,38 @@ export class Observation<T extends observationData> {
     return this._data.bodySite;
   }
 
-  get component() {
-    return this._component;
+  get components() {
+    return [...this._components];
+  }
+
+
+  addComponentFromCDElement(cdeElement: CdElement, value: string) {
+    const newComponentData: componentData = {
+      code: cdeElement.getCode(),
+      valueString: value,
+    };
+    const newComponent = new Component(newComponentData);
+    this._component.push(newComponent);
+  }
+
+  addComponentFromCDElementID(cdeElementID: string, value: string) {
+    const cdeElement = this._cdeSet.getCDElementByID(cdeElementID);
+
+    if (cdeElement) {
+      this.addComponentFromCDElement(cdeElement, value);
+    } else {
+      console.error(`CDElement with ID ${cdeElementID} not found.`);
+    }
+  }
+
+  addComponentFromCDElementName(cdeElementName: string, value: string) {
+    const cdeElement = this._cdeSet.getCDElementByName(cdeElementName);
+
+    if (cdeElement) {
+      this.addComponentFromCDElement(cdeElement, value);
+    } else {
+      console.error(`CDElement with name ${cdeElementName} not found.`);
+    }
   }
 
   toJSON(): string {
@@ -224,3 +256,6 @@ export class Observation<T extends observationData> {
     return JSON.stringify(json);
   }
 };
+
+const cdeSet = await CdeSet.fetchFromRepo('your_rdes_id');
+const observation = new Observation(cdeSet);
