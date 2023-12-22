@@ -134,3 +134,5 @@ export class CdeSet {
     return [...this._data.elements];
   }
 }
+
+export { CdElementFactory, CdElement };
