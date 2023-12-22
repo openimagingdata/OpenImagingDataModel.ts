@@ -1,4 +1,11 @@
-import { CdeSet, CdeSetData, CdElement } from '../../cde_set/src/types/cdeSet';
+import { CdeSet, CdElementFactory } from '../../cde_set/src/types/cdeSet';
+import {
+  CdElement,
+  IntegerElement,
+  FloatElement,
+  BooleanElement,
+  ValueSetElement,
+} from '../../cde_set/src/types/cdElement';
 import { z } from 'zod';
 
 //Schemas
@@ -36,67 +43,88 @@ export const componentSchema = z.union([
   stringValueSchema,
   integerValueSchema,
   floatValueSchema,
-]); //
+]);
 
-export type ComponentData = z.infer<typeof componentSchema>;
+export type componentData = z.infer<typeof componentSchema>;
+
+class Component {
+  private _data: componentData;
+
+  constructor(inData: componentData) {
+    this._data = { ...inData };
+  }
+}
 
 export const observationSchema = z.object({
   resourceType: z.literal('Observation'),
   id: z.string(),
   code: systemCodeSchema,
-  bodySite: z.object({ 
-    code: systemCodeSchema }).optional(),
+  bodySite: z
+    .object({
+      code: systemCodeSchema,
+    })
+    .optional(),
   component: z.array(componentSchema),
 });
+
+export type observationData = z.infer<typeof observationSchema>;
 
 export class Observation {
   protected _data: observationData;
   protected _components: Component[] = [];
   protected _cdeSet: CdeSet;
 
-  constructor(cdeSet: CdeSet) {  //Is there going to be other inData, for example what would observation.ID be? 
+  constructor(cdeSet: CdeSet) {
     this._cdeSet = cdeSet;
     this._data = {
+      resourceType: 'Observation',
+      id: 'some_id', // Waht data do we pull from to get the id?
       code: {
         system: cdeSet.url,
-        code: cdeSet.id, 
+        code: cdeSet.id,
         display: cdeSet.name,
-      }
-      //bodySite: RID???
-      //component
+      },
+      bodySite: undefined,
+      component: [],
     };
     cdeSet.elements.forEach((element) => {
-      const cdElement = CdElementFactory.create(element);
-
+      let cdElement = CdElementFactory.create(element);
       let componentValue;
+      let cdeElement1 = cdElement as IntegerElement;
 
       switch (cdElement.elementType) {
         case 'integer':
-          value = cdElement.integerValues;
+          const intCdElement = cdElement as IntegerElement;
+          componentValue = intCdElement.integerValues;
           break;
         case 'boolean':
-          // Value does not follow the same structure as the element value??
-          value = cdElement.booleanValues;
+          const boolCdElement = cdElement as BooleanElement;
+          componentValue = boolCdElement.booleanValues;
           break;
         case 'float':
-          value = cdElement.floatValues;
+          const floatCdElement = cdElement as FloatElement;
+          componentValue = floatCdElement.floatValues;
           break;
         case 'valueSet':
-          value = cdElement.values;
+          const valueCdElement = cdElement as ValueSetElement;
+          componentValue = valueCdElement.values;
           break;
       }
 
       const newComponentData: componentData = {
-        code: {
-          system: cdElement.source,
-          code: cdElement.id,
-          display: cdElement.name,
-        },
-        value: componentValue,
+        code: [
+          {
+            system: cdElement.source ?? 'defaultSystem',
+            code: cdElement.id,
+            display: cdElement.name,
+          },
+        ],
+        value: componentValue, //TODO: need to correct value
       };
 
       const newComponent = new Component(newComponentData);
       this._components.push(newComponent);
+      this._data.component.push(newComponentData); //Probably dont want to push to both
     });
   }
 
@@ -116,93 +144,106 @@ export class Observation {
     return [...this._components];
   }
 
-
   addComponentFromCDElement(cdElement: CdElement) {
-      let componentValue;
-      switch (cdElement.elementType) {
-        case 'integer':
-          value = cdElement.integerValues;
-          break;
-        case 'boolean':
-          // Value does not follow the same structure as the lement value??
-          value = cdElement.booleanValues;
-          break;
-        case 'float':
-          value = cdElement.floatValues;
-          break;
-        case 'valueSet':
-          value = cdElement.values;
-          break;
-      }
-    
+    let componentValue;
+    switch (cdElement.elementType) {
+      case 'integer':
+        const intCdElement = cdElement as IntegerElement;
+        componentValue = intCdElement.integerValues;
+        break;
+      case 'boolean':
+        const boolCdElement = cdElement as BooleanElement;
+        componentValue = boolCdElement.booleanValues;
+        break;
+      case 'float':
+        const floatCdElement = cdElement as FloatElement;
+        componentValue = floatCdElement.floatValues;
+        break;
+      case 'valueSet':
+        const valueCdElement = cdElement as ValueSetElement;
+        componentValue = valueCdElement.values;
+        break;
+    }
+
     const newComponentData: componentData = {
-      code: {
-        system: cdElement.source,
-        code: cdElement.id,
-        display: cdElement.name,
-      },
+      code: [
+        {
+          system: cdElement.source ?? 'defaultSystem',
+          code: cdElement.id,
+          display: cdElement.name,
+        },
+      ],
       value: componentValue,
     };
+
     const newComponent = new Component(newComponentData);
-    this._component.push(newComponent);
+    this._components.push(newComponent);
+    this._data.component.push(newComponentData); //Probably dont want to push to both
   }
+}
 
-  addComponentFromCDElementID(cdElementID: string) {
-    //add logic
-  }
-    
+// Usage example:
+CdeSet.fetchFromRepo('your_rdes_id')
+  .then((cdeSet) => {
+    if (cdeSet) {
+      const observation = new Observation(cdeSet);
+    } else {
+      console.error('Failed to fetch CdeSet from the repository');
+    }
+  })
+  .catch((error) => {
+    console.error('An error occurred:', error);
+  });
 
-  addComponentFromCDElementName(elementName: string) {
-    //add logic
-  }
+/*
+  const cdeSet = CdeSet.fetchFromRepo('your_rdes_id');
+  const observation = new Observation(cdeSet.data);
+  console.log(observation.toJSON());
 
-};
+  */
 
-const cdeSet = await CdeSet.fetchFromRepo('your_rdes_id');
-const observation = new Observation(cdeSet);
-
-
-
-
-
-
-/*   toJSON(): string {
+/*  toJSON(): string {
     const json: observationData = {
       resourceType: 'Observation',
       id: this._data.id,
-      code: { 
-              system: this._data.code.system,
-              code: this._data.code.code, 
-              display: this._data.code.display
-            },
-      //TODO: add ? for optionals?
-      bodySite: {
-        code: { 
-              system: this._data.bodySite.system,
-              code: this._data.bodySite.code, 
-              display: this._data.bodySite.display
-            },
+      code: {
+        system: this._data.code.system,
+        code: this._data.code.code,
+        display: this._data.code.display,
       },
-      component: this._component.map((componentItem) => ({
+      bodySite: this._data.bodySite?.code
+        ? {
+            code: {
+              system: this._data.bodySite.code.system,
+              code: this._data.bodySite.code.code,
+              display: this._data.bodySite.code.display,
+            },
+          }
+        : undefined,
+      component: this._components.map((componentItem) => ({
         code: {
-          coding: componentItem.code.map((codeItem) => ({
+          coding: componentItem.getData().code.map((codeItem) => ({
             system: codeItem.system,
             code: codeItem.code,
-            display: codeItem.display
-          }))
+            display: codeItem.display,
+          })),
         },
-        valueCodeableConcept?: {
-          coding: valueItem.code.map((valueItem) => ({ 
-            system: this._component.valueCodeableConcept.system,
-            code: this._component.valueCodeableConcept.code,
-            display: this._component.valueCodeableConcept.display
-            }))
-        },
-        valueString?: this._data.component.valueString,
-        valueString?: this._data.component.valueString,
-        valueInteger?: this._data.component.valueInteger,
-        valueFloat?: this._data.component.valueFloat,
+        valueCodeableConcept: componentItem.getData().value
+          ? {
+              coding: componentItem.getData().value?.map((valueItem) => ({
+                system: valueItem.system,
+                code: valueItem.code,
+                display: valueItem.display,
+              })),
+            }
+          : undefined,
+        valueString: componentItem.getData().valueString,
+        valueInteger: componentItem.getData().valueInteger,
+        valueFloat: componentItem.getData().valueFloat,
       })),
     };
-    return JSON.stringify(json);
-  }*/
+    return JSON.stringify(json, null, 2); // Adjust spacing for better readability
+  }
+}
+
+*/

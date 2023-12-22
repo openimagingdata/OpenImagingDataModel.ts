@@ -265,6 +265,9 @@ export class BooleanElement extends CdElement<BooleanElementData> {
   get elementType(): ElementType {
     return 'boolean';
   }
+  get booleanValues() {
+    return this._data.boolean_values;
+  }
 }
 
 export class ValueSetElement extends CdElement<ValueSetElementData> {
