@@ -69,12 +69,63 @@ export const observationSchema = z.object({
 
 export type observationData = z.infer<typeof observationSchema>;
 
+class CDEComponent {
+  private _data: componentData;
+
+  constructor(cdElement: CdElement) {
+      let componentValue; 
+      switch (cdElement.elementType) {
+      case 'integer':
+        const intCdElement = cdElement as IntegerElement;
+        componentValue = intCdElement.integerValues;
+        break;
+      case 'boolean':
+        const boolCdElement = cdElement as BooleanElement;
+        componentValue = boolCdElement.booleanValues;
+        break;
+      case 'float':
+        const floatCdElement = cdElement as FloatElement;
+        componentValue = floatCdElement.floatValues;
+        break;
+      case 'valueSet':
+        const valueCdElement = cdElement as ValueSetElement;
+        componentValue = valueCdElement.values;
+        break;
+    }
+    const component: componentData = {
+      code: [
+        {
+          system: cdElement.source ?? 'defaultSystem',
+          code: cdElement.id,
+          display: cdElement.name,
+        },
+      ],
+      value: componentValue,
+    };
+
+    this._data = component;
+  }
+
+  get data() {
+    return { ...this._data };
+  }
+}
+
+const ObservationInput = z.object ({
+  cdeSetId: z.string(),
+  observationId?: z.string(),
+  //optional data, where the data is a Mapping from strings (representing either element names or IDs) or CDElements and values
+  data?: z.array(string()),
+});
+
+type observationInput = z.infer<typeof ObservationInput>;
+
 export class Observation {
   protected _data: observationData;
   protected _components: Component[] = [];
   protected _cdeSet: CdeSet;
 
-  constructor(cdeSet: CdeSet) {
+  constructor(inData: CdeSet) {
     this._cdeSet = cdeSet;
     this._data = {
       resourceType: 'Observation',
