@@ -7,6 +7,7 @@ import {
   ValueSetElement,
 } from '../../cde_set/src/types/cdElement';
 import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
 
 //Schemas
 
@@ -57,7 +58,7 @@ class Component {
 
 export const observationSchema = z.object({
   resourceType: z.literal('Observation'),
-  id: z.string(),
+  id: z.string().optional(),
   code: systemCodeSchema,
   bodySite: z
     .object({
@@ -73,8 +74,8 @@ class CDEComponent {
   private _data: componentData;
 
   constructor(cdElement: CdElement) {
-      let componentValue; 
-      switch (cdElement.elementType) {
+    let componentValue;
+    switch (cdElement.elementType) {
       case 'integer':
         const intCdElement = cdElement as IntegerElement;
         componentValue = intCdElement.integerValues;
@@ -111,34 +112,62 @@ class CDEComponent {
   }
 }
 
-const ObservationInput = z.object ({
+const ObservationInput = z.object({
   cdeSetId: z.string(),
-  observationId?: z.string(),
+  observationId: z.string(),
   //optional data, where the data is a Mapping from strings (representing either element names or IDs) or CDElements and values
-  data?: z.array(string()),
+  data: z.array(z.string()),
 });
 
 type observationInput = z.infer<typeof ObservationInput>;
 
+export class ObservationId {
+  protected _id: string | undefined;
+
+  constructor(inId: string | undefined = undefined) {
+    this._id = inId;
+  }
+
+  public generateId() {
+    this._id = uuidv4();
+    return this._id;
+  }
+
+  get id() {
+    return this._id;
+  }
+}
+
 export class Observation {
+  protected _id: ObservationId = new ObservationId();
   protected _data: observationData;
   protected _components: Component[] = [];
   protected _cdeSet: CdeSet;
 
-  constructor(inData: CdeSet) {
-    this._cdeSet = cdeSet;
+  constructor(
+    inData: CdeSet,
+    id: string | ObservationId | undefined = undefined
+  ) {
+    if (typeof id === 'string' || typeof id === 'undefined') {
+      this._id = new ObservationId(id);
+    } else {
+      this._id = new ObservationId(id.id);
+    }
+    this._cdeSet = inData;
     this._data = {
       resourceType: 'Observation',
-      id: 'some_id', // Waht data do we pull from to get the id?
       code: {
-        system: cdeSet.url,
-        code: cdeSet.id,
-        display: cdeSet.name,
+        system: inData.url,
+        code: inData.id,
+        display: inData.name,
       },
       bodySite: undefined,
       component: [],
     };
-    cdeSet.elements.forEach((element) => {
+    if (this._id.id) {
+      this._data['id'] = this._id.id;
+    }
+    inData.elements.forEach((element) => {
       let cdElement = CdElementFactory.create(element);
       let componentValue;
       let cdeElement1 = cdElement as IntegerElement;
@@ -183,8 +212,10 @@ export class Observation {
     return this._data.id;
   }
 
-  get code() {
-    return this._data.code;
+  // TODO?: Could create a function that says to generate the ID ourselves
+
+  get cdeSet() {
+    return this._cdeSet;
   }
 
   get bodySite() {
@@ -194,6 +225,19 @@ export class Observation {
   get components() {
     return [...this._components];
   }
+
+  // What we want to be able to do with components is call something like
+  // obs.addComponent(key, value)
+  // Where "key" could be some arbitrary code, or it could be a CDE ID or it could
+  // be a CdElement object itself...
+  // ...and we confirm that value is valid given the element and add it to the list
+  // BTW, it's also possible to have non-CDEs as the codes associated with a component;
+  // we should also allow alternate codes to be used instead of a cdElement (in which
+  // case we obviously can't check for validity).
+  // We would also like to be able to call
+  // obs.getComponentValue(Code | CdElement | CDE ID)
+  // and if we have a component like that, we can return the value.
+  // At the end of the day, we'd like to be able ingest and spit out FHIR
 
   addComponentFromCDElement(cdElement: CdElement) {
     let componentValue;
