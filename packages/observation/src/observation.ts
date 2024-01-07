@@ -8,6 +8,7 @@ import {
 } from '../../cde_set/src/types/cdElement';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+//TODO: npm install --save-dev @types/uuid
 
 //Schemas
 
@@ -75,21 +76,26 @@ class CDEComponent {
 
   constructor(cdElement: CdElement) {
     let componentValue;
+    let intCdElement = cdElement as IntegerElement;
+    let boolCdElement = cdElement as BooleanElement;
+    let floatCdElement = cdElement as FloatElement;
+    let valueCdElement = cdElement as ValueSetElement;
+
     switch (cdElement.elementType) {
       case 'integer':
-        const intCdElement = cdElement as IntegerElement;
+        intCdElement = cdElement as IntegerElement;
         componentValue = intCdElement.integerValues;
         break;
       case 'boolean':
-        const boolCdElement = cdElement as BooleanElement;
+        boolCdElement = cdElement as BooleanElement;
         componentValue = boolCdElement.booleanValues;
         break;
       case 'float':
-        const floatCdElement = cdElement as FloatElement;
+        floatCdElement = cdElement as FloatElement;
         componentValue = floatCdElement.floatValues;
         break;
       case 'valueSet':
-        const valueCdElement = cdElement as ValueSetElement;
+        valueCdElement = cdElement as ValueSetElement;
         componentValue = valueCdElement.values;
         break;
     }
@@ -102,6 +108,9 @@ class CDEComponent {
         },
       ],
       value: componentValue,
+      //TODO: update value attribute of each component type to match the corresponding CDEelement.values
+      //TODO: what attributes from cdeElement.integerValues do you want ex cardinality, value_min_max, step value etc...
+      //need this to match the schema outline.
     };
 
     this._data = component;
@@ -161,32 +170,35 @@ export class Observation {
         code: inData.id,
         display: inData.name,
       },
-      bodySite: undefined,
+      bodySite: undefined, //TODO: need to figure out bodyType structure
       component: [],
     };
     if (this._id.id) {
       this._data['id'] = this._id.id;
     }
     inData.elements.forEach((element) => {
-      let cdElement = CdElementFactory.create(element);
+      const cdElement = CdElementFactory.create(element);
       let componentValue;
-      let cdeElement1 = cdElement as IntegerElement;
+      let intCdElement = cdElement as IntegerElement;
+      let boolCdElement = cdElement as BooleanElement;
+      let floatCdElement = cdElement as FloatElement;
+      let valueCdElement = cdElement as ValueSetElement;
 
       switch (cdElement.elementType) {
         case 'integer':
-          const intCdElement = cdElement as IntegerElement;
+          intCdElement = cdElement as IntegerElement;
           componentValue = intCdElement.integerValues;
           break;
         case 'boolean':
-          const boolCdElement = cdElement as BooleanElement;
+          boolCdElement = cdElement as BooleanElement;
           componentValue = boolCdElement.booleanValues;
           break;
         case 'float':
-          const floatCdElement = cdElement as FloatElement;
+          floatCdElement = cdElement as FloatElement;
           componentValue = floatCdElement.floatValues;
           break;
         case 'valueSet':
-          const valueCdElement = cdElement as ValueSetElement;
+          valueCdElement = cdElement as ValueSetElement;
           componentValue = valueCdElement.values;
           break;
       }
@@ -235,110 +247,110 @@ export class Observation {
   // we should also allow alternate codes to be used instead of a cdElement (in which
   // case we obviously can't check for validity).
   // We would also like to be able to call
+  private async addComponent(key: string | CdElement, value: any) {
+    //This the case where key is string and matches the regex
+    if (typeof key === 'string') {
+      const idPattern = /^rde\d{1,3}$/i;
+      if (key.match(idPattern)) {
+        const cdElement: CdElement = (await CdElement.fetchFromRepo(
+          key
+        )) as CdElement; //TODO: Can I assume it will return as CdeElement, what if returs null.
+        if (cdElement) {
+          let componentValue;
+          let intCdElement = cdElement as IntegerElement;
+          let boolCdElement = cdElement as BooleanElement;
+          let floatCdElement = cdElement as FloatElement;
+          let valueCdElement = cdElement as ValueSetElement;
+
+          switch (cdElement.elementType) {
+            case 'integer':
+              intCdElement = cdElement as IntegerElement;
+              componentValue = intCdElement.integerValues;
+              break;
+            case 'boolean':
+              boolCdElement = cdElement as BooleanElement;
+              componentValue = boolCdElement.booleanValues;
+              break;
+            case 'float':
+              floatCdElement = cdElement as FloatElement;
+              componentValue = floatCdElement.floatValues;
+              break;
+            case 'valueSet':
+              valueCdElement = cdElement as ValueSetElement;
+              componentValue = valueCdElement.values;
+              break;
+          }
+
+          const newComponentData: componentData = {
+            code: [
+              {
+                system: cdElement.source ?? 'defaultSystem',
+                code: cdElement.id,
+                display: cdElement.name,
+              },
+            ],
+            value: componentValue,
+            //TODO: if boolean key.booleanValues, if integer key.integerValues etc...
+            //TODO: which attributes of values do we want?
+          };
+
+          const newComponent = new Component(newComponentData);
+          this._components.push(newComponent);
+          //TODO: what if fetch returns null
+        }
+      } else {
+        //TODO: This the case it is a string that does not match the regex... what do we do.
+        // If the key is a string, assume it's a code?
+        // Validate if the key is a valid code or handle non-CDE cases
+        // if key is a random string, how do we map its values to componentData?
+      }
+      //If key is of type CdeElement or CdeElement subclass
+    } else if (key instanceof CdElement) {
+      let componentValue;
+      let intCdElement = key as IntegerElement;
+      let boolCdElement = key as BooleanElement;
+      let floatCdElement = key as FloatElement;
+      let valueCdElement = key as ValueSetElement;
+
+      switch (key.elementType) {
+        case 'integer':
+          intCdElement = key as IntegerElement;
+          componentValue = intCdElement.integerValues;
+          break;
+        case 'boolean':
+          boolCdElement = key as BooleanElement;
+          componentValue = boolCdElement.booleanValues;
+          break;
+        case 'float':
+          floatCdElement = key as FloatElement;
+          componentValue = floatCdElement.floatValues;
+          break;
+        case 'valueSet':
+          valueCdElement = key as ValueSetElement;
+          componentValue = valueCdElement.values;
+          break;
+      }
+
+      const newComponentData: componentData = {
+        code: [
+          {
+            system: key.source ?? 'defaultSystem',
+            code: key.id,
+            display: key.name,
+          },
+        ],
+        value: componentValue,
+        //TODO: if boolean key.booleanValues, if integer key.integerValues etc...
+        //TODO: which attributes of values do we want?
+      };
+
+      const newComponent = new Component(newComponentData);
+      this._components.push(newComponent);
+      this._data.component.push(newComponentData); //Probably dont want to push to both
+    }
+  }
+  //TODO: Next steps:
   // obs.getComponentValue(Code | CdElement | CDE ID)
   // and if we have a component like that, we can return the value.
   // At the end of the day, we'd like to be able ingest and spit out FHIR
-
-  addComponentFromCDElement(cdElement: CdElement) {
-    let componentValue;
-    switch (cdElement.elementType) {
-      case 'integer':
-        const intCdElement = cdElement as IntegerElement;
-        componentValue = intCdElement.integerValues;
-        break;
-      case 'boolean':
-        const boolCdElement = cdElement as BooleanElement;
-        componentValue = boolCdElement.booleanValues;
-        break;
-      case 'float':
-        const floatCdElement = cdElement as FloatElement;
-        componentValue = floatCdElement.floatValues;
-        break;
-      case 'valueSet':
-        const valueCdElement = cdElement as ValueSetElement;
-        componentValue = valueCdElement.values;
-        break;
-    }
-
-    const newComponentData: componentData = {
-      code: [
-        {
-          system: cdElement.source ?? 'defaultSystem',
-          code: cdElement.id,
-          display: cdElement.name,
-        },
-      ],
-      value: componentValue,
-    };
-
-    const newComponent = new Component(newComponentData);
-    this._components.push(newComponent);
-    this._data.component.push(newComponentData); //Probably dont want to push to both
-  }
 }
-
-// Usage example:
-CdeSet.fetchFromRepo('your_rdes_id')
-  .then((cdeSet) => {
-    if (cdeSet) {
-      const observation = new Observation(cdeSet);
-    } else {
-      console.error('Failed to fetch CdeSet from the repository');
-    }
-  })
-  .catch((error) => {
-    console.error('An error occurred:', error);
-  });
-
-/*
-  const cdeSet = CdeSet.fetchFromRepo('your_rdes_id');
-  const observation = new Observation(cdeSet.data);
-  console.log(observation.toJSON());
-
-  */
-
-/*  toJSON(): string {
-    const json: observationData = {
-      resourceType: 'Observation',
-      id: this._data.id,
-      code: {
-        system: this._data.code.system,
-        code: this._data.code.code,
-        display: this._data.code.display,
-      },
-      bodySite: this._data.bodySite?.code
-        ? {
-            code: {
-              system: this._data.bodySite.code.system,
-              code: this._data.bodySite.code.code,
-              display: this._data.bodySite.code.display,
-            },
-          }
-        : undefined,
-      component: this._components.map((componentItem) => ({
-        code: {
-          coding: componentItem.getData().code.map((codeItem) => ({
-            system: codeItem.system,
-            code: codeItem.code,
-            display: codeItem.display,
-          })),
-        },
-        valueCodeableConcept: componentItem.getData().value
-          ? {
-              coding: componentItem.getData().value?.map((valueItem) => ({
-                system: valueItem.system,
-                code: valueItem.code,
-                display: valueItem.display,
-              })),
-            }
-          : undefined,
-        valueString: componentItem.getData().valueString,
-        valueInteger: componentItem.getData().valueInteger,
-        valueFloat: componentItem.getData().valueFloat,
-      })),
-    };
-    return JSON.stringify(json, null, 2); // Adjust spacing for better readability
-  }
-}
-
-*/

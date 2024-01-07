@@ -139,6 +139,30 @@ export abstract class CdElement<T extends ElementData = ElementData> {
     });
   }
 
+  //TODO: finish a get cdElement from repo with correct endpoints...
+
+  static async fetchFromRepo(rdeID: string): Promise<CdElement | null> {
+    const radElementAPI = `https://api3.rsna.org/radelement/v1/elements/${rdeID}`; //TODO: what is the correct endpoint
+
+    try {
+      const response = await fetch(radElementAPI);
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      const jsonData = await response.json();
+      console.log(jsonData.data);
+      const parsed = elementSchema.safeParse(jsonData.data);
+      if (!parsed.success) throw new Error(parsed.error.message);
+      const cdElementData: ElementData = parsed.data;
+      console.log(cdElementData);
+      const cdElementInstance = CdElementFactory.create(cdElementData);
+      return cdElementInstance;
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  }
+
   get id() {
     return this._data.id;
   }
