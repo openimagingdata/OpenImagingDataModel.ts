@@ -219,8 +219,39 @@ export class Observation {
   // BTW, it's also possible to have non-CDEs as the codes associated with a component;
   // we should also allow alternate codes to be used instead of a cdElement (in which
   // case we obviously can't check for validity).
-  // We would also like to be able to call
-  private async addComponent(key: string | CdElement, value: any) {
+  //
+  // What kind of inputs might we give for key?
+  // - A string that matches the regex /^rde\d{1,3}$/i
+  // - A CdElement object
+  // - A FHIR Coding object
+  // What kind of inputs might have for the value?
+  // - A string, number, or boolean, a FHIR Coding, or a list of strings or list of FHIR Codings
+
+  // type ComponentKeyInput = string | CdElement | Coding;
+  // type ComponentValueInput = string | number | boolean | Coding | Coding[] | string[];
+
+  // And then what we want to do see if the key is supposed to be a CDE, and if so,
+  // make sure we have the CDE object. Then, we should make sure that the value is
+  // a valid value for the CDE (or can be turned into a valid value for the CDE).
+  // So let's say we want to look at CDERDE818 "Aortic dissection", which is a choice
+  // component with a cardinality of 1..1. We could do something like. It expects certain  // possible choice values, numbered RDE818.0 ... RDE818.4, with names like "acute",
+  // "subacute", etc. All of that is part of the CDE definition (and therefore part of the)
+  // CDE object. So we should have a method on the CDE object that looks at a value and sees
+  // if it's valid or if can be coerced into a valid value (e.g., if they give a string of
+  // "acute", or "Acute", we can realize that that should be RDE818.0).  // When creating a component, if the value given isn't a valid for the CDE set, we should
+  // throw an error. If it is valid, we should turn it into the appropriate FHIR value type:
+  // valueCodeableConcept, in this example, but valueInteger for integers, or valueString
+  // for non-integer numbers. Then we should also have a method on the CDE object that can just
+  // express itself as a Code, like:
+  // {
+  //    "code": {
+  //
+  'codin';
+  // If the key is just a Coding, we can
+  private async addComponent(
+    key: ComponentKeyInput,
+    value: ComponentValueInput
+  ) {
     //This the case where key is string and matches the regex
     if (typeof key === 'string') {
       const idPattern = /^rde\d{1,3}$/i;
@@ -272,7 +303,7 @@ export class Observation {
           //TODO: what if fetch returns null
         }
       } else {
-        //TODO: This the case it is a string that does not match the regex... what do we do.
+        //TODO: This the case it is a string that does not match the regex... what do we do AKA "arbitrary code"
         // If the key is a string, assume it's a code?
         // Validate if the key is a valid code or handle non-CDE cases
         // if key is a random string, how do we map its values to componentData?
@@ -326,4 +357,21 @@ export class Observation {
   // obs.getComponentValue(Code | CdElement | CDE ID)
   // and if we have a component like that, we can return the value.
   // At the end of the day, we'd like to be able ingest and spit out FHIR
+
+  getComponentValue(key: string | CdElement): any | undefined {
+    // It essentially disables TypeScript's type checking for the return value,
+    //allowing the method to return a value of any type. Need to specify later?
+
+    //Checks the type of key. If it's a string, it assigns key to keyString.
+    //If it's not a string, it assumes it's a CdElement and assigns its id property to keyString
+    const keyString = typeof key === 'string' ? key : key.id;
+
+    // Find the component with the matching key
+    const matchingComponent = this._components.find((component) => {
+      return component.code.code === keyString; //TODO: Need to fix, which attribute are we trying to match?
+    });
+
+    // Return the value if found
+    return matchingComponent?.data.value;
+  }
 }
