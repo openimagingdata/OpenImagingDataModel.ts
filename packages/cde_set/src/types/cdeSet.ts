@@ -134,3 +134,23 @@ export class CdeSet {
     return [...this._data.elements];
   }
 }
+
+//how easy would it be to take a finding model as input and put out a CDE Set based on it?
+//In terms of FindingModel → CdeSet…
+//I think we need to create a CdeSetBuilder class. We can use the Partial<CdeSet> type (see https://timmousk.com/blog/typescript-partial/ for info on Partial<>.)
+//Basically, the builder lets you slowly set the different things we need to define for the new CdeSet object, and then convert it to a final CdeSet when we have everything put together.
+//We can go one by one through how we put together the required fiedls—most of them can be set to a reasonable default based on the idea that this is a new Set, it’s the first version, 
+//it has no history, it gets a temporary ID, and so on.
+//Does that make sense?
+
+export class CdeSetBuilder {
+  private _data: Partial<CdeSet>
+
+  constructor(inData: Partial<CdeSet>){
+    this._data = { ...inData  }
+  }
+
+  update(updatedData: Partial<CdeSet>): void {
+    this._data = { ...this._data, ...updatedData };
+  }
+}
