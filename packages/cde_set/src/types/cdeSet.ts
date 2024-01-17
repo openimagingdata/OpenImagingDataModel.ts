@@ -143,11 +143,48 @@ export class CdeSet {
 //it has no history, it gets a temporary ID, and so on.
 //Does that make sense?
 
-export class CdeSetBuilder {
-  private _data: Partial<CdeSet>
+//Questions:
+//Do I want to add a partialCDE to CDEset contructor 
+//Mult
+//data from findng map to an element in a new CDE. F
 
-  constructor(inData: Partial<CdeSet>){
-    this._data = { ...inData  }
+/*Finding {
+  name,
+  description,
+  attributes [attributesSchema]
+}
+
+choiceAttribute
+numeriAttribute
+
+*/
+
+export class CdeSetBuilder {
+  private _data: Partial<CdeSet>;
+  private _finding: FindingModel;
+
+  //{partialCde or FindingModel as input}? 
+  constructor(inData: Partial<CdeSet> | FindingModel ){
+    if (inData) {
+      this._data = { ...inData  }
+    }
+    else {
+      this._finding = { ...findingModel }
+    }
+    
+
+    //get the attributes from the finding ie choice or numeric 
+      //May need to loop through each attribute and generate a cde from it
+      //if choice map to a valueSet element 
+        //choice{name:string, description:string}
+        //valueSet.values{value:string, name:string}
+          //valueSet.values.value is a string but looks like a RDEid? 
+      //if numeric map to a float, int element 
+
+      switch(FindingModel)
+    
+
+
   }
 
   update(updatedData: Partial<CdeSet>): void {
