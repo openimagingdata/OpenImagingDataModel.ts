@@ -147,6 +147,23 @@ export class ObservationId {
   }
 }
 
+//component = {code, value[x]}
+//component.code is a codeableConcept
+//codeableConcent = {coding, text}
+//component.value is a valueCodeableConcept, value string, value integer, value float etc...
+//codeableConcept = {coding, text}
+//coding = {system, version, code, display, userSelected}
+//code = {system, version, code, display}
+
+type ComponentKeyInput = string | CdElement | Coding;
+type ComponentValueInput =
+  | string
+  | number
+  | boolean
+  | Coding
+  | Coding[]
+  | string[];
+
 export class Observation {
   protected _id: ObservationId = new ObservationId();
   protected _data: observationData;
@@ -273,7 +290,6 @@ export class Observation {
   // {
   //    "code": {
   //
-  'codin';
   // If the key is just a Coding, we can
   private async addComponent(
     key: ComponentKeyInput,
