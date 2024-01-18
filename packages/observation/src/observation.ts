@@ -130,6 +130,40 @@ const ObservationInput = z.object({
 
 type observationInput = z.infer<typeof ObservationInput>;
 
+export class ObservationId {
+  protected _id: string | undefined;
+
+  constructor(inId: string | undefined = undefined) {
+    this._id = inId;
+  }
+
+  public generateId() {
+    this._id = uuidv4();
+    return this._id;
+  }
+
+  get id() {
+    return this._id;
+  }
+}
+
+//component = {code, value[x]}
+//component.code is a codeableConcept
+//codeableConcent = {coding, text}
+//component.value is a valueCodeableConcept, value string, value integer, value float etc...
+//codeableConcept = {coding, text}
+//coding = {system, version, code, display, userSelected}
+//code = {system, version, code, display}
+
+type ComponentKeyInput = string | CdElement | Coding;
+type ComponentValueInput =
+  | string
+  | number
+  | boolean
+  | Coding
+  | Coding[]
+  | string[];
+
 export class Observation {
   protected _data: observationData;
   protected _components: Component[] = [];
@@ -246,7 +280,6 @@ export class Observation {
   // {
   //    "code": {
   //
-  'codin';
   // If the key is just a Coding, we can
   private async addComponent(
     key: ComponentKeyInput,
