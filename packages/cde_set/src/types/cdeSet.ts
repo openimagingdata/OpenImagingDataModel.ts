@@ -13,7 +13,10 @@ import {
   referenceSchema,
   //Specialty, //TODO: create specialty class in shared
 } from './shared';
+import { FindingModel } from '../findingModel/src/findingModel';
 
+//import { FindingModel } from '../../../findingModel/src/findingModel';
+import { CdeSet } from '../cde_set/src/types/cdeSet';
 const idPattern = /^rdes\d{1,3}$/i;
 
 export const cdeSetSchema = z.object({
@@ -135,16 +138,17 @@ export class CdeSet {
   }
 }
 
-//how easy would it be to take a finding model as input and put out a CDE Set based on it?
+//Take a finding model as input and out put a CDE Set based on it?
 //In terms of FindingModel → CdeSet…
-//I think we need to create a CdeSetBuilder class. We can use the Partial<CdeSet> type (see https://timmousk.com/blog/typescript-partial/ for info on Partial<>.)
+//1. CdeSetBuilder class. We can use the Partial<CdeSet> type (see https://timmousk.com/blog/typescript-partial/ for info on Partial<>.)
 //Basically, the builder lets you slowly set the different things we need to define for the new CdeSet object, and then convert it to a final CdeSet when we have everything put together.
-//We can go one by one through how we put together the required fiedls—most of them can be set to a reasonable default based on the idea that this is a new Set, it’s the first version, 
+//We can go one by one through how we put together the required fiedls—most of them can be set to a reasonable default based on the idea
+//that this is a new Set, it’s the first version,
 //it has no history, it gets a temporary ID, and so on.
 //Does that make sense?
 
 //Questions:
-//Do I want to add a partialCDE to CDEset contructor 
+//Do I want to add a partialCDE to CDEset contructor
 //Mult
 //data from findng map to an element in a new CDE. F
 
@@ -161,30 +165,23 @@ numeriAttribute
 
 export class CdeSetBuilder {
   private _data: Partial<CdeSet>;
-  private _finding: FindingModel;
 
-  //{partialCde or FindingModel as input}? 
-  constructor(inData: Partial<CdeSet> | FindingModel ){
-    if (inData) {
-      this._data = { ...inData  }
+  //{partialCde or FindingModel as input}?
+  constructor(inData: Partial<CdeSet> | FindingModel) {
+    this._data = { ...inData };
+    //get the attributes from the finding ie choice or numeric
+    //May need to loop through each attribute and generate a cde from it
+    //if choice map to a valueSet element
+    //choice{name:string, description:string}
+    //valueSet.values{value:string, name:string}
+    //valueSet.values.value is a string but looks like a RDEid?
+    //if numeric map to a float, int element
+    if (this._data instanceof FindingModel) {
+      for 
+      const attribute = inData.attributes[0];
+    } else {
+      //else inData is Partial<CdeSet>
     }
-    else {
-      this._finding = { ...findingModel }
-    }
-    
-
-    //get the attributes from the finding ie choice or numeric 
-      //May need to loop through each attribute and generate a cde from it
-      //if choice map to a valueSet element 
-        //choice{name:string, description:string}
-        //valueSet.values{value:string, name:string}
-          //valueSet.values.value is a string but looks like a RDEid? 
-      //if numeric map to a float, int element 
-
-      switch(FindingModel)
-    
-
-
   }
 
   update(updatedData: Partial<CdeSet>): void {
