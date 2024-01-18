@@ -165,19 +165,100 @@ numeriAttribute
 
 export class CdeSetBuilder {
   private _data: Partial<CdeSet>;
+  private _elements: CdElement[]; //TODO fix, do we want array  
 
   //{partialCde or FindingModel as input}?
   constructor(inData: Partial<CdeSet> | FindingModel) {
     this._data = { ...inData };
     //get the attributes from the finding ie choice or numeric
     //May need to loop through each attribute and generate a cde from it
-    //if choice map to a valueSet element
-    //choice{name:string, description:string}
-    //valueSet.values{value:string, name:string}
-    //valueSet.values.value is a string but looks like a RDEid?
     //if numeric map to a float, int element
     if (this._data instanceof FindingModel) {
-      for 
+      //for each attribute
+      this._data.attributes.forEach((attribute) => {
+        //check the type (choice or numeric)
+        switch(attribute.type){
+          case'choice':
+            //choice logic: map the finding to _element which is Partial<CDEset>
+            //1. if choice map to a valueSet element
+            //Make element
+            //choice{name(str), description(str), type(str), values}
+              //name = element.name
+              //description = element.definitiom
+              //type = dont need to map
+              //values: 
+                //1a. choice.values{name:string, description:string}
+                //1b. valueSet.values{value:string, name:string}
+                  //choice.values.name = , choice.description = 
+                //1c. valueSet.values.value is a string but looks like a RDEid? 
+                const element: 
+                    id = 'Unique ID' // add unique ID,
+                    parent_id = //???,
+                    name= // ,
+                    short_name = //,
+                    editor= //,
+                    instructions= //,
+                    synonyms= //,
+                    definition = 'Describe clavicle fracture laterality',
+                    question= //,
+                    version = {
+                      name = //,
+                      version_date= //,
+                      status_date= //,
+                      status= //,
+                    },
+                    index_codes= //,
+                    authors = {
+                      person= //,
+                      organization= //,
+                    },
+                    history= //,
+                    specialty= //,
+                    references= //,
+                    source= //,
+                    value_set = {
+                      cardinality={
+                        min_cardinality= //,
+                        max_cardinality= //,
+                      },
+                      value_min_max: {
+                        value_min= //,
+                        value_max= //,
+                      },
+                      step_value= //,
+                      unit= //,
+                      value_type = 'valueSet',
+                      value_size= //,
+                      values = [
+                        {
+                          value: 'RDExxxx',
+                          name= //,
+                          definition= //,
+                        },
+                        {
+                          value = 'RDExxxx',
+                          name = //,
+                          definition = //,
+                        },
+                      ],
+                    },
+                  },
+            this._elements.push(element) //push the finding to the elements array? 
+              
+
+
+            break;
+          
+          case'numeric': 
+            //numeric logic
+            break;
+          }
+        }
+
+        
+
+      }
+       
       const attribute = inData.attributes[0];
     } else {
       //else inData is Partial<CdeSet>
