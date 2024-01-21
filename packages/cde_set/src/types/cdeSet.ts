@@ -1,7 +1,13 @@
 import { z } from 'zod';
 
 import { bodyPartSchema, BodyPart } from './bodyPart';
-import { elementSchema, CdElement, CdElementFactory } from './cdElement';
+import {
+  elementSchema,
+  CdElement,
+  CdElementFactory,
+  ValueSetElement,
+  ValueSetValue,
+} from './cdElement';
 import { indexCodeSchema, IndexCode } from './indexCode';
 import {
   specialtySchema,
@@ -16,7 +22,6 @@ import {
 import { FindingModel } from '../findingModel/src/findingModel';
 
 //import { FindingModel } from '../../../findingModel/src/findingModel';
-import { CdeSet } from '../cde_set/src/types/cdeSet';
 const idPattern = /^rdes\d{1,3}$/i;
 
 export const cdeSetSchema = z.object({
@@ -165,103 +170,90 @@ numeriAttribute
 
 export class CdeSetBuilder {
   private _data: Partial<CdeSet>;
-  private _elements: CdElement[]; //TODO fix, do we want array  
+  private _elements: CdElement[];
+  private _values: ValueSetValue[];
 
-  //{partialCde or FindingModel as input}?
+  // {partialCde or FindingModel as input}?
   constructor(inData: Partial<CdeSet> | FindingModel) {
     this._data = { ...inData };
-    //get the attributes from the finding ie choice or numeric
-    //May need to loop through each attribute and generate a cde from it
-    //if numeric map to a float, int element
+    this._elements = [];
+
+    // get the attributes from the finding ie choice or numeric
+    // May need to loop through each attribute and generate a cde from it
+    // if numeric map to a float, int element
     if (this._data instanceof FindingModel) {
-      //for each attribute
-      this._data.attributes.forEach((attribute) => {
-        //check the type (choice or numeric)
-        switch(attribute.type){
-          case'choice':
-            //choice logic: map the finding to _element which is Partial<CDEset>
-            //1. if choice map to a valueSet element
-            //Make element
-            //choice{name(str), description(str), type(str), values}
-              //name = element.name
-              //description = element.definitiom
-              //type = dont need to map
-              //values: 
-                //1a. choice.values{name:string, description:string}
-                //1b. valueSet.values{value:string, name:string}
-                  //choice.values.name = , choice.description = 
-                //1c. valueSet.values.value is a string but looks like a RDEid? 
-                const element: 
-                    id = 'Unique ID' // add unique ID,
-                    parent_id = //???,
-                    name= // ,
-                    short_name = //,
-                    editor= //,
-                    instructions= //,
-                    synonyms= //,
-                    definition = 'Describe clavicle fracture laterality',
-                    question= //,
-                    version = {
-                      name = //,
-                      version_date= //,
-                      status_date= //,
-                      status= //,
-                    },
-                    index_codes= //,
-                    authors = {
-                      person= //,
-                      organization= //,
-                    },
-                    history= //,
-                    specialty= //,
-                    references= //,
-                    source= //,
-                    value_set = {
-                      cardinality={
-                        min_cardinality= //,
-                        max_cardinality= //,
-                      },
-                      value_min_max: {
-                        value_min= //,
-                        value_max= //,
-                      },
-                      step_value= //,
-                      unit= //,
-                      value_type = 'valueSet',
-                      value_size= //,
-                      values = [
-                        {
-                          value: 'RDExxxx',
-                          name= //,
-                          definition= //,
-                        },
-                        {
-                          value = 'RDExxxx',
-                          name = //,
-                          definition = //,
-                        },
-                      ],
-                    },
-                  },
-            this._elements.push(element) //push the finding to the elements array? 
-              
+      let element: Partial<ValueSetElement>;
+      const finding: FindingModel = this._data;
+      // for each attribute we need 1 element.
+      finding.attributes.forEach((attribute) => {
+        // check the type (choice or numeric)
+        switch (attribute.type) {
+          //If its a choice attribute:
+          case 'choice':
+            //initialize values
+            this._values = [];
+            //get each finding.attribute.values and convert to cdElement.values
+            attribute.values.forEach((value) => {
+              this._values.push({
+                value: value.name, // TODO: This is supposed to be a string in the form of RDExxx.x
+                name: value.description,
+              });
+            });
 
+            element = {
+              id: 'Unique ID', // TODO: generate a unique ID
+              parent_id: 1, // TODO: what number
+              name: this._data.name,
+              short_name: '', // TODO: Needed?
+              editor: '', // TODO: add editor
+              instructions: '', // TODO: add instructions
+              synonyms: '', // TODO: add synonyms
+              definition: this._data.description,
+              question: '',
+              version: {
+                name: '',
+                version_date: '',
+                status_date: '',
+                status: 'Proposed',
+              },
+              // index_codes: null,
+              // authors: {
+              //   person: null,
+              //   organization: null,
+              // },
+              // history: ,
+              // specialty:
+              // references:
+              // source= //,
+              // value_set: {
+              //   cardinality: {
+              //     min_cardinality: '',
+              //     max_cardinality: '',
+              //   },
+              //   value_min_max: {
+              //     value_min: //,
+              //     value_max: //,
+              //   },
+              //   step_value: //,
+              //   unit: //,
+              //   value_type: 'valueSet',
+              //   value_size:  //,
+              //
+              //   TODO: add loop here for each? then add it?
+              //   Have values be empty to start
+              values: this._values,
+            };
 
+            this._elements.push(element); // push the finding to the elements array?
             break;
-          
-          case'numeric': 
-            //numeric logic
+
+          case 'numeric':
+            // numeric logic
             break;
-          }
         }
-
-        
-
-      }
-       
-      const attribute = inData.attributes[0];
+      });
     } else {
-      //else inData is Partial<CdeSet>
+      // else inData is Partial<CdeSet>
     }
   }
 
