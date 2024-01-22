@@ -86,6 +86,10 @@ export abstract class Attributes<
   get description() {
     return this._data.description;
   }
+
+  get type() {
+    return this._data.type;
+  }
 }
 
 export class ChoiceAttribute extends Attributes<ChoiceAttributeData> {

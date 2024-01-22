@@ -19,9 +19,13 @@ import {
   referenceSchema,
   //Specialty, //TODO: create specialty class in shared
 } from './shared';
-import { FindingModel } from '../findingModel/src/findingModel';
+//import { FindingModel } from '../findingModel/src/findingModel';
 
-//import { FindingModel } from '../../../findingModel/src/findingModel';
+import {
+  FindingModel,
+  ChoiceAttribute,
+  NumericAttribute,
+} from '../../../findingModel/src/findingModel';
 const idPattern = /^rdes\d{1,3}$/i;
 
 export const cdeSetSchema = z.object({
@@ -170,7 +174,7 @@ numeriAttribute
 
 export class CdeSetBuilder {
   private _data: Partial<CdeSet>;
-  private _elements: CdElement[];
+  private _elements: Partial<CdElement>[];
   private _values: ValueSetValue[];
 
   // {partialCde or FindingModel as input}?
@@ -182,8 +186,8 @@ export class CdeSetBuilder {
     // May need to loop through each attribute and generate a cde from it
     // if numeric map to a float, int element
     if (this._data instanceof FindingModel) {
-      let element: Partial<ValueSetElement>;
       const finding: FindingModel = this._data;
+      let element: Partial<CdElement>;
       // for each attribute we need 1 element.
       finding.attributes.forEach((attribute) => {
         // check the type (choice or numeric)
@@ -192,6 +196,8 @@ export class CdeSetBuilder {
           case 'choice':
             //initialize values
             this._values = [];
+            //type assertion
+            attribute = attribute as ChoiceAttribute; //TODO: why not working
             //get each finding.attribute.values and convert to cdElement.values
             attribute.values.forEach((value) => {
               this._values.push({
@@ -209,7 +215,7 @@ export class CdeSetBuilder {
               instructions: '', // TODO: add instructions
               synonyms: '', // TODO: add synonyms
               definition: this._data.description,
-              question: '',
+              question: undefined,
               version: {
                 name: '',
                 version_date: '',
@@ -249,7 +255,51 @@ export class CdeSetBuilder {
 
           case 'numeric':
             // numeric logic
+            //type assertion
+            attribute = attribute as NumericAttribute; //TODO: why type assertion not working
+            element = {
+              id: 'Unique ID', // TODO: generate a unique ID
+              parent_id: 1, // TODO: what number
+              name: this._data.name,
+              short_name: '', // TODO: Needed?
+              editor: '', // TODO: add editor
+              instructions: '', // TODO: add instructions
+              synonyms: '', // TODO: add synonyms
+              definition: this._data.description,
+              question: undefined,
+              version: {
+                name: '',
+                version_date: '',
+                status_date: '',
+                status: 'Proposed',
+              },
+              // index_codes: null,
+              // authors: {
+              //   person: null,
+              //   organization: null,
+              // },
+              // history: ,
+              // specialty:
+              // references:
+              // source= //,
+              // integer_values: {
+              //   cardinality: {
+              //     min_cardinality: '',
+              //     max_cardinality: '',
+              //   },
+              //   value_min_max: {
+              //     value_min: //,
+              //     value_max: //,
+              //   },
+              //   step_value: //,
+              //   unit: //,
+              //   value_type: 'integer',
+              //   value_size:  //,
+              //   values: this._values,
+            };
+
             break;
+            this._elements.push(element); // push the finding to the elements array?
         }
       });
     } else {
