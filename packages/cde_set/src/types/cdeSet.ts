@@ -174,8 +174,8 @@ numeriAttribute
 
 export class CdeSetBuilder {
   private _data: Partial<CdeSet>;
-  private _elements: Partial<CdElement>[];
-  private _values: ValueSetValue[];
+  private _elements: Partial<CdElement>[] = [];
+  private _values: ValueSetValue[] = [];
 
   // {partialCde or FindingModel as input}?
   constructor(inData: Partial<CdeSet> | FindingModel) {
@@ -187,7 +187,7 @@ export class CdeSetBuilder {
     // if numeric map to a float, int element
     if (this._data instanceof FindingModel) {
       const finding: FindingModel = this._data;
-      let element: Partial<CdElement>;
+      let element: Partial<CdElement>;  
       // for each attribute we need 1 element.
       finding.attributes.forEach((attribute) => {
         // check the type (choice or numeric)
@@ -217,38 +217,39 @@ export class CdeSetBuilder {
               definition: this._data.description,
               question: undefined,
               version: {
-                name: '',
-                version_date: '',
-                status_date: '',
-                status: 'Proposed',
+                name: 'Initial Version', //Required
+                version_date: new Date().toISOString(),
+                status_date: null,
+                status: 'Proposed', //Required
               },
-              // index_codes: null,
-              // authors: {
+              index_codes: null, //Optional 
+              authors: null, //{
               //   person: null,
               //   organization: null,
               // },
-              // history: ,
-              // specialty:
-              // references:
-              // source= //,
-              // value_set: {
-              //   cardinality: {
-              //     min_cardinality: '',
-              //     max_cardinality: '',
-              //   },
-              //   value_min_max: {
-              //     value_min: //,
-              //     value_max: //,
-              //   },
-              //   step_value: //,
-              //   unit: //,
-              //   value_type: 'valueSet',
-              //   value_size:  //,
+              history: null, //No history its the first
+              specialty: null, //optional
+              references: null, //optional
+              source: null, //optional
+              value_set: {
+                 cardinality: {
+                   min_cardinality: 1,
+                   max_cardinality: 1,
+                 },
+                 value_min_max: {
+                   value_min: null, // optional
+                   value_max: null,// optional
+                 },
+                 step_value: null,//,
+                 unit: null, //,
+                 value_type: 'valueSet',
+                 value_size: null, //,
               //
               //   TODO: add loop here for each? then add it?
               //   Have values be empty to start
-              values: this._values,
-            };
+              values: this._values, //TODO values is part of value set
+            }
+          };
 
             this._elements.push(element); // push the finding to the elements array?
             break;
