@@ -55,6 +55,10 @@ class Component {
   constructor(inData: componentData) {
     this._data = { ...inData };
   }
+
+  get data() {
+    return this._data;
+  }
 }
 
 export const observationSchema = z.object({
@@ -71,7 +75,7 @@ export const observationSchema = z.object({
 
 export type observationData = z.infer<typeof observationSchema>;
 
-class CDEComponent {
+class CDEComponent extends Component {
   private _data: componentData;
 
   constructor(cdElement: CdElement) {
@@ -128,7 +132,44 @@ class CDEComponent {
 //const sizeComponent = new ImagingObservationComponent(pulmNoduleSet.getElement("size"), 6.0)
 //pulmNodule.addComponent(sizeComponent);
 // and so on for composition, location, and so on
-//class ImagingObservationComponent extends Partial<CDEComponent> {
+
+class ImagingObservation {
+  private _data: Partial<observationData>;
+  private _components: Component[];
+
+  constructor(inData: Partial<CdeSet>) {
+    this._data = {
+      resourceType: 'Observation',
+      code: {
+        system: inData.url,
+        code: inData.id,
+        display: inData.name,
+      },
+      bodySite: undefined, //TODO: where is this going to come from
+      component: [],
+    };
+  }
+
+  addComponent(component: ImagingObservationComponent) {
+    this._components.push(component);
+  }
+
+  get resourceType() {
+    return this._data.resourceType;
+  }
+
+  get code() {
+    return this._data.code;
+  }
+
+  get bodySite() {
+    return this._data.bodySite;
+  }
+
+  get components() {
+    return this._components;
+  }
+}
 
 type ImagingComponentKeyInput = string | CdElement; //In case of string would be in format of RDEID ???
 type ImagingComponentValueInput =
@@ -143,31 +184,44 @@ class ImagingObservationComponent {
   private _value: ImagingComponentValueInput;
 
   constructor(
-    element: ImagingComponentKeyInput,
+    key: ImagingComponentKeyInput,
     value: ImagingComponentValueInput
   ) {
     this._value = { ...value };
-    let cdElement: CdElement;
 
-    if (element instanceof CdElement) {
+    if (key instanceof CdElement) {
       const component: componentData = {
         code: [
           {
-            system: element.source ?? 'defaultSystem',
-            code: element.id,
-            display: element.name,
+            system: key.source ?? 'defaultSystem',
+            code: key.id,
+            display: key.name,
           },
         ],
         value: this._value,
       };
 
       this._data = component;
+    } else if (typeof key === 'string') {
+      const idPattern = /^rde\d{1,3}$/i;
+      if (key.match(idPattern)) {
+        const cdElement: CdElement = (await CdElement.fetchFromRepo(
+          key
+        )) as CdElement; //TODO: What if it returns null.
+        if (cdElement) {
+          // Handle the case when cdElement is not null
+          // ...
+        }
+      }
     }
-    //else: Input is a string
   }
 
   get data() {
     return this._data;
+  }
+
+  get value() {
+    return this._value;
   }
 }
 
@@ -315,7 +369,7 @@ export class Observation {
   ) {
     if (key instanceof ImagingObservationComponent) {
       //Get data which is a component
-      const newComponentData: componentData = key.data;
+      const newComponent: componentData = key.data; //TODO: push key.data or key??
       //push component to this._components
       this._components.push(newComponent);
     }
