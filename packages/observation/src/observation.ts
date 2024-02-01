@@ -22,7 +22,7 @@ export type SystemCodeData = z.infer<typeof systemCodeSchema>;
 
 export const codeableConceptValueSchema = z.object({
   code: z.array(systemCodeSchema),
-  value: z.array(systemCodeSchema),
+  value: z.array(systemCodeSchema), //array of code is a coding 
 });
 
 export const stringValueSchema = z.object({
@@ -121,6 +121,53 @@ class CDEComponent {
   }
 }
 
+//const pulmNoduleSet = new CdeSet('RDES195');
+//const rightLowerLobeBodyPart = BodyPartIndex.getByRadlexId('RIDxxxx');'
+//let pulmNodule = new ImagingObservation(pulmNoduleSet); // New ImagingObservation is a pulmonary nodule, but no components yet
+//pulmNodule.bodySite = rightLowerLobeBodyPart;
+//const sizeComponent = new ImagingObservationComponent(pulmNoduleSet.getElement("size"), 6.0)
+//pulmNodule.addComponent(sizeComponent);
+// and so on for composition, location, and so on
+//class ImagingObservationComponent extends Partial<CDEComponent> {
+
+type ImagingComponentKeyInput = string | CdElement; //In case of string would be in format of RDEID ???
+type ImagingComponentValueInput = string | number | boolean | SystemCodeData | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???
+
+class ImagingObservationComponent {
+  private _data: componentData;
+  private _value: ImagingComponentValueInput;
+
+  constructor(element: ImagingComponentKeyInput, value: ImagingComponentValueInput) {
+
+    this._value = { ...value };
+    let cdElement: CdElement;
+    
+    if (element instanceof CdElement) {
+
+      const component: componentData = {
+        code: [
+          {
+            system: element.source ?? 'defaultSystem',
+            code: element.id,
+            display: element.name,
+          },
+        ],
+        value: this._value,
+      };
+
+      this._data = component;
+    }
+    //else: Input is a string
+
+  }
+
+  get data() {
+    return this._data;
+  }
+
+};
+
+
 const ObservationInput = z.object({
   cdeSetId: z.string(),
   observationId: z.string(),
@@ -146,6 +193,9 @@ export class ObservationId {
     return this._id;
   }
 }
+
+type ComponentKeyInput = string | CdElement | Coding | ImagingObservationComponent; //If type ImagingObservationComponent not going to have input value because taken care of when making the ImagingObservationComponent instance????
+type ComponentValueInput = string | number | boolean | SystemCodeData | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???;
 
 export class Observation {
   protected _id: ObservationId = new ObservationId();
@@ -257,35 +307,23 @@ export class Observation {
   // type ComponentKeyInput = string | CdElement | Coding;
   // type ComponentValueInput = string | number | boolean | Coding | Coding[] | string[];
 
-  // And then what we want to do see if the key is supposed to be a CDE, and if so,
-  // make sure we have the CDE object. Then, we should make sure that the value is
-  // a valid value for the CDE (or can be turned into a valid value for the CDE).
-  // So let's say we want to look at CDERDE818 "Aortic dissection", which is a choice
-  // component with a cardinality of 1..1. We could do something like. It expects certain  // possible choice values, numbered RDE818.0 ... RDE818.4, with names like "acute",
-  // "subacute", etc. All of that is part of the CDE definition (and therefore part of the)
-  // CDE object. So we should have a method on the CDE object that looks at a value and sees
-  // if it's valid or if can be coerced into a valid value (e.g., if they give a string of
-  // "acute", or "Acute", we can realize that that should be RDE818.0).  // When creating a component, if the value given isn't a valid for the CDE set, we should
-  // throw an error. If it is valid, we should turn it into the appropriate FHIR value type:
-  // valueCodeableConcept, in this example, but valueInteger for integers, or valueString
-  // for non-integer numbers. Then we should also have a method on the CDE object that can just
-  // express itself as a Code, like:
-  // {
-  //    "code": {
-  //
-  'codin';
-  // If the key is just a Coding, we can
   private async addComponent(
     key: ComponentKeyInput,
     value: ComponentValueInput
   ) {
+    if (key instanceof  ImagingObservationComponent) {
+      //Get data which is a component 
+      const newComponentData: componentData = key.data
+      //push component to this._components
+      this._components.push(newComponent);
+    }
     //This the case where key is string and matches the regex
     if (typeof key === 'string') {
       const idPattern = /^rde\d{1,3}$/i;
       if (key.match(idPattern)) {
         const cdElement: CdElement = (await CdElement.fetchFromRepo(
           key
-        )) as CdElement; //TODO: Can I assume it will return as CdeElement, what if returs null.
+        )) as CdElement; //TODO: What if returs null.
         if (cdElement) {
           let componentValue;
           let intCdElement = cdElement as IntegerElement;
