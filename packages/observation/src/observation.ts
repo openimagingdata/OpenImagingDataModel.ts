@@ -75,7 +75,7 @@ export const observationSchema = z.object({
 
 export type observationData = z.infer<typeof observationSchema>;
 
-class CDEComponent extends Component {
+class CDEComponent {
   private _data: componentData;
 
   constructor(cdElement: CdElement) {
