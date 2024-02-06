@@ -82,8 +82,13 @@ class Component {
   }
 }
 
-class componentBuilder {
-  static buildFromCDE(partialElement: Partial<CdElement>): Partial<Component> {
+const rdeIdPattern = /^rde\d{1,3}$/i;
+
+class ObservationBuilder {
+  //Build from: CdeSet, String
+
+  //Builds components from CdElements
+  static buildComponentFromCDE(partialElement: Partial<CdElement>): Partial<Component>{
     let partialComponent: Partial<Component> = {};
     let componentValue;
     switch (partialElement.elementType) {
@@ -118,23 +123,70 @@ class componentBuilder {
 
     return partialComponent;
   }
+
+  //Build ImagingObservation from CdeSet. Uses static method buildComponentFromCDE
+  static buildImagingObsFromCdeSet(cdeSet: Partial<CdeSet>): Partial<ImagingObservation> {
+    let partialImagingObs: Partial<ImagingObservation> = {};
+    let components: Component[] = [];
+
+    cdeSet.element.forEach((element) => {
+      let component = ImagingObservation.buildComponentFromCDE(element);
+      components.push(component);
+    }
+    )
+    partialImagingObs = {
+      resourceType: "Imaging Observation",
+      code: {
+        system: cdeSet.source,
+        code: cdeSet.id,
+        display: cdeSet.name
+      },
+      bodySite: /* Define or reference */,
+      component: components
+    }
+    return partialImagingObs;
+  }
+  static buildComponentFromRDEid(id: string ){
+    if (!rdeIdPattern.test(id)) {
+      console.error('Invalid RDE id format.');
+      return null;
+    }
+    else {
+      const cdElement: CdElement = (await CdElement.fetchFromRepo(id));
+      component= buildComponentFromCDE(cdElement);
+      return component;
+    }
+  }
+  static buildComponentFromkeyValue(key: ImagingComponentKeyInput , value: ImagingComponentValueInput ){
+    if (ImagingComponentKeyInput instanceof CdElement){
+      partialComponent = {
+      code: [
+        {
+          system: ImagingComponentKeyInput.source ?? 'defaultSystem',
+          code: ImagingComponentKeyInput.id,
+          display: ImagingComponentKeyInput.name,
+        },
+      ],
+      value: ImagingComponentValueInput,
+    };
+
+    }
+
+  }
 }
 
+export type imagingObservationData = z.infer<typeof observationSchema>;
+
 class ImagingObservation {
-  private _data: Partial<CdeSet>;
+  private _data: imagingObservationData;
   private _components: Component[];
 
-  constructor(inData: Partial<CdeSet>) {
-    this._data = { ...inData };
+  constructor(inData: Partial<CdeSet> | string) {
     this._components = [];
-
-    inData.elements.forEach((element) => {
-      const component = componentBuilder.buildFromCDE(element);
-      this._components.push(component);
-    });
+    this._data = ImagingObservation.buildImagingObsFromCdeSet(inData);
   }
 
-  addComponent(component: ImagingObservationComponent) {
+  addComponent(component: Component) {
     this._components.push(component);
   }
 
@@ -169,44 +221,24 @@ class ImagingObservationComponent {
 
   constructor(
     key: ImagingComponentKeyInput,
-    value: ImagingComponentValueInput
-  ) {
-    this._value = { ...value };
+    value?: ImagingComponentValueInput,
+  )
+  {
+    if (!value){
+      if (ImagingComponentKeyInput instanceof CdElement) {
+      buildComponentFromCDE(ImagingComponentKeyInput)
 
-    if (key instanceof CdElement) {
-      const component: componentData = {
-        code: [
-          {
-            system: key.source ?? 'defaultSystem',
-            code: key.id,
-            display: key.name,
-          },
-        ],
-        value: this._value,
-      };
-
-      this._data = component;
-    } else if (typeof key === 'string') {
-      const idPattern = /^rde\d{1,3}$/i;
-      if (key.match(idPattern)) {
-        const cdElement: CdElement = (await CdElement.fetchFromRepo(
-          key
-        )) as CdElement; //TODO: What if it returns null.
-        if (cdElement) {
-          // Handle the case when cdElement is not null
-          // ...
-        }
+      }else if (typeof ImagingComponentKeyInput === 'string'){
+      buildComponentFromRDEid(ImagingComponentKeyInput)
+      }else {
+        console.error();
       }
+    }else{
+
     }
-  }
-
-  get data() {
-    return this._data;
-  }
-
-  get value() {
-    return this._value;
-  }
+    
+  
+ 
 }
 
 const ObservationInput = z.object({
