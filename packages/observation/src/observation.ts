@@ -47,7 +47,28 @@ export const componentSchema = z.union([
   floatValueSchema,
 ]);
 
+export const observationSchema = z.object({
+  resourceType: z.literal('Observation'),
+  id: z.string().optional(),
+  code: systemCodeSchema,
+  bodySite: z
+    .object({
+      code: systemCodeSchema,
+    })
+    .optional(),
+  component: z.array(componentSchema),
+});
+
 export type componentData = z.infer<typeof componentSchema>;
+export type observationData = z.infer<typeof observationSchema>;
+
+//const pulmNoduleSet = new CdeSet('RDES195');
+//const rightLowerLobeBodyPart = BodyPartIndex.getByRadlexId('RIDxxxx');'
+//let pulmNodule = new ImagingObservation(pulmNoduleSet); // New ImagingObservation is a pulmonary nodule, but no components yet
+//pulmNodule.bodySite = rightLowerLobeBodyPart;
+//const sizeComponent = new ImagingObservationComponent(pulmNoduleSet.getElement("size"), 6.0)
+//pulmNodule.addComponent(sizeComponent);
+// and so on for composition, location, and so on
 
 class Component {
   private _data: componentData;
@@ -61,93 +82,56 @@ class Component {
   }
 }
 
-export const observationSchema = z.object({
-  resourceType: z.literal('Observation'),
-  id: z.string(),
-  code: systemCodeSchema,
-  bodySite: z
-    .object({
-      code: systemCodeSchema,
-    })
-    .optional(),
-  component: z.array(componentSchema),
-});
-
-export type observationData = z.infer<typeof observationSchema>;
-
-class CDEComponent {
-  private _data: componentData;
-
-  constructor(cdElement: CdElement) {
+class componentBuilder {
+  static buildFromCDE(partialElement: Partial<CdElement>): Partial<Component> {
+    let partialComponent: Partial<Component> = {};
     let componentValue;
-    let intCdElement = cdElement as IntegerElement;
-    let boolCdElement = cdElement as BooleanElement;
-    let floatCdElement = cdElement as FloatElement;
-    let valueCdElement = cdElement as ValueSetElement;
-
-    switch (cdElement.elementType) {
+    switch (partialElement.elementType) {
       case 'integer':
-        intCdElement = cdElement as IntegerElement;
-        componentValue = intCdElement.integerValues;
+        const integerCdElement = partialElement as Partial<IntegerElement>;
+        componentValue = integerCdElement.integerValues;
         break;
       case 'boolean':
-        boolCdElement = cdElement as BooleanElement;
-        componentValue = boolCdElement.booleanValues;
+        const booleanCdElement = partialElement as Partial<BooleanElement>;
+        componentValue = booleanCdElement.booleanValues;
         break;
       case 'float':
-        floatCdElement = cdElement as FloatElement;
+        const floatCdElement = partialElement as Partial<FloatElement>;
         componentValue = floatCdElement.floatValues;
         break;
       case 'valueSet':
-        valueCdElement = cdElement as ValueSetElement;
+        const valueCdElement = partialElement as Partial<ValueSetElement>;
         componentValue = valueCdElement.values;
         break;
     }
-    const component: componentData = {
+    partialComponent = {
       code: [
         {
-          system: cdElement.source ?? 'defaultSystem',
-          code: cdElement.id,
-          display: cdElement.name,
+          system: partialElement.source ?? 'defaultSystem',
+          code: partialElement.id,
+          display: partialElement.name,
         },
       ],
       value: componentValue,
-      //TODO: update value attribute of each component type to match the corresponding CDEelement.values
-      //TODO: what attributes from cdeElement.integerValues do you want ex cardinality, value_min_max, step value etc...
-      //need this to match the schema outline.
+      //TODO: what attributes from cdeElement.integerValues do you want ex cardinality, value_min_max, step value etc....
     };
 
-    this._data = component;
-  }
-
-  get data() {
-    return { ...this._data };
+    return partialComponent;
   }
 }
 
-//const pulmNoduleSet = new CdeSet('RDES195');
-//const rightLowerLobeBodyPart = BodyPartIndex.getByRadlexId('RIDxxxx');'
-//let pulmNodule = new ImagingObservation(pulmNoduleSet); // New ImagingObservation is a pulmonary nodule, but no components yet
-//pulmNodule.bodySite = rightLowerLobeBodyPart;
-//const sizeComponent = new ImagingObservationComponent(pulmNoduleSet.getElement("size"), 6.0)
-//pulmNodule.addComponent(sizeComponent);
-// and so on for composition, location, and so on
-
 class ImagingObservation {
-  private _data: Partial<observationData>;
+  private _data: Partial<CdeSet>;
   private _components: Component[];
 
   constructor(inData: Partial<CdeSet>) {
-    this._data = {
-      resourceType: 'Observation',
-      code: {
-        system: inData.url,
-        code: inData.id,
-        display: inData.name,
-      },
-      bodySite: undefined, //TODO: where is this going to come from
-      component: [],
-    };
+    this._data = { ...inData };
+    this._components = [];
+
+    inData.elements.forEach((element) => {
+      const component = componentBuilder.buildFromCDE(element);
+      this._components.push(component);
+    });
   }
 
   addComponent(component: ImagingObservationComponent) {
