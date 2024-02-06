@@ -158,20 +158,27 @@ class ObservationBuilder {
     }
   }
   static buildComponentFromkeyValue(key: ImagingComponentKeyInput , value: ImagingComponentValueInput ){
-    if (ImagingComponentKeyInput instanceof CdElement){
+    let partialComponent: Partial<Component>;
+    if (key instanceof CdElement){
       partialComponent = {
       code: [
         {
-          system: ImagingComponentKeyInput.source ?? 'defaultSystem',
-          code: ImagingComponentKeyInput.id,
-          display: ImagingComponentKeyInput.name,
+          system: key.source ?? 'defaultSystem',
+          code: key.id,
+          display: key.name,
         },
       ],
-      value: ImagingComponentValueInput,
+      value: value,
     };
-
+    return partialComponent;
+    }else if (typeof key === 'string'){
+      //How would this work, wouldnt the values be already set? 
+      const cdElement: CdElement = (await CdElement.fetchFromRepo(key));
+      cdElement.values.push(ImagingComponentValueInput);
+      return cdElement;
+    }else {
+        throw new Error('Unsupported key type');
     }
-
   }
 }
 
@@ -226,10 +233,10 @@ class ImagingObservationComponent {
   {
     if (!value){
       if (ImagingComponentKeyInput instanceof CdElement) {
-      buildComponentFromCDE(ImagingComponentKeyInput)
+      ObservationBuilder.buildComponentFromCDE(ImagingComponentKeyInput)
 
       }else if (typeof ImagingComponentKeyInput === 'string'){
-      buildComponentFromRDEid(ImagingComponentKeyInput)
+      ObservationBuilder.buildComponentFromRDEid(ImagingComponentKeyInput)
       }else {
         console.error();
       }
