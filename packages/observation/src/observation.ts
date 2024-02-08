@@ -82,6 +82,31 @@ class Component {
   }
 }
 
+class ImagingObservationComponent {
+  private _data: componentData;
+  private _value: ImagingComponentValueInput;
+
+  constructor(
+    key: ImagingComponentKeyInput,
+    value?: ImagingComponentValueInput,
+  )
+  {
+    if (!value) {
+      if (ImagingComponentKeyInput instanceof CdElement) {
+        ObservationBuilder.buildComponentFromCDE(ImagingComponentKeyInput)
+
+      }else if (typeof ImagingComponentKeyInput === 'string'){
+        ObservationBuilder.buildComponentFromRDEid(ImagingComponentKeyInput)
+      }else {
+        console.error("Incorrect key type");
+      }
+    }else {
+      ObservationBuilder.buildComponentFromkeyValue
+    }
+
+}
+}
+
 const rdeIdPattern = /^rde\d{1,3}$/i;
 
 class ObservationBuilder {
@@ -130,7 +155,7 @@ class ObservationBuilder {
     let components: Component[] = [];
 
     cdeSet.element.forEach((element) => {
-      let component = ImagingObservation.buildComponentFromCDE(element);
+      const component = ImagingObservation.buildComponentFromCDE(element);
       components.push(component);
     }
     )
@@ -146,6 +171,7 @@ class ObservationBuilder {
     }
     return partialImagingObs;
   }
+
   static buildComponentFromRDEid(id: string ){
     if (!rdeIdPattern.test(id)) {
       console.error('Invalid RDE id format.');
@@ -157,6 +183,7 @@ class ObservationBuilder {
       return component;
     }
   }
+
   static buildComponentFromkeyValue(key: ImagingComponentKeyInput , value: ImagingComponentValueInput ){
     let partialComponent: Partial<Component>;
     if (key instanceof CdElement){
@@ -170,12 +197,24 @@ class ObservationBuilder {
       ],
       value: value,
     };
+    
     return partialComponent;
     }else if (typeof key === 'string'){
       //How would this work, wouldnt the values be already set? 
-      const cdElement: CdElement = (await CdElement.fetchFromRepo(key));
-      cdElement.values.push(ImagingComponentValueInput);
-      return cdElement;
+      const cdElement: CdElement = await CdElement.fetchFromRepo(key);
+      //cdElement.values.push(value);
+      partialComponent = {
+      code: [
+        {
+          system: key.source ?? 'defaultSystem',
+          code: key.id,
+          display: key.name,
+        },
+      ],
+      value: value,
+    };
+
+      return partialComponent;
     }else {
         throw new Error('Unsupported key type');
     }
@@ -190,7 +229,14 @@ class ImagingObservation {
 
   constructor(inData: Partial<CdeSet> | string) {
     this._components = [];
-    this._data = ImagingObservation.buildImagingObsFromCdeSet(inData);
+    if (inData instanceof Partial<CdeSet>){
+      this._data = ImagingObservation.buildImagingObsFromCdeSet(inData);
+    }else if (typeof inData === "string" ) {
+      const cdeSet = CdeSet.fetchFromRepo(inData)
+      this._data = ImagingObservation.buildImagingObsFromCdeSet(cdeSet);
+    }else {
+      throw new Error ("Unsupported inData")
+    }
   }
 
   addComponent(component: Component) {
@@ -222,31 +268,6 @@ type ImagingComponentValueInput =
   | SystemCodeData
   | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???
 
-class ImagingObservationComponent {
-  private _data: componentData;
-  private _value: ImagingComponentValueInput;
-
-  constructor(
-    key: ImagingComponentKeyInput,
-    value?: ImagingComponentValueInput,
-  )
-  {
-    if (!value){
-      if (ImagingComponentKeyInput instanceof CdElement) {
-      ObservationBuilder.buildComponentFromCDE(ImagingComponentKeyInput)
-
-      }else if (typeof ImagingComponentKeyInput === 'string'){
-      ObservationBuilder.buildComponentFromRDEid(ImagingComponentKeyInput)
-      }else {
-        console.error();
-      }
-    }else{
-
-    }
-    
-  
- 
-}
 
 const ObservationInput = z.object({
   cdeSetId: z.string(),
