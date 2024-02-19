@@ -22,22 +22,22 @@ export type SystemCodeData = z.infer<typeof systemCodeSchema>;
 
 export const codeableConceptValueSchema = z.object({
   code: z.array(systemCodeSchema),
-  value: z.array(systemCodeSchema), //array of code is a coding
+  value: z.array(systemCodeSchema).nullable(), //array of code is a coding, Can we have this nullable? 
 });
 
 export const stringValueSchema = z.object({
   code: z.array(systemCodeSchema),
-  value: z.string(),
+  value: z.string().nullable(),
 });
 
 export const integerValueSchema = z.object({
   code: z.array(systemCodeSchema),
-  value: z.number().int(),
+  value: z.number().int().nullable(),
 });
 
 export const floatValueSchema = z.object({
   code: z.array(systemCodeSchema),
-  value: z.number(),
+  value: z.number().nullable(),
 });
 
 export const componentSchema = z.union([
@@ -92,8 +92,6 @@ type ImagingComponentKeyInput = string | CdElement; //In case of string would be
 type ImagingComponentValueInput =
   | string
   | number
-  | boolean
-  | SystemCodeData
   | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???
 
 class ImagingObservationComponent {
@@ -121,7 +119,7 @@ class ImagingObservationComponent {
         console.error("Incorrect key type");
       }
     } else {
-      this._data = ObservationBuilder.buildComponentFromkeyValue(key, value);
+      this._data = ObservationBuilder.buildComponentFromKeyValue(key, value);
     }
   }
 }
@@ -129,7 +127,25 @@ class ImagingObservationComponent {
 const rdeIdPattern = /^rde\d{1,3}$/i;
 
 class ObservationBuilder {
-  //Build from: CdeSet, String
+  //TODO: Need to map cde.valueSet.values to component.value
+  //cde.valueSet.value = [{value: 'RDE818.0', name: 'acute'}, {value: 'RDE818.1', name: 'chronic'}]
+  //component.value = [{system: 'defaultSystem', code: 'RDE818.0', display: 'acute'}, {system: 'defaultSystem', code: 'RDE818.1', display: 'chronic'}]
+  //TODO: Need to map these two things together somehow.
+  //Builds components from valueSet elements 
+  static valueSetToComponentValues(cdElement: Partial<ValueSetElement>): SystemCodeData[] {
+    const systemCodeData: SystemCodeData[] = [];
+    if (cdElement.elementType === 'valueSet') {
+      const valueSetElement = cdElement as ValueSetElement;
+      valueSetElement.values.forEach((value) => {
+        systemCodeData.push({
+          system: valueSetElement.source ?? 'defaultSystem',
+          code: value.value,
+          display: value.name,
+        });
+      });
+    }
+    return systemCodeData;
+  }
 
   //Builds components from CdElements
   static buildComponentFromCDE(partialElement: Partial<CdElement>): Partial<Component>{
@@ -138,19 +154,22 @@ class ObservationBuilder {
     switch (partialElement.elementType) {
       case 'integer': 
         const integerCdElement = partialElement as Partial<IntegerElement>;
-        componentValue = integerCdElement.integerValues;
+        componentValue = integerCdElement.integerValues?.values;
         break;
       case "boolean": 
         const booleanCdElement = partialElement as Partial<BooleanElement>;
-        componentValue = booleanCdElement.booleanValues;
+        componentValue = booleanCdElement.booleanValues?.values;
         break;
       case 'float':
         const floatCdElement = partialElement as Partial<FloatElement>;
-        componentValue = floatCdElement.floatValues;
+        componentValue = floatCdElement.floatValues?.values;
         break;
       case 'valueSet':
-        const valueCdElement = partialElement as Partial<ValueSetElement>;
-        componentValue = valueCdElement.values;
+        const valueCdElement = partialElement as Partial<ValueSetElement>; 
+        componentValue = ObservationBuilder.valueSetToComponentValues(valueCdElement);
+        
+        
+        
         break;
     }
     partialComponent = {
@@ -213,7 +232,7 @@ class ObservationBuilder {
     }
 }
 
-  static buildComponentFromkeyValue(key: ImagingComponentKeyInput , value: ImagingComponentValueInput ){
+  static buildComponentFromKeyValue(key: ImagingComponentKeyInput , value: ImagingComponentValueInput ){
     let partialComponent: Partial<Component>;
     if (key instanceof CdElement){
       partialComponent = {
@@ -330,247 +349,3 @@ type ComponentValueInput =
   | boolean
   | SystemCodeData
   | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???;
-
-export class Observation {
-  protected _id: ObservationId = new ObservationId();
-  protected _data: observationData;
-  protected _components: Component[] = [];
-  protected _cdeSet: CdeSet;
-
-  constructor(
-    inData: CdeSet,
-    id: string | ObservationId | undefined = undefined
-  ) {
-    if (typeof id === 'string' || typeof id === 'undefined') {
-      this._id = new ObservationId(id);
-    } else {
-      this._id = new ObservationId(id.id);
-    }
-    this._cdeSet = inData;
-    this._data = {
-      resourceType: 'Observation',
-      code: {
-        system: inData.url,
-        code: inData.id,
-        display: inData.name,
-      },
-      bodySite: undefined, //TODO: need to figure out bodyType structure
-      component: [],
-    };
-    if (this._id.id) {
-      this._data['id'] = this._id.id;
-    }
-    inData.elements.forEach((element) => {
-      const cdElement = CdElementFactory.create(element);
-      let componentValue;
-      let intCdElement = cdElement as IntegerElement;
-      let boolCdElement = cdElement as BooleanElement;
-      let floatCdElement = cdElement as FloatElement;
-      let valueCdElement = cdElement as ValueSetElement;
-
-      switch (cdElement.elementType) {
-        case 'integer':
-          intCdElement = cdElement as IntegerElement;
-          componentValue = intCdElement.integerValues;
-          break;
-        case 'boolean':
-          boolCdElement = cdElement as BooleanElement;
-          componentValue = boolCdElement.booleanValues;
-          break;
-        case 'float':
-          floatCdElement = cdElement as FloatElement;
-          componentValue = floatCdElement.floatValues;
-          break;
-        case 'valueSet':
-          valueCdElement = cdElement as ValueSetElement;
-          componentValue = valueCdElement.values;
-          break;
-      }
-
-      const newComponentData: componentData = {
-        code: [
-          {
-            system: cdElement.source ?? 'defaultSystem',
-            code: cdElement.id,
-            display: cdElement.name,
-          },
-        ],
-        value: componentValue, //TODO: need to correct value
-      };
-
-      const newComponent = new Component(newComponentData);
-      this._components.push(newComponent);
-      this._data.component.push(newComponentData); //Probably dont want to push to both
-    });
-  }
-
-  get id() {
-    return this._data.id;
-  }
-
-  // TODO?: Could create a function that says to generate the ID ourselves
-
-  get cdeSet() {
-    return this._cdeSet;
-  }
-
-  get bodySite() {
-    return this._data.bodySite;
-  }
-
-  get components() {
-    return [...this._components];
-  }
-
-  // What we want to be able to do with components is call something like
-  // obs.addComponent(key, value)
-  // Where "key" could be some arbitrary code, or it could be a CDE ID or it could
-  // be a CdElement object itself...
-  // ...and we confirm that value is valid given the element and add it to the list
-  // BTW, it's also possible to have non-CDEs as the codes associated with a component;
-  // we should also allow alternate codes to be used instead of a cdElement (in which
-  // case we obviously can't check for validity).
-  //
-  // What kind of inputs might we give for key?
-  // - A string that matches the regex /^rde\d{1,3}$/i
-  // - A CdElement object
-  // - A FHIR Coding object
-  // What kind of inputs might have for the value?
-  // - A string, number, or boolean, a FHIR Coding, or a list of strings or list of FHIR Codings
-
-  // type ComponentKeyInput = string | CdElement | Coding;
-  // type ComponentValueInput = string | number | boolean | Coding | Coding[] | string[];
-
-  private async addComponent(
-    key: ComponentKeyInput,
-    value: ComponentValueInput
-  ) {
-    if (key instanceof ImagingObservationComponent) {
-      //Get data which is a component
-      const newComponent: componentData = key.data; //TODO: push key.data or key??
-      //push component to this._components
-      this._components.push(newComponent);
-    }
-    //This the case where key is string and matches the regex
-    if (typeof key === 'string') {
-      const idPattern = /^rde\d{1,3}$/i;
-      if (key.match(idPattern)) {
-        const cdElement: CdElement = (await CdElement.fetchFromRepo(
-          key
-        )) as CdElement; //TODO: What if returs null.
-        if (cdElement) {
-          let componentValue;
-          let intCdElement = cdElement as IntegerElement;
-          let boolCdElement = cdElement as BooleanElement;
-          let floatCdElement = cdElement as FloatElement;
-          let valueCdElement = cdElement as ValueSetElement;
-
-          switch (cdElement.elementType) {
-            case 'integer':
-              intCdElement = cdElement as IntegerElement;
-              componentValue = intCdElement.integerValues;
-              break;
-            case 'boolean':
-              boolCdElement = cdElement as BooleanElement;
-              componentValue = boolCdElement.booleanValues;
-              break;
-            case 'float':
-              floatCdElement = cdElement as FloatElement;
-              componentValue = floatCdElement.floatValues;
-              break;
-            case 'valueSet':
-              valueCdElement = cdElement as ValueSetElement;
-              componentValue = valueCdElement.values;
-              break;
-          }
-
-          const newComponentData: componentData = {
-            code: [
-              {
-                system: cdElement.source ?? 'defaultSystem',
-                code: cdElement.id,
-                display: cdElement.name,
-              },
-            ],
-            value: componentValue,
-            //TODO: if boolean key.booleanValues, if integer key.integerValues etc...
-            //TODO: which attributes of values do we want?
-          };
-
-          const newComponent = new Component(newComponentData);
-          this._components.push(newComponent);
-          //TODO: what if fetch returns null
-        }
-      } else {
-        //TODO: This the case it is a string that does not match the regex... what do we do AKA "arbitrary code"
-        // If the key is a string, assume it's a code?
-        // Validate if the key is a valid code or handle non-CDE cases
-        // if key is a random string, how do we map its values to componentData?
-      }
-      //If key is of type CdeElement or CdeElement subclass
-    } else if (key instanceof CdElement) {
-      let componentValue;
-      let intCdElement = key as IntegerElement;
-      let boolCdElement = key as BooleanElement;
-      let floatCdElement = key as FloatElement;
-      let valueCdElement = key as ValueSetElement;
-
-      switch (key.elementType) {
-        case 'integer':
-          intCdElement = key as IntegerElement;
-          componentValue = intCdElement.integerValues;
-          break;
-        case 'boolean':
-          boolCdElement = key as BooleanElement;
-          componentValue = boolCdElement.booleanValues;
-          break;
-        case 'float':
-          floatCdElement = key as FloatElement;
-          componentValue = floatCdElement.floatValues;
-          break;
-        case 'valueSet':
-          valueCdElement = key as ValueSetElement;
-          componentValue = valueCdElement.values;
-          break;
-      }
-
-      const newComponentData: componentData = {
-        code: [
-          {
-            system: key.source ?? 'defaultSystem',
-            code: key.id,
-            display: key.name,
-          },
-        ],
-        value: componentValue,
-        //TODO: if boolean key.booleanValues, if integer key.integerValues etc...
-        //TODO: which attributes of values do we want?
-      };
-
-      const newComponent = new Component(newComponentData);
-      this._components.push(newComponent);
-      this._data.component.push(newComponentData); //Probably dont want to push to both
-    }
-  }
-  //TODO: Next steps:
-  // obs.getComponentValue(Code | CdElement | CDE ID)
-  // and if we have a component like that, we can return the value.
-  // At the end of the day, we'd like to be able ingest and spit out FHIR
-
-  getComponentValue(key: string | CdElement): any | undefined {
-    // It essentially disables TypeScript's type checking for the return value,
-    //allowing the method to return a value of any type. Need to specify later?
-
-    //Checks the type of key. If it's a string, it assigns key to keyString.
-    //If it's not a string, it assumes it's a CdElement and assigns its id property to keyString
-    const keyString = typeof key === 'string' ? key : key.id;
-
-    // Find the component with the matching key
-    const matchingComponent = this._components.find((component) => {
-      return component.code.code === keyString; //TODO: Need to fix, which attribute are we trying to match?
-    });
-
-    // Return the value if found
-    return matchingComponent?.data.value;
-  }
-}
