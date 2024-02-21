@@ -186,7 +186,7 @@ class ObservationBuilder {
   }
 
   //Builds components from CdElements
-  static buildComponentFromCDE(partialElement: Partial<CdElement>): ImagingObservationComponent {
+  static buildComponentFromCDE(partialElement: Partial<CdElement>): componentData {
     let componentValue: SystemCodeData[] = []; // Initialize with a default value
 
     switch (partialElement.elementType) {
@@ -223,7 +223,7 @@ class ObservationBuilder {
         //TODO: what attributes from cdeElement.integerValues do you want ex cardinality, value_min_max, step value etc....
       };
 
-    return new ImagingObservationComponent(componentData);
+    return componentData;
 }
 
   //Build ImagingObservation from CdeSet. Uses static method buildComponentFromCDE
