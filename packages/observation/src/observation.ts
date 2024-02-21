@@ -59,8 +59,30 @@ export const observationSchema = z.object({
   component: z.array(componentSchema),
 });
 
+
 export type componentData = z.infer<typeof componentSchema>;
 export type observationData = z.infer<typeof observationSchema>;
+
+function isObservationData(obj: any): obj is observationData {
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        'resourceType' in obj &&
+        obj['resourceType'] === 'Observation' // Check for the specific value of resourceType
+        // Add more checks if needed for other properties
+        // You might also want to check if the 'component' property is an array of componentData
+    );
+}
+
+function isComponentData(obj: any): obj is componentData {
+    return (
+        typeof obj === 'object' &&
+        obj !== null && 
+        'code' in obj &&
+        'value' in obj 
+        // Add more checks if needed for other properties
+    );
+} 
 
 //const pulmNoduleSet = new CdeSet('RDES195');
 //const rightLowerLobeBodyPart = BodyPartIndex.getByRadlexId('RIDxxxx');'
@@ -88,14 +110,14 @@ class Component {
   }
 }
 
-type ImagingComponentKeyInput = string | CdElement; //In case of string would be in format of RDEID ???
+type ImagingComponentKeyInput = string | CdElement  | componentData; //In case of string would be in format of RDEID ???
 type ImagingComponentValueInput =
-  | string
+  | string  
   | number
   | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???
 
 class ImagingObservationComponent {
-  private _data: Partial<Component> = {};
+  private _data: componentData;
   //private _value: ImagingComponentValueInput; Probably dont need. 
   
   constructor(
@@ -118,9 +140,25 @@ class ImagingObservationComponent {
       } else {
         console.error("Incorrect key type");
       }
-    } else {
+    } 
+    else if (isComponentData(key)){ //Want this to be componentData not component
+      this._data = key;
+    }
+    else {
       this._data = ObservationBuilder.buildComponentFromKeyValue(key, value);
     }
+  }
+
+  get data() {
+    return this._data;
+  }
+
+  get code() {
+    return this._data.code;
+  }
+
+  get value() {
+    return this._data.value;
   }
 }
 
@@ -148,49 +186,50 @@ class ObservationBuilder {
   }
 
   //Builds components from CdElements
-  static buildComponentFromCDE(partialElement: Partial<CdElement>): Partial<Component>{
-    let partialComponent: Partial<Component> = {};
-    let componentValue;
-    switch (partialElement.elementType) {
-      case 'integer': 
-        const integerCdElement = partialElement as Partial<IntegerElement>;
-        componentValue = integerCdElement.integerValues?.values;
-        break;
-      case "boolean": 
-        const booleanCdElement = partialElement as Partial<BooleanElement>;
-        componentValue = booleanCdElement.booleanValues?.values;
-        break;
-      case 'float':
-        const floatCdElement = partialElement as Partial<FloatElement>;
-        componentValue = floatCdElement.floatValues?.values;
-        break;
-      case 'valueSet':
-        const valueCdElement = partialElement as Partial<ValueSetElement>; 
-        componentValue = ObservationBuilder.valueSetToComponentValues(valueCdElement);
-        
-        
-        
-        break;
-    }
-    partialComponent = {
-      code: [
-        {
-          system: partialElement.source ?? 'defaultSystem',
-          code: partialElement.id,
-          display: partialElement.name,
-        },
-      ],
-      value: componentValue,
-      //TODO: what attributes from cdeElement.integerValues do you want ex cardinality, value_min_max, step value etc....
-    };
+  static buildComponentFromCDE(partialElement: Partial<CdElement>): ImagingObservationComponent {
+    let componentValue: SystemCodeData[] = []; // Initialize with a default value
 
-    return partialComponent;
-  }
+    switch (partialElement.elementType) {
+        case 'integer': 
+            const integerCdElement = partialElement as Partial<IntegerElement>;
+            componentValue = integerCdElement.integerValues?.values || []; //need [] because values is optional/nullable?? 
+            break;
+        case 'boolean': 
+            const booleanCdElement = partialElement as Partial<BooleanElement>;
+            componentValue = booleanCdElement.booleanValues?.values || [];
+            break;
+        case 'float':
+            const floatCdElement = partialElement as Partial<FloatElement>;
+            componentValue = floatCdElement.floatValues?.values || [];
+            break;
+        case 'valueSet':
+            const valueCdElement = partialElement as Partial<ValueSetElement>; 
+            componentValue = ObservationBuilder.valueSetToComponentValues(valueCdElement) || [];
+            break;
+        default:
+            console.error('Unsupported element type');
+            break;
+    }
+    
+    const componentData: componentData = {
+        code: [
+          {
+            system: partialElement.source ?? 'defaultSystem',
+            code: partialElement.id,
+            display: partialElement.name,
+          },
+        ],
+        value: componentValue,
+        //TODO: what attributes from cdeElement.integerValues do you want ex cardinality, value_min_max, step value etc....
+      };
+
+    return new ImagingObservationComponent(componentData);
+}
 
   //Build ImagingObservation from CdeSet. Uses static method buildComponentFromCDE
-  static buildImagingObsFromCdeSet(cdeSet: Partial<CdeSet>): Partial<ImagingObservation> {
+  static buildImagingObsFromCdeSet(cdeSet: Partial<CdeSet>): ImagingObservation {
     let partialImagingObs: Partial<ImagingObservation> = {};
-    let components: Partial<Component>[] = [];  
+    let components: ImagingObservationComponent[] = [];  
 
     if (cdeSet.elements) {
       cdeSet.elements.forEach((element) => {
@@ -198,27 +237,27 @@ class ObservationBuilder {
         components.push(component);
       }
       )
-      if (cdeSet.indexCodes) { //Need because cdeSet.indexCodes is possibly undefined. 
-        partialImagingObs = {
-          resourceType: "Observation",
-          code: {
-            system: cdeSet.indexCodes[0].system, //Need to iterate for each indexCode/code pair
-            code: cdeSet.indexCodes[0].code,
-            display: cdeSet.indexCodes[0].display
-          },
-          bodySite: /* Define or reference */,
-          components: components
-        }
-        partialImagingObs = partialImagingObs;
-      }else {
+      if (cdeSet.indexCodes) {
+        const partialImagingObs: observationData = {
+            resourceType: "Observation",
+            code: {
+                system: cdeSet.indexCodes[0].system,
+                code: cdeSet.id,
+                display: cdeSet.name,
+            },
+            bodySite: /* Define or reference */,
+            component: components,
+        };
+    } else {
         console.error('CdeSet does not have indexCodes');
-      }
-  }
-  return partialImagingObs;
+    }
+}
+    const imagingObs = new ImagingObservation(partialImagingObs);
+    return imagingObs;
 }
 
-  static async buildComponentFromRDEid(id: string): Promise<Partial<Component>> {
-    let partialComponent: Partial<Component> = {};
+  static async buildComponentFromRDEid(id: string): Promise<Partial<ImagingObservationComponent>> {
+    let imgObsComponent: Partial<ImagingObservationComponent> = {};
     if (!rdeIdPattern.test(id)) {
         throw new Error('Invalid RDE id format.');
     } else {
@@ -226,8 +265,8 @@ class ObservationBuilder {
         if (cdElement === null) {
             throw new Error('Failed to fetch CdElement from repository.');
         } else {
-            partialComponent = ObservationBuilder.buildComponentFromCDE(cdElement);
-            return partialComponent;
+            imgObsComponent = ObservationBuilder.buildComponentFromCDE(cdElement);
+            return imgObsComponent;
         }
     }
 }
@@ -273,25 +312,32 @@ class ObservationBuilder {
   }
 }
 
-export type imagingObservationData = z.infer<typeof observationSchema>;
 
 class ImagingObservation {
-  private _data: Partial<imagingObservationData>;
-  private _components: Component[];
+  private _data: Partial<observationData>;
+  private _components: ImagingObservationComponent[];
 
-  constructor(inData: Partial<CdeSet> | string) {
+  constructor(inData: Partial<CdeSet> | string | observationData ) {
     this._components = [];
-    if (typeof inData === Partial<CdeSet>){ //TODO: Need to make an actual partialCDEset class???
+    if (inData instanceof Partial<CdeSet>){ //TODO: Need to make isCdeSet function
       this._data = ObservationBuilder.buildImagingObsFromCdeSet(inData);
     }else if (typeof inData === "string" ) {
-      const cdeSet = CdeSet.fetchFromRepo(inData)
-      this._data = ObservationBuilder.buildImagingObsFromCdeSet(cdeSet);
-    }else {
+      const cdeSet = await CdeSet.fetchFromRepo(inData)
+      if (cdeSet === null) {
+        throw new Error('Failed to fetch CdeSet from repository.');
+      }
+      else{
+        this._data = ObservationBuilder.buildImagingObsFromCdeSet(cdeSet);
+      }
+    }else if (isObservationData(inData)){
+      this._data = inData;
+    }
+    else {
       throw new Error ("Unsupported inData")
     }
   }
 
-  addComponent(component: Component) {
+  addComponent(component: ImagingObservationComponent) {
     this._components.push(component);
   }
 
