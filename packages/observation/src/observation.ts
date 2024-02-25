@@ -22,7 +22,7 @@ export type SystemCodeData = z.infer<typeof systemCodeSchema>;
 
 export const codeableConceptValueSchema = z.object({
   code: z.array(systemCodeSchema),
-  value: z.array(systemCodeSchema).nullable(), //array of code is a coding, Can we have this nullable? 
+  value: z.array(systemCodeSchema).nullable(), //array of code is a coding, Can we have this nullable?
 });
 
 export const stringValueSchema = z.object({
@@ -59,30 +59,26 @@ export const observationSchema = z.object({
   component: z.array(componentSchema),
 });
 
-
 export type componentData = z.infer<typeof componentSchema>;
 export type observationData = z.infer<typeof observationSchema>;
 
 function isObservationData(obj: any): obj is observationData {
-    return (
-        typeof obj === 'object' &&
-        obj !== null &&
-        'resourceType' in obj &&
-        obj['resourceType'] === 'Observation' // Check for the specific value of resourceType
-        // Add more checks if needed for other properties
-        // You might also want to check if the 'component' property is an array of componentData
-    );
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'resourceType' in obj &&
+    obj['resourceType'] === 'Observation' // Check for the specific value of resourceType
+    // Add more checks if needed for other properties
+    // You might also want to check if the 'component' property is an array of componentData
+  );
 }
 
 function isComponentData(obj: any): obj is componentData {
-    return (
-        typeof obj === 'object' &&
-        obj !== null && 
-        'code' in obj &&
-        'value' in obj 
-        // Add more checks if needed for other properties
-    );
-} 
+  return (
+    typeof obj === 'object' && obj !== null && 'code' in obj && 'value' in obj
+    // Add more checks if needed for other properties
+  );
+}
 
 //const pulmNoduleSet = new CdeSet('RDES195');
 //const rightLowerLobeBodyPart = BodyPartIndex.getByRadlexId('RIDxxxx');'
@@ -101,34 +97,29 @@ class Component {
 
   get data() {
     return this._data;
-}
+  }
   get code() {
     return this._data.code;
   }
   get value() {
-    return this._data.value
+    return this._data.value;
   }
 }
 
-type ImagingComponentKeyInput = string | CdElement  | componentData; //In case of string would be in format of RDEID ???
-type ImagingComponentValueInput =
-  | string  
-  | number
-  | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???
+type ImagingComponentKeyInput = string | CdElement; //In case of string would be in format of RDEID ???
+type ImagingComponentValueInput = string | number | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???
 
 class ImagingObservationComponent {
-  private _data: componentData;
-  //private _value: ImagingComponentValueInput; Probably dont need. 
-  
+  private _data: Partial<Component> = {};
+  //private _value: ImagingComponentValueInput; Probably dont need.
+
   constructor(
     key: ImagingComponentKeyInput,
-    value?: ImagingComponentValueInput,
-  )
-  {
+    value?: ImagingComponentValueInput
+  ) {
     if (!value) {
       if (key instanceof CdElement) {
-        this._data = ObservationBuilder.buildComponentFromCDE(key)
-
+        this._data = ObservationBuilder.buildComponentFromCDE(key);
       } else if (typeof key === 'string') {
         ObservationBuilder.buildComponentFromRDEid(key)
           .then((componentData) => {
@@ -138,13 +129,12 @@ class ImagingObservationComponent {
             console.error(error);
           });
       } else {
-        console.error("Incorrect key type");
+        console.error('Incorrect key type');
       }
-    } 
-    else if (isComponentData(key)){ //Want this to be componentData not component
+    } else if (isComponentData(key)) {
+      //Want this to be componentData not component
       this._data = key;
-    }
-    else {
+    } else {
       this._data = ObservationBuilder.buildComponentFromKeyValue(key, value);
     }
   }
@@ -169,8 +159,10 @@ class ObservationBuilder {
   //cde.valueSet.value = [{value: 'RDE818.0', name: 'acute'}, {value: 'RDE818.1', name: 'chronic'}]
   //component.value = [{system: 'defaultSystem', code: 'RDE818.0', display: 'acute'}, {system: 'defaultSystem', code: 'RDE818.1', display: 'chronic'}]
   //TODO: Need to map these two things together somehow.
-  //Builds components from valueSet elements 
-  static valueSetToComponentValues(cdElement: Partial<ValueSetElement>): SystemCodeData[] {
+  //Builds components from valueSet elements
+  static valueSetToComponentValues(
+    cdElement: Partial<ValueSetElement>
+  ): SystemCodeData[] {
     const systemCodeData: SystemCodeData[] = [];
     if (cdElement.elementType === 'valueSet') {
       const valueSetElement = cdElement as ValueSetElement;
@@ -186,111 +178,164 @@ class ObservationBuilder {
   }
 
   //Builds components from CdElements
-  static buildComponentFromCDE(partialElement: Partial<CdElement>): componentData {
-    let componentValue: SystemCodeData[] = []; // Initialize with a default value
-
-    switch (partialElement.elementType) {
-        case 'integer': 
-            const integerCdElement = partialElement as Partial<IntegerElement>;
-            componentValue = integerCdElement.integerValues?.values || []; //need [] because values is optional/nullable?? 
-            break;
-        case 'boolean': 
-            const booleanCdElement = partialElement as Partial<BooleanElement>;
-            componentValue = booleanCdElement.booleanValues?.values || [];
-            break;
-        case 'float':
-            const floatCdElement = partialElement as Partial<FloatElement>;
-            componentValue = floatCdElement.floatValues?.values || [];
-            break;
-        case 'valueSet':
-            const valueCdElement = partialElement as Partial<ValueSetElement>; 
-            componentValue = ObservationBuilder.valueSetToComponentValues(valueCdElement) || [];
-            break;
-        default:
-            console.error('Unsupported element type');
-            break;
+  static buildComponentFromCDE(cdeElement: CdElement): componentData {
+    let componentValue;
+    let booleanCdElement;
+    let integerCdElement;
+    let floatCdElement;
+    let valueSetCdElement;
+    switch (cdeElement.elementType) {
+      case 'integer':
+        integerCdElement = cdeElement as IntegerElement;
+        componentValue = integerCdElement.integerValues?.values;
+        break;
+      case 'boolean':
+        booleanCdElement = cdeElement as BooleanElement;
+        componentValue = booleanCdElement.booleanValues?.values;
+        break;
+      case 'float':
+        floatCdElement = cdeElement as FloatElement;
+        componentValue = floatCdElement.floatValues?.values;
+        break;
+      case 'valueSet':
+        valueSetCdElement = cdeElement as ValueSetElement;
+        componentValue =
+          ObservationBuilder.valueSetToComponentValues(valueSetCdElement);
+        break;
     }
-    
-    const componentData: componentData = {
-        code: [
-          {
-            system: partialElement.source ?? 'defaultSystem',
-            code: partialElement.id,
-            display: partialElement.name,
-          },
-        ],
-        value: componentValue,
-        //TODO: what attributes from cdeElement.integerValues do you want ex cardinality, value_min_max, step value etc....
-      };
 
-    return componentData;
-}
+    const code: SystemCodeData[] = [
+      {
+        system: cdeElement.source ?? 'defaultSystem',
+        code: cdeElement.id ?? '',
+        display: cdeElement.name ?? '',
+      },
+    ];
 
-  //Build ImagingObservation from CdeSet. Uses static method buildComponentFromCDE
-  static buildImagingObsFromCdeSet(cdeSet: Partial<CdeSet>): ImagingObservation {
-    let partialImagingObs: Partial<ImagingObservation> = {};
-    let components: ImagingObservationComponent[] = [];  
+    const newComponentData: componentData = {
+      code: code,
+      value: componentValue ?? [],
+      //TODO: element.values.values can return null or undefined which is causes this error because values is required in component.
+    };
+
+    return newComponentData;
+  }
+
+  static buildMutableImagingObsFromCdeSet(
+    id: string,
+    cdeSet: CdeSet
+  ): Partial<imagingObservationData> {
+    const partialImagingObs: Partial<imagingObservationData> = {};
+    const components: componentData[] = [];
+
+    //set metadata
+    partialImagingObs.resourceType = 'Observation';
+    partialImagingObs.id = id;
+    partialImagingObs.code = {
+      system: 'system', //What do we want these values to be
+      code: 'code',
+      display: 'display',
+    };
+    partialImagingObs.bodySite = {
+      code: {
+        system: 'system', //What do we want these values to be
+        code: 'code',
+        display: 'display',
+      },
+    }; //TODO: Need to add real body part;
 
     if (cdeSet.elements) {
       cdeSet.elements.forEach((element) => {
-        const component = ObservationBuilder.buildComponentFromCDE(element);
-        components.push(component);
-      }
-      )
-      if (cdeSet.indexCodes) {
-        const partialImagingObs: observationData = {
-            resourceType: "Observation",
-            code: {
-                system: cdeSet.indexCodes[0].system,
-                code: cdeSet.id,
-                display: cdeSet.name,
-            },
-            bodySite: /* Define or reference */,
-            component: components,
-        };
-    } else {
-        console.error('CdeSet does not have indexCodes');
+        const currentElement = CdElementFactory.create(element); //TODO: need this because it is picking element up as elementData not an element
+        const componentData =
+          ObservationBuilder.buildComponentFromCDE(currentElement);
+        components.push(componentData);
+      });
     }
-}
-    const imagingObs = new ImagingObservation(partialImagingObs);
-    return imagingObs;
-}
+    partialImagingObs.component = components;
+    return partialImagingObs;
+  }
 
-  static async buildComponentFromRDEid(id: string): Promise<Partial<ImagingObservationComponent>> {
-    let imgObsComponent: Partial<ImagingObservationComponent> = {};
-    if (!rdeIdPattern.test(id)) {
-        throw new Error('Invalid RDE id format.');
-    } else {
-        const cdElement: CdElement | null = await CdElement.fetchFromRepo(id);
-        if (cdElement === null) {
-            throw new Error('Failed to fetch CdElement from repository.');
-        } else {
-            imgObsComponent = ObservationBuilder.buildComponentFromCDE(cdElement);
-            return imgObsComponent;
-        }
-    }
-}
+  //Build ImagingObservation from CdeSet. Uses static method buildComponentFromCDE
+  static buildImagingObsFromCdeSet(
+    id: string,
+    cdeSet: CdeSet
+  ): MutabaleImagingObservation {
+    const partialImagingObs: Partial<imagingObservationData> = {};
+    const components: componentData[] = [];
 
-  static buildComponentFromKeyValue(key: ImagingComponentKeyInput , value: ImagingComponentValueInput ){
-    let partialComponent: Partial<Component>;
-    if (key instanceof CdElement){
-      partialComponent = {
-      code: [
-        {
-          system: key.source ?? 'defaultSystem',
-          code: key.id,
-          display: key.name,
-        },
-      ],
-      value: value,
+    //set metadata
+    partialImagingObs.resourceType = 'Observation';
+    partialImagingObs.id = id;
+    partialImagingObs.code = {
+      system: 'system', //What do we want these values to be
+      code: 'code',
+      display: 'display',
     };
-    return partialComponent;
+    partialImagingObs.bodySite = {
+      code: {
+        system: 'system', //What do we want these values to be
+        code: 'code',
+        display: 'display',
+      },
+    };
 
-    }else if (typeof key === 'string'){
-      //How would this work, wouldnt the values be already set? 
+    if (cdeSet.elements) {
+      cdeSet.elements.forEach((element) => {
+        const currentElement = CdElementFactory.create(element);
+        const component =
+          ObservationBuilder.buildComponentFromCDE(currentElement);
+        components.push(component);
+      });
+    }
+    partialImagingObs.component = components;
+    const newMutableImagingObs = new MutabaleImagingObservation(
+      id,
+      partialImagingObs
+    );
+
+    return newMutableImagingObs;
+  }
+
+  static async buildComponentFromRDEid(
+    id: string
+  ): Promise<Partial<Component>> {
+    let partialComponent: Partial<Component> = {};
+    if (!rdeIdPattern.test(id)) {
+      throw new Error('Invalid RDE id format.');
+    } else {
+      const cdElement: CdElement | null = await CdElement.fetchFromRepo(id);
+      if (cdElement === null) {
+        throw new Error('Failed to fetch CdElement from repository.');
+      } else {
+        partialComponent = ObservationBuilder.buildComponentFromCDE(cdElement);
+        return partialComponent;
+      }
+    }
+  }
+
+  static buildComponentFromKeyValue(
+    key: ImagingComponentKeyInput,
+    value: ImagingComponentValueInput
+  ) {
+    let partialComponent: Partial<Component>;
+    if (key instanceof CdElement) {
+      partialComponent = {
+        code: [
+          {
+            system: key.source ?? 'defaultSystem',
+            code: key.id,
+            display: key.name,
+          },
+        ],
+        value: value,
+      };
+      return partialComponent;
+    } else if (typeof key === 'string') {
+      //How would this work, wouldnt the values be already set?
       const cdElement: CdElement | null = await CdElement.fetchFromRepo(key);
       if (cdElement === null) {
-          throw new Error('Failed to fetch CdElement from repository.');
+        throw new Error('Failed to fetch CdElement from repository.');
       } else {
         partialComponent = {
           code: [
@@ -302,38 +347,38 @@ class ObservationBuilder {
           ],
           value: value,
         };
-      return partialComponent;
-      }      
+        return partialComponent;
+      }
       //cdElement.values.push(value);
-      
-    }else {
-        throw new Error('Unsupported key type');
+    } else {
+      throw new Error('Unsupported key type');
     }
   }
 }
 
+//Add more inData types as required
+type imagingObservationInData =
+  | CdeSet
+  | Partial<CdeSet>
+  | imagingObservationData;
 
-class ImagingObservation {
-  private _data: Partial<observationData>;
-  private _components: ImagingObservationComponent[];
+class MutabaleImagingObservation {
+  private _data: Partial<imagingObservationData>;
+  private _components: Component[] = [];
 
-  constructor(inData: Partial<CdeSet> | string | observationData ) {
-    this._components = [];
-    if (inData instanceof Partial<CdeSet>){ //TODO: Need to make isCdeSet function
-      this._data = ObservationBuilder.buildImagingObsFromCdeSet(inData);
-    }else if (typeof inData === "string" ) {
-      const cdeSet = await CdeSet.fetchFromRepo(inData)
-      if (cdeSet === null) {
-        throw new Error('Failed to fetch CdeSet from repository.');
+  constructor(id: string, inData: imagingObservationInData) {
+    if (inData instanceof CdeSet) {
+      this._data = ObservationBuilder.buildMutableImagingObsFromCdeSet(
+        id,
+        inData
+      );
+      if (this._data.component) {
+        this._components = this._data.component.map((component) => {
+          return new Component(component);
+        });
       }
-      else{
-        this._data = ObservationBuilder.buildImagingObsFromCdeSet(cdeSet);
-      }
-    }else if (isObservationData(inData)){
-      this._data = inData;
-    }
-    else {
-      throw new Error ("Unsupported inData")
+    } else {
+      this._data = { ...inData };
     }
   }
 
@@ -345,8 +390,61 @@ class ImagingObservation {
     return this._data.resourceType;
   }
 
+  get id() {
+    return this._data.id;
+  }
+
   get code() {
     return this._data.code;
+  }
+
+  get bodySite() {
+    return this._data.bodySite;
+  }
+
+  set bodySite(inBodySite: SystemCodeData) {
+    this._data.bodySite = inBodySite;
+  }
+
+  get components() {
+    return this._components;
+  }
+}
+
+class ImagingObservation {
+  private _data: imagingObservationData;
+  private _components: Component[] = [];
+
+  constructor(inData: imagingObservationData) {
+    this._data = { ...inData };
+    const components = this._data.component;
+    components.forEach((component) => {
+      this._components.push(new Component(component));
+    });
+  }
+
+  addComponent(component: Component) {
+    this._components.push(component);
+  }
+
+  get resourceType() {
+    return this._data.resourceType;
+  }
+
+  get id() {
+    return this._data.id;
+  }
+
+  set id(inId: string) {
+    this._data.id = inId;
+  }
+
+  get code() {
+    return this._data.code;
+  }
+
+  set code(inCode: SystemCodeData) {
+    this._data.code = inCode;
   }
 
   get bodySite() {
@@ -387,7 +485,7 @@ export class ObservationId {
 type ComponentKeyInput =
   | string
   | CdElement
-  | SystemCodeData //This is coding? Check 
+  | SystemCodeData //This is coding? Check
   | ImagingObservationComponent; //If type ImagingObservationComponent not going to have input value because taken care of when making the ImagingObservationComponent instance????
 type ComponentValueInput =
   | string
