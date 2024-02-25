@@ -62,24 +62,6 @@ export const observationSchema = z.object({
 export type componentData = z.infer<typeof componentSchema>;
 export type observationData = z.infer<typeof observationSchema>;
 
-function isObservationData(obj: any): obj is observationData {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'resourceType' in obj &&
-    obj['resourceType'] === 'Observation' // Check for the specific value of resourceType
-    // Add more checks if needed for other properties
-    // You might also want to check if the 'component' property is an array of componentData
-  );
-}
-
-function isComponentData(obj: any): obj is componentData {
-  return (
-    typeof obj === 'object' && obj !== null && 'code' in obj && 'value' in obj
-    // Add more checks if needed for other properties
-  );
-}
-
 //const pulmNoduleSet = new CdeSet('RDES195');
 //const rightLowerLobeBodyPart = BodyPartIndex.getByRadlexId('RIDxxxx');'
 //let pulmNodule = new ImagingObservation(pulmNoduleSet); // New ImagingObservation is a pulmonary nodule, but no components yet
@@ -131,24 +113,9 @@ class ImagingObservationComponent {
       } else {
         console.error('Incorrect key type');
       }
-    } else if (isComponentData(key)) {
-      //Want this to be componentData not component
-      this._data = key;
     } else {
       this._data = ObservationBuilder.buildComponentFromKeyValue(key, value);
     }
-  }
-
-  get data() {
-    return this._data;
-  }
-
-  get code() {
-    return this._data.code;
-  }
-
-  get value() {
-    return this._data.value;
   }
 }
 
@@ -356,6 +323,8 @@ class ObservationBuilder {
   }
 }
 
+export type imagingObservationData = z.infer<typeof observationSchema>;
+
 //Add more inData types as required
 type imagingObservationInData =
   | CdeSet
@@ -382,7 +351,7 @@ class MutabaleImagingObservation {
     }
   }
 
-  addComponent(component: ImagingObservationComponent) {
+  addComponent(component: Component) {
     this._components.push(component);
   }
 
