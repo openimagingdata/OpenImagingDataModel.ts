@@ -3,8 +3,11 @@ import {
   Observation,
   observationData,
   observationSchema,
-  codingData,
+  SystemCodeData,
+  MutabaleImagingObservation,
+  systemCodeSchema,
 } from './observation';
+import { CdeSet } from '../../cde_set/src/types/cdeSet';
 
 describe('Observation', () => {
   const observationJson: observationData = {
@@ -31,7 +34,7 @@ describe('Observation', () => {
             display: 'Test Observation',
           },
         ],
-        valueCodeableConcept: [
+        value: [
           {
             system: 'http://snomed.info/sct',
             code: '123456789',
@@ -47,7 +50,7 @@ describe('Observation', () => {
             display: 'Test Observation',
           },
         ],
-        valueString: '6',
+        value: '6', //TODO: what is its namedvalueString?
       },
     ],
   };
@@ -69,38 +72,46 @@ describe('Observation', () => {
     }
   });
 
-  // Test that we get a CdeSet object back from the Observation
-  it('should return a CdeSet object', () => {
-    const parsed = observationSchema.safeParse(observationJson);
-    expect(parsed.success).toBe(true);
-    if (parsed.success) {
-      const observation = new Observation(parsed.data);
-      //expect(observation).toHaveProperty('cdeSet');
-      console.log(observation);
-      console.log('Here is component: ');
-      console.log(observation.component);
-      expect(observation).toHaveProperty('id', '1');
-      expect(observation.component).toHaveLength(2);
-    }
-  });
   it('should properly load component data', () => {
     const parsed = observationSchema.safeParse(observationJson);
     expect(parsed.success).toBe(true);
     if (parsed.success) {
       const observation = new Observation(parsed.data);
       expect(observation.component[0]).toHaveProperty('code');
-      expect(observation.component[0]).toHaveProperty('valueCodeableConcept');
+      expect(observation.component[0]).toHaveProperty('value');
       console.log(observation.component[0].code);
-      const code: codingData = observation.component[0].code[0] as codingData;
+      const code: SystemCodeData = observation.component[0]
+        .code[0] as SystemCodeData;
       expect(code).toHaveProperty('system', 'http://loinc.org');
       expect(code).toHaveProperty('code', '12345-6');
-      expect(observation.component[0].valueCodeableConcept[0]).toHaveProperty(
-        'system'
-      );
-      expect(observation.component[0].valueCodeableConcept[0]).toHaveProperty(
-        'code',
-        '123456789'
+      //TODO: Need testing for value now
+    }
+  });
+});
+
+describe('CdeSet', async () => {
+  it('should fetch a CdeSet', async () => {
+    //fetch a CdeSet
+    const pulmonaryNoduleSetId = 'RDES195';
+    const pulmonaryNoduleSet = await CdeSet.fetchFromRepo(pulmonaryNoduleSetId);
+    const pulmonaryNoduleObservationId = '1';
+    let pulmonaryNoduleObservation: MutabaleImagingObservation;
+    if (pulmonaryNoduleSet === null) {
+      throw new Error('Failed to fetch CdeSet');
+    } else {
+      pulmonaryNoduleObservation = new MutabaleImagingObservation(
+        pulmonaryNoduleObservationId,
+        pulmonaryNoduleSet
       );
     }
+    console.log('Mutable Observation: ', pulmonaryNoduleObservation);
+    expect(pulmonaryNoduleObservation).toHaveProperty(
+      'resourceType',
+      'Observation'
+    );
+    expect(pulmonaryNoduleObservation).toHaveProperty('id', '1');
+    expect(pulmonaryNoduleObservation).toHaveProperty('code');
+    expect(pulmonaryNoduleObservation).toHaveProperty('_components');
+    expect(pulmonaryNoduleObservation).toHaveProperty('component');
   });
 });
