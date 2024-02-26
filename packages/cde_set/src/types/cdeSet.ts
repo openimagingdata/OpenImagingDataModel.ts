@@ -59,7 +59,7 @@ export class CdeSet {
   constructor(inData: CdeSetData) {
     this._data = { ...inData };
 
-    inData.authors.person.forEach((personData) => {
+    inData.authors.person?.forEach((personData) => {
       this._authors.push(new Person(personData));
     });
     inData.authors.organization?.forEach((organizationData) => {

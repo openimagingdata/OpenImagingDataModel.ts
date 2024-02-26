@@ -7,7 +7,7 @@ import {
   ValueSetElement,
 } from '../../cde_set/src/types/cdElement';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 //TODO: npm install --save-dev @types/uuid
 
 //Schemas
@@ -93,9 +93,15 @@ type ImagingComponentValueInput = string | number | SystemCodeData[]; //SystemCo
 
 class ImagingObservationComponent {
   private _data: Partial<Component> = {};
-  //private _value: ImagingComponentValueInput; Probably dont need.
 
   constructor(
+    key: ImagingComponentKeyInput,
+    value?: ImagingComponentValueInput
+  ) {
+    this.init(key, value);
+  }
+
+  private async init(
     key: ImagingComponentKeyInput,
     value?: ImagingComponentValueInput
   ) {
@@ -103,18 +109,19 @@ class ImagingObservationComponent {
       if (key instanceof CdElement) {
         this._data = ObservationBuilder.buildComponentFromCDE(key);
       } else if (typeof key === 'string') {
-        ObservationBuilder.buildComponentFromRDEid(key)
-          .then((componentData) => {
-            this._data = componentData;
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        try {
+          this._data = await ObservationBuilder.buildComponentFromRDEid(key);
+        } catch (error) {
+          console.error(error);
+        }
       } else {
         console.error('Incorrect key type');
       }
     } else {
-      this._data = ObservationBuilder.buildComponentFromKeyValue(key, value);
+      this._data = await ObservationBuilder.buildComponentFromKeyValue(
+        key,
+        value
+      );
     }
   }
 }
@@ -281,7 +288,7 @@ class ObservationBuilder {
     }
   }
 
-  static buildComponentFromKeyValue(
+  static async buildComponentFromKeyValue(
     key: ImagingComponentKeyInput,
     value: ImagingComponentValueInput
   ) {
@@ -331,7 +338,7 @@ type imagingObservationInData =
   | Partial<CdeSet>
   | imagingObservationData;
 
-class MutabaleImagingObservation {
+export class MutabaleImagingObservation {
   private _data: Partial<imagingObservationData>;
   private _components: Component[] = [];
 
@@ -367,6 +374,7 @@ class MutabaleImagingObservation {
     return this._data.code;
   }
 
+  /*
   get bodySite() {
     return this._data.bodySite;
   }
@@ -374,8 +382,9 @@ class MutabaleImagingObservation {
   set bodySite(inBodySite: SystemCodeData) {
     this._data.bodySite = inBodySite;
   }
+  */
 
-  get components() {
+  get component() {
     return this._components;
   }
 }
@@ -400,9 +409,11 @@ class ImagingObservation {
     return this._data.resourceType;
   }
 
+  /*
   get id() {
     return this._data.id;
   }
+  */
 
   set id(inId: string) {
     this._data.id = inId;
@@ -442,7 +453,7 @@ export class ObservationId {
   }
 
   public generateId() {
-    this._id = uuidv4();
+    this._id = 'uuidv4()'; //uuidv4();
     return this._id;
   }
 
@@ -451,14 +462,34 @@ export class ObservationId {
   }
 }
 
-type ComponentKeyInput =
-  | string
-  | CdElement
-  | SystemCodeData //This is coding? Check
-  | ImagingObservationComponent; //If type ImagingObservationComponent not going to have input value because taken care of when making the ImagingObservationComponent instance????
-type ComponentValueInput =
-  | string
-  | number
-  | boolean
-  | SystemCodeData
-  | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???;
+export class Observation {
+  private _data: observationData;
+
+  constructor(inData: observationData) {
+    this._data = { ...inData };
+  }
+
+  get data() {
+    return this._data;
+  }
+
+  get code() {
+    return this._data.code;
+  }
+
+  get bodySite() {
+    return this._data.bodySite;
+  }
+
+  get component() {
+    return this._data.component;
+  }
+
+  get id() {
+    return this._data.id;
+  }
+
+  get resourceType() {
+    return this._data.resourceType;
+  }
+}

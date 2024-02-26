@@ -55,7 +55,7 @@ export const eventSchema = z.object({
 });
 
 export const personSchema = z.object({
-  name: z.string(),
+  name: z.string().optional().nullable(),
   orcid_id: z.string().optional().nullable(),
   twitter_handle: z.string().optional().nullable(),
   url: z.string().optional().nullable(),
@@ -66,18 +66,19 @@ export const personSchema = z.object({
 });
 
 export const organizationSchema = z.object({
-  name: z.string(),
-  abbreviation: z.string().optional(),
-  url: z.string().optional(),
-  comment: z.string().optional(),
+  name: z.string().optional().nullable(),
+  abbreviation: z.string().nullable(),
+  url: z.string().optional().nullable(),
+  comment: z.string().optional().nullable(),
   role: z
     .enum(['author', 'sponsor', 'translator', 'reviewer', 'contributor'])
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 export const authorSchema = z.object({
-  person: z.array(personSchema),
-  organization: z.array(organizationSchema).optional(),
+  person: z.array(personSchema).optional().nullable(),
+  organization: z.array(organizationSchema).optional().nullable(),
 });
 
 export const referenceSchema = z.object({
