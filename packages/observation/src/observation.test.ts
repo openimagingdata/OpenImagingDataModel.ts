@@ -110,6 +110,9 @@ describe('CdeSet', async () => {
       'resourceType',
       'Observation'
     );
+    expect(pulmonaryNoduleObservation).toBeInstanceOf(
+      MutabaleImagingObservation
+    );
     expect(pulmonaryNoduleObservation).toHaveProperty('id', '1');
     expect(pulmonaryNoduleObservation).toHaveProperty('code');
     expect(pulmonaryNoduleObservation).toHaveProperty('_components');
@@ -148,13 +151,16 @@ describe('CdeSet', async () => {
     const pulmonaryNoduleSetId = 'RDES195';
     const pulmonaryNoduleSet = await CdeSet.fetchFromRepo(pulmonaryNoduleSetId);
     expect(pulmonaryNoduleSet).toBeInstanceOf(CdeSet);
-    console.log('Here');
     if (pulmonaryNoduleSet === null) {
       throw new Error('Failed to fetch CdeSet');
     } else {
-      console.log('Here2');
       const element = pulmonaryNoduleSet.getElementByName('Size');
       console.log('Element Size: ', element);
+      expect(element).toBeInstanceOf(CdElement);
+      if (element !== null) {
+        pulmonaryNoduleObservation.addComponent(element);
+        expect(pulmonaryNoduleObservation.component).toHaveLength(14);
+      }
     }
   });
 });
