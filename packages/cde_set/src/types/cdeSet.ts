@@ -133,6 +133,15 @@ export class CdeSet {
   get elements() {
     return [...this._data.elements];
   }
+
+  getElementByName(name: string): CdElement | null {
+    for (const element of this._elements) {
+      if (element.name === name) {
+        return element;
+      }
+    }
+    return null; // Return null if the element is not found after iterating through all elements
+  }
 }
 
 export { CdElementFactory, CdElement };

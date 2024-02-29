@@ -8,6 +8,7 @@ import {
   systemCodeSchema,
 } from './observation';
 import { CdeSet } from '../../cde_set/src/types/cdeSet';
+import { CdElement } from '../../cde_set/src/types/cdElement';
 
 describe('Observation', () => {
   const observationJson: observationData = {
@@ -89,13 +90,13 @@ describe('Observation', () => {
   });
 });
 
+let pulmonaryNoduleObservation: MutabaleImagingObservation;
 describe('CdeSet', async () => {
-  it('should fetch a CdeSet', async () => {
+  it('should fetch a CdeSet from Repo and generate MutableImagingObservation', async () => {
     //fetch a CdeSet
     const pulmonaryNoduleSetId = 'RDES195';
     const pulmonaryNoduleSet = await CdeSet.fetchFromRepo(pulmonaryNoduleSetId);
     const pulmonaryNoduleObservationId = '1';
-    let pulmonaryNoduleObservation: MutabaleImagingObservation;
     if (pulmonaryNoduleSet === null) {
       throw new Error('Failed to fetch CdeSet');
     } else {
@@ -113,5 +114,47 @@ describe('CdeSet', async () => {
     expect(pulmonaryNoduleObservation).toHaveProperty('code');
     expect(pulmonaryNoduleObservation).toHaveProperty('_components');
     expect(pulmonaryNoduleObservation).toHaveProperty('component');
+    expect(pulmonaryNoduleObservation).toHaveProperty('_data');
+  });
+  it('should properly load component data', async () => {
+    expect(pulmonaryNoduleObservation.component).toHaveLength(13);
+    expect(pulmonaryNoduleObservation.component[0]).toHaveProperty('code');
+    expect(pulmonaryNoduleObservation.component[0]).toHaveProperty('value');
+    expect(pulmonaryNoduleObservation.component[0]).toHaveProperty('_data');
+    /*
+    expect(pulmonaryNoduleObservation.component[0].code).toHaveProperty(
+      'system'
+    );
+    expect(pulmonaryNoduleObservation.component[0].code).toHaveProperty('code');
+    expect(pulmonaryNoduleObservation.component[0].code).toHaveProperty(
+      'display'
+    );//TODO add getters for these */
+    console.log(
+      'Component[0]_data: ',
+      pulmonaryNoduleObservation.component[0].data
+    );
+    console.log(
+      'Component[1]_data: ',
+      pulmonaryNoduleObservation.component[1].data
+    );
+    console.log(
+      'Component[2]_data: ',
+      pulmonaryNoduleObservation.component[2].data
+    );
+    console.log('code: ', pulmonaryNoduleObservation.component[0].code);
+    console.log('value: ', pulmonaryNoduleObservation.component[0].value);
+  });
+  it('Get element from CDES and add it to observation', async () => {
+    const pulmonaryNoduleSetId = 'RDES195';
+    const pulmonaryNoduleSet = await CdeSet.fetchFromRepo(pulmonaryNoduleSetId);
+    expect(pulmonaryNoduleSet).toBeInstanceOf(CdeSet);
+    console.log('Here');
+    if (pulmonaryNoduleSet === null) {
+      throw new Error('Failed to fetch CdeSet');
+    } else {
+      console.log('Here2');
+      const element = pulmonaryNoduleSet.getElementByName('Size');
+      console.log('Element Size: ', element);
+    }
   });
 });
