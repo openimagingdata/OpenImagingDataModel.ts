@@ -441,14 +441,16 @@ describe('cdeSet', () => {
     expect(cdeSet).toHaveProperty('id', 'RDES112');
   });
   it('Should appropriately load cdeSets using the fetchCdeSet method', async () => {
-    const rdesId = '94';
+    const rdesId = 'RDES195';
     const cdeSet = await CdeSet.fetchFromRepo(rdesId);
     expect(cdeSet).toBeInstanceOf(CdeSet);
-    expect(cdeSet).toHaveProperty('id', 'RDES94');
-    expect(cdeSet).toHaveProperty(
-      'name',
-      'Incidental Pulmonary Nodules on Chest Radiographs'
-    );
-    expect(cdeSet?.elements).toHaveLength(6);
+    expect(cdeSet).toHaveProperty('id', 'RDES195');
+    expect(cdeSet).toHaveProperty('name', 'Pulmonary Nodule');
+    expect(cdeSet?.elements).toHaveLength(13);
+    if (cdeSet) {
+      const element = cdeSet.getElementByName('Presence');
+      expect(element).toHaveProperty('name', 'Presence');
+      console.log('Presence Element', element);
+    }
   });
 });
