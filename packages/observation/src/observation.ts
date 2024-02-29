@@ -358,8 +358,13 @@ export class MutabaleImagingObservation {
     }
   }
 
-  addComponent(component: Component) {
-    this._components.push(component);
+  addComponent(inData: Component | CdElement) {
+    if (inData instanceof CdElement) {
+      const component = ObservationBuilder.buildComponentFromCDE(inData);
+      this._components.push(new Component(component));
+    } else {
+      this._components.push(inData);
+    }
   }
 
   get resourceType() {
