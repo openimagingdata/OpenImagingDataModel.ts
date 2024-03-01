@@ -4,7 +4,7 @@ import {
   observationData,
   observationSchema,
   SystemCodeData,
-  MutabaleImagingObservation,
+  ImagingObservation,
   systemCodeSchema,
 } from './observation';
 import { CdeSet } from '../../cde_set/src/types/cdeSet';
@@ -90,7 +90,7 @@ describe('Observation', () => {
   });
 });
 
-let pulmonaryNoduleObservation: MutabaleImagingObservation;
+let pulmonaryNoduleObservation: ImagingObservation;
 describe('CdeSet', async () => {
   it('should fetch a CdeSet from Repo and generate MutableImagingObservation', async () => {
     //fetch a CdeSet
@@ -100,7 +100,7 @@ describe('CdeSet', async () => {
     if (pulmonaryNoduleSet === null) {
       throw new Error('Failed to fetch CdeSet');
     } else {
-      pulmonaryNoduleObservation = new MutabaleImagingObservation(
+      pulmonaryNoduleObservation = new ImagingObservation(
         pulmonaryNoduleObservationId,
         pulmonaryNoduleSet
       );
@@ -110,9 +110,7 @@ describe('CdeSet', async () => {
       'resourceType',
       'Observation'
     );
-    expect(pulmonaryNoduleObservation).toBeInstanceOf(
-      MutabaleImagingObservation
-    );
+    expect(pulmonaryNoduleObservation).toBeInstanceOf(ImagingObservation);
     expect(pulmonaryNoduleObservation).toHaveProperty('id', '1');
     expect(pulmonaryNoduleObservation).toHaveProperty('code');
     expect(pulmonaryNoduleObservation).toHaveProperty('_components');
