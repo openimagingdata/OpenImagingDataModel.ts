@@ -88,8 +88,8 @@ class Component {
   }
 }
 
-type ImagingComponentKeyInput = string | CdElement; //In case of string would be in format of RDEID ???
-type ImagingComponentValueInput = string | number | SystemCodeData[]; //SystemCodeData and SystemCodeData[] = code and coding ???
+type ImagingComponentKeyInput = string | CdElement;
+type ImagingComponentValueInput = string | number | SystemCodeData[];
 
 class ImagingObservationComponent {
   private _data: Partial<Component> = {};
@@ -195,28 +195,12 @@ class ObservationBuilder {
     return newComponentData;
   }
 
-  static buildMutableImagingObsFromCdeSet(
+  //TODO: Need to set with actual metadata
+  static buildImagingObsFromCdeSet(
     id: string,
     cdeSet: CdeSet
-  ): Partial<imagingObservationData> {
-    const partialImagingObs: Partial<imagingObservationData> = {};
+  ): imagingObservationData {
     const components: componentData[] = [];
-
-    //set metadata
-    partialImagingObs.resourceType = 'Observation';
-    partialImagingObs.id = id;
-    partialImagingObs.code = {
-      system: 'system', //What do we want these values to be
-      code: 'code',
-      display: 'display',
-    };
-    partialImagingObs.bodySite = {
-      code: {
-        system: 'system', //What do we want these values to be
-        code: 'code',
-        display: 'display',
-      },
-    }; //TODO: Need to add real body part;
 
     if (cdeSet.elements) {
       cdeSet.elements.forEach((element) => {
@@ -226,49 +210,25 @@ class ObservationBuilder {
         components.push(componentData);
       });
     }
-    partialImagingObs.component = components;
-    return partialImagingObs;
-  }
 
-  //Build ImagingObservation from CdeSet. Uses static method buildComponentFromCDE
-  static buildImagingObsFromCdeSet(
-    id: string,
-    cdeSet: CdeSet
-  ): MutabaleImagingObservation {
-    const partialImagingObs: Partial<imagingObservationData> = {};
-    const components: componentData[] = [];
-
-    //set metadata
-    partialImagingObs.resourceType = 'Observation';
-    partialImagingObs.id = id;
-    partialImagingObs.code = {
-      system: 'system', //What do we want these values to be
-      code: 'code',
-      display: 'display',
-    };
-    partialImagingObs.bodySite = {
+    const imagingObsData: imagingObservationData = {
+      resourceType: 'Observation',
+      id: id,
       code: {
-        system: 'system', //What do we want these values to be
+        system: 'system', //TODO What do we want these values to be
         code: 'code',
         display: 'display',
       },
+      bodySite: {
+        code: {
+          system: 'system', //TODO Need actual bodysite data
+          code: 'code',
+          display: 'display',
+        },
+      },
+      component: components,
     };
-
-    if (cdeSet.elements) {
-      cdeSet.elements.forEach((element) => {
-        const currentElement = CdElementFactory.create(element);
-        const component =
-          ObservationBuilder.buildComponentFromCDE(currentElement);
-        components.push(component);
-      });
-    }
-    partialImagingObs.component = components;
-    const newMutableImagingObs = new MutabaleImagingObservation(
-      id,
-      partialImagingObs
-    );
-
-    return newMutableImagingObs;
+    return imagingObsData;
   }
 
   static async buildComponentFromRDEid(
@@ -333,21 +293,15 @@ class ObservationBuilder {
 export type imagingObservationData = z.infer<typeof observationSchema>;
 
 //Add more inData types as required
-type imagingObservationInData =
-  | CdeSet
-  | Partial<CdeSet>
-  | imagingObservationData;
+type imagingObservationInData = CdeSet | imagingObservationData; //TODO: What inData types do we want to accept???
 
-export class MutabaleImagingObservation {
-  private _data: Partial<imagingObservationData>;
+export class ImagingObservation {
+  private _data: imagingObservationData; //TODO want this to return
   private _components: Component[] = [];
 
   constructor(id: string, inData: imagingObservationInData) {
     if (inData instanceof CdeSet) {
-      this._data = ObservationBuilder.buildMutableImagingObsFromCdeSet(
-        id,
-        inData
-      );
+      this._data = ObservationBuilder.buildImagingObsFromCdeSet(id, inData);
       if (this._data.component) {
         this._components = this._data.component.map((component) => {
           return new Component(component);
@@ -390,53 +344,6 @@ export class MutabaleImagingObservation {
   */
 
   get component() {
-    return this._components;
-  }
-}
-
-class ImagingObservation {
-  private _data: imagingObservationData;
-  private _components: Component[] = [];
-
-  constructor(inData: imagingObservationData) {
-    this._data = { ...inData };
-    const components = this._data.component;
-    components.forEach((component) => {
-      this._components.push(new Component(component));
-    });
-  }
-
-  addComponent(component: Component) {
-    this._components.push(component);
-  }
-
-  get resourceType() {
-    return this._data.resourceType;
-  }
-
-  /*
-  get id() {
-    return this._data.id;
-  }
-  */
-
-  set id(inId: string) {
-    this._data.id = inId;
-  }
-
-  get code() {
-    return this._data.code;
-  }
-
-  set code(inCode: SystemCodeData) {
-    this._data.code = inCode;
-  }
-
-  get bodySite() {
-    return this._data.bodySite;
-  }
-
-  get components() {
     return this._components;
   }
 }
@@ -498,3 +405,13 @@ export class Observation {
     return this._data.resourceType;
   }
 }
+
+/* Notes from 02/29
+FHIR representation of an observation
+-What to be able to take a finding and generate cdeSet json. 
+-Dont need mutable middle man 
+-CdeSet structure is going to be changing:
+--new model https://github.com/RSNA/ACR-RSNA-CDEs/blob/master/cde.schema.json
+
+
+*/
