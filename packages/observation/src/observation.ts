@@ -498,13 +498,3 @@ export class Observation {
     return this._data.resourceType;
   }
 }
-
-/* Notes from 02/29
-FHIR representation of an observation
--What to be able to take a finding and generate cdeSet json. 
--Dont need mutable middle man 
--CdeSet structure is going to be changing:
---new model https://github.com/RSNA/ACR-RSNA-CDEs/blob/master/cde.schema.json
-
-
-*/
