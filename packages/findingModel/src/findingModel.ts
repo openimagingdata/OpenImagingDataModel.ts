@@ -1,4 +1,5 @@
-import { z } from 'zod';
+import { ZodNull, nullable, z } from 'zod';
+import { CdeSet } from '../../cde_set/src/types/cdeSet';
 
 //Schemas
 export const valuesSchema = z.object({
@@ -84,7 +85,7 @@ export class ChoiceAttribute extends Attributes<ChoiceAttributesData> {
   }
 }
 
-export class SizeAttributes extends Attributes<NumericAttributesData> {
+export class NumericAttribute extends Attributes<NumericAttributesData> {
   get minimum() {
     return this._data.minimum;
   }
@@ -115,7 +116,7 @@ export class FindingModel {
 
     this._data.attributes.forEach((attributeData) => {
       if (isNumericAttribute(attributeData)) {
-        this._attributes.push(new SizeAttributes(attributeData));
+        this._attributes.push(new NumericAttribute(attributeData));
       } else if (isChoiceAttribute(attributeData)) {
         this._attributes.push(new ChoiceAttribute(attributeData));
       }
@@ -133,5 +134,49 @@ export class FindingModel {
     return this._attributes;
   }
 }
-
 //TODO: need to indentify attribute tpye based on type field.
+
+class findingToCdeSetBuilder {
+  //Take a finding and generate cdeSet Json
+  static buildFromPartial = (finding: FindingModel): Partial<CdeSet> => {
+    const cdeSet: CdeSet = {
+      id: 'rdes1',
+      name: finding.name,
+      description: finding.description ?? '', //defualt to empty string?
+      version: {
+        name: '',
+        version_date: '',
+        status_date: '',
+        status: 'Proposed',
+      },
+      url: 'https://www.example.com',
+      index_codes: [],
+      body_parts: [],
+      authors: {
+        person: [],
+        organization: [],
+      },
+      history: [],
+      specialty: [],
+      elements: [],
+      references: [],
+    };
+    return cdeSet;
+  };
+
+  static buildElementFromAttribute = (
+    attribute: ChoiceAttribute | NumericAttribute
+  ) => {};
+
+  static buildElementFromChoiceAttribute(attribute: ChoiceAttribute) {}
+
+  static buildElementFromNumericAttribute(attribute: NumericAttribute) {}
+}
+
+/* Notes from 02/29
+FHIR representation of an observation
+-What to be able to take a finding and generate cdeSet json. 
+-Dont need mutable middle man 
+-CdeSet structure is going to be changing:
+--new model https://github.com/RSNA/ACR-RSNA-CDEs/blob/master/cde.schema.json
+*/
