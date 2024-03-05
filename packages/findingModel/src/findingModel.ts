@@ -1,6 +1,18 @@
 import { ZodNull, nullable, z } from 'zod';
-import { CdeSet } from '../../cde_set/src/types/cdeSet';
+import { CdeSet, CdeSetData } from '../../cde_set/src/types/cdeSet';
+import {
+  ValueSetElementData,
+  FloatElement,
+  IntegerElement,
+  BooleanElement,
+  CdElement,
+  ValueSetElement,
+} from '../../cde_set/src/types/cdElement';
 
+const currentDate = new Date();
+const formattedCurrentDate = `${
+  currentDate.getMonth() + 1
+}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
 //Schemas
 export const valuesSchema = z.object({
   name: z.string(),
@@ -137,40 +149,121 @@ export class FindingModel {
 //TODO: need to indentify attribute tpye based on type field.
 
 class findingToCdeSetBuilder {
+  //Everything except values?
+  static setElementMetadata(
+    attribute: ChoiceAttribute | NumericAttribute
+  ): Partial<CdeSetData> {
+    const setMetadata: Partial<CdElement> = {
+      id: 'Generate Unique ID', //uuid4()?
+      parent_id: 1,
+      name: attribute.name,
+      definition: attribute.description,
+      question: '',
+      version: {
+        name: 'Initial Version',
+        version_date: formattedCurrentDate,
+        status_date: formattedCurrentDate,
+        status: 'Proposed',
+      },
+      indexCodes: [],
+    };
+    return setMetadata;
+  }
   //Take a finding and generate cdeSet Json
-  static buildFromPartial = (finding: FindingModel): Partial<CdeSet> => {
-    const cdeSet: CdeSet = {
-      id: 'rdes1',
+  static findingToCdeSet = (finding: FindingModel): CdeSet => {
+    const cdeSetData: CdeSetData = {
+      //Set the metadata
+      id: 'rdes1', //TODO: generate a unique id uuidv4()?
       name: finding.name,
       description: finding.description ?? '', //defualt to empty string?
       version: {
-        name: '',
-        version_date: '',
-        status_date: '',
+        name: 'Initial Version',
+        version_date: formattedCurrentDate,
+        status_date: formattedCurrentDate,
         status: 'Proposed',
       },
       url: 'https://www.example.com',
       index_codes: [],
-      body_parts: [],
+      body_parts: [], //Needed to change the name of the getter to get body_parts from get bodyParts?
       authors: {
-        person: [],
+        person: [
+          {
+            name: '', //TODO: What do we want these defualt values to be??
+            orcid_id: '',
+            twitter_handle: '',
+            url: '',
+            role: 'author',
+          },
+        ],
         organization: [],
       },
       history: [],
       specialty: [],
-      elements: [],
+      elements: [], //TODO: Set the elements based on the attribute type.
       references: [],
     };
+    const cdeSet = new CdeSet(cdeSetData);
     return cdeSet;
   };
 
   static buildElementFromAttribute = (
     attribute: ChoiceAttribute | NumericAttribute
-  ) => {};
+  ) => {
+    if (attribute instanceof ChoiceAttribute) {
+      return this.buildElementFromChoiceAttribute(attribute);
+    } else if (attribute instanceof NumericAttribute) {
+      return this.buildElementFromNumericAttribute(attribute);
+    }
+  };
 
-  static buildElementFromChoiceAttribute(attribute: ChoiceAttribute) {}
+  static buildElementFromChoiceAttribute(
+    attribute: ChoiceAttribute
+  ): CdElement {
+    const valuesSetData: ValueSetElementData = {
+      id: 'RDE818', //TODO: generate a unique id uuid4()?
+      parent_id: 126,
+      name: attribute.name,
+      definition: attribute.description,
+      question: '',
+      version: {
+        name: 'Initial Version',
+        version_date: formattedCurrentDate,
+        status_date: formattedCurrentDate,
+        status: 'Proposed',
+      },
+      index_codes: [],
+      value_set: {
+        cardinality: {
+          min_cardinality: 1,
+          max_cardinality: 1,
+        },
+        value_type: 'valueSet',
+        values: attribute.values.map((value) => ({
+          value: value.description ?? '',
+          name: value.name,
+        })),
+      },
+    };
+    const element = new ValueSetElement(valuesSetData);
+    return element;
+  }
 
-  static buildElementFromNumericAttribute(attribute: NumericAttribute) {}
+  static buildElementFromNumericAttribute(attribute: NumericAttribute) {
+    const element: Partial<CdElement> = {
+      id: 'Generate Unique ID', //uuid4()?
+      parent_id: 126,
+      name: attribute.name,
+      definition: attribute.description,
+      question: '',
+      version: {
+        name: 'Initial Version',
+        version_date: formattedCurrentDate,
+        status_date: formattedCurrentDate,
+        status: 'Proposed',
+      },
+      indexCodes: [],
+    };
+  }
 }
 
 /* Notes from 02/29

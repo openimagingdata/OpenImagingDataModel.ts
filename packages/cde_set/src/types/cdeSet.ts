@@ -118,6 +118,14 @@ export class CdeSet {
     return [...this._authors];
   }
 
+  get person() {
+    return this._data.authors.person;
+  }
+
+  get organization() {
+    return this._data.authors.organization;
+  }
+
   get history() {
     return [...this._data.history];
   }
