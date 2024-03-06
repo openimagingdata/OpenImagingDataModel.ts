@@ -7,6 +7,7 @@ import {
   BooleanElement,
   CdElement,
   ValueSetElement,
+  ElementData,
 } from '../../cde_set/src/types/cdElement';
 
 const currentDate = new Date();
@@ -90,6 +91,10 @@ export abstract class Attributes<
 }
 
 export class ChoiceAttribute extends Attributes<ChoiceAttributesData> {
+  constructor(choiceAttributesData: ChoiceAttributesData) {
+    super(choiceAttributesData);
+  }
+
   get values() {
     return this._data.values;
     //return this._data.values[0].name;
@@ -98,6 +103,10 @@ export class ChoiceAttribute extends Attributes<ChoiceAttributesData> {
 }
 
 export class NumericAttribute extends Attributes<NumericAttributesData> {
+  constructor(numericAttributesData: NumericAttributesData) {
+    super(numericAttributesData);
+  }
+
   get minimum() {
     return this._data.minimum;
   }
@@ -171,8 +180,26 @@ class findingToCdeSetBuilder {
   }
   //Take a finding and generate cdeSet Json
   static findingToCdeSet = (finding: FindingModel): CdeSet => {
+    const elements: CdElement[] = [];
+
+    finding.attributes.forEach((attributeData) => {
+      let attribute;
+      if (attributeData.type === 'choice') {
+        attribute = new ChoiceAttribute(attributeData as ChoiceAttributesData);
+        findingToCdeSetBuilder.buildElementFromAttribute(attribute);
+      } else if (attributeData.type === 'numeric') {
+        attribute = new NumericAttribute(
+          attributeData as NumericAttributesData
+        );
+        findingToCdeSetBuilder.buildElementFromAttribute(attribute);
+      }
+      if (!attribute) {
+        throw new Error('Attribute type not found');
+      }
+    });
+
     const cdeSetData: CdeSetData = {
-      //Set the metadata
+      //Set the metadata//
       id: 'rdes1', //TODO: generate a unique id uuidv4()?
       name: finding.name,
       description: finding.description ?? '', //defualt to empty string?
@@ -199,20 +226,25 @@ class findingToCdeSetBuilder {
       },
       history: [],
       specialty: [],
-      elements: [], //TODO: Set the elements based on the attribute type.
+      elements: elements, //TODO: Set the elements based on the attribute type.
       references: [],
     };
+
+    //Add the elements from attributes//
+
     const cdeSet = new CdeSet(cdeSetData);
     return cdeSet;
   };
 
   static buildElementFromAttribute = (
     attribute: ChoiceAttribute | NumericAttribute
-  ) => {
+  ): CdElement => {
     if (attribute instanceof ChoiceAttribute) {
       return this.buildElementFromChoiceAttribute(attribute);
     } else if (attribute instanceof NumericAttribute) {
       return this.buildElementFromNumericAttribute(attribute);
+    } else {
+      throw new Error('Attribute type not found');
     }
   };
 
@@ -221,7 +253,7 @@ class findingToCdeSetBuilder {
   ): CdElement {
     const valuesSetData: ValueSetElementData = {
       id: 'RDE818', //TODO: generate a unique id uuid4()?
-      parent_id: 126,
+      parent_id: 0,
       name: attribute.name,
       definition: attribute.description,
       question: '',
@@ -248,10 +280,13 @@ class findingToCdeSetBuilder {
     return element;
   }
 
-  static buildElementFromNumericAttribute(attribute: NumericAttribute) {
-    const element: Partial<CdElement> = {
+  static buildElementFromNumericAttribute(
+    attribute: NumericAttribute
+  ): CdElement {
+    //TODO: Need a switch to determine the subtype of element.
+    const elementData: ElementData = {
       id: 'Generate Unique ID', //uuid4()?
-      parent_id: 126,
+      parent_id: 0,
       name: attribute.name,
       definition: attribute.description,
       question: '',
@@ -261,8 +296,23 @@ class findingToCdeSetBuilder {
         status_date: formattedCurrentDate,
         status: 'Proposed',
       },
-      indexCodes: [],
+      index_codes: [],
+      integer_values: {
+        value_type: 'integer',
+        cardinality: {
+          min_cardinality: 1,
+          max_cardinality: 1,
+        },
+        value_min_max: {
+          value_min: attribute.minimum,
+          value_max: attribute.maximum,
+        },
+        step_value: 1,
+        unit: '',
+        values: [],
+      },
     };
+    return new IntegerElement(elementData);
   }
 }
 
