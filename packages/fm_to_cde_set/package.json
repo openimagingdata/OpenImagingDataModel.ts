@@ -1,0 +1,24 @@
+{
+  "name": "@openimagingdata/fm_to_cde_set",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "types": "dist/types/index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "lint": "eslint 'src/**/*.ts'",
+    "prettier": "prettier --write 'src/**/*.ts'",
+    "clean": "rimraf dist .cache .tmp lib build",
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+    "@openimagingdata/cde_set": "workspace:*",
+    "@openimagingdata/finding_model": "workspace:*",
+    "zod": "^3.21.4"
+  }
+}

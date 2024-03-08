@@ -1,0 +1,108 @@
+{
+  "$schema": "https://raw.githubusercontent.com/RSNA/ACR-RSNA-CDEs/master/cde.schema.json",
+  "id": "TO_BE_DETERMINED001",
+  "name": "Calcified pulmonary granuloma",
+  "description": "A calcified pulmonary granuloma is a small, benign, solitary nodule in the lung that is composed of a collection of immune cells. It is a common finding on chest radiographs and CT scans. The granuloma is usually a result of a prior infection, such as tuberculosis, histoplasmosis, or other fungal infections. It is usually asymptomatic and does not require treatment.",
+  "version": {
+    "number": 1,
+    "date": "2024-03-07"
+  },
+  "status": {
+    "name": "Proposed",
+    "date": "2024-03-07"
+  },
+  "history": [],
+  "contributors": {
+    "people": [
+      {
+        "name": "Tarik Alkasab, MD, PhD",
+        "email": "talkasab@mgh.harvard.edu",
+        "role": "Author"
+      }
+    ],
+    "organizations": [
+      {
+        "name": "Nuance Communications",
+        "role": "contributor"
+      }
+    ]
+  },
+  "specialty": [
+    {
+      "name": "Chest Radiology",
+      "abbreviation": "CH"
+    }
+  ],
+  "index_codes": [
+    {
+      "code": "16841131000119100",
+      "system": "SNOMEDCT",
+      "display": "Calcified granuloma of lung"
+    }
+  ],
+  "body_parts": [],
+  "elements": [
+    {
+      "id": "TO_BE_DETERMINED002",
+      "name": "size",
+      "definition": "The size of the granuloma",
+      "version": {
+        "number": 1,
+        "date": "2024-03-07"
+      },
+      "status": {
+        "name": "Proposed",
+        "date": "2024-03-07"
+      },
+      "integer_value": {
+        "min": 1,
+        "max": 50,
+        "unit": "mm"
+      }
+    },
+    {
+      "id": "TO_BE_DETERMINED003",
+      "name": "location",
+      "definition": "Where the granuloma is located in the lung",
+      "version": {
+        "number": 1,
+        "date": "2024-03-07"
+      },
+      "status": {
+        "name": "Proposed",
+        "date": "2024-03-07"
+      },
+      "value_set": {
+        "min_cardinality": 1,
+        "max_cardinality": 1,
+        "values": [
+          {
+            "code": "TO_BE_DETERMINED003.0",
+            "value": "right_upper_lobe",
+            "name": "Right upper lobe"
+          },
+          {
+            "code": "TO_BE_DETERMINED003.1",
+            "value": "left_upper_lobe",
+            "name": "Left upper lobe"
+          },
+          {
+            "code": "TO_BE_DETERMINED003.2",
+            "value": "right_middle_lobe",
+            "name": "Right middle lobe"
+          },
+          {
+            "code": "TO_BE_DETERMINED003.3",
+            "value": "right_lower_lobe",
+            "name": "Right lower lobe"
+          },
+          {
+            "code": "TO_BE_DETERMINED003.4",
+            "value": "left_lower_lobe",
+            "name": "Left lower lobe"
+          }
+        ]
+      }
+    }
+  ]
+}
