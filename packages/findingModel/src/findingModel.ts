@@ -184,14 +184,17 @@ class findingToCdeSetBuilder {
 
     finding.attributes.forEach((attributeData) => {
       let attribute;
+      let element: CdElement;
       if (attributeData.type === 'choice') {
         attribute = new ChoiceAttribute(attributeData as ChoiceAttributesData);
-        findingToCdeSetBuilder.buildElementFromAttribute(attribute);
+        element = findingToCdeSetBuilder.buildElementFromAttribute(attribute);
+        elements.push(element);
       } else if (attributeData.type === 'numeric') {
         attribute = new NumericAttribute(
           attributeData as NumericAttributesData
         );
-        findingToCdeSetBuilder.buildElementFromAttribute(attribute);
+        element = findingToCdeSetBuilder.buildElementFromAttribute(attribute);
+        elements.push(element);
       }
       if (!attribute) {
         throw new Error('Attribute type not found');
@@ -250,7 +253,7 @@ class findingToCdeSetBuilder {
 
   static buildElementFromChoiceAttribute(
     attribute: ChoiceAttribute
-  ): CdElement {
+  ): ValueSetElement {
     const valuesSetData: ValueSetElementData = {
       id: 'RDE818', //TODO: generate a unique id uuid4()?
       parent_id: 0,
@@ -276,13 +279,12 @@ class findingToCdeSetBuilder {
         })),
       },
     };
-    const element = new ValueSetElement(valuesSetData);
-    return element;
+    return new ValueSetElement(valuesSetData);
   }
 
   static buildElementFromNumericAttribute(
     attribute: NumericAttribute
-  ): CdElement {
+  ): IntegerElement {
     //TODO: Need a switch to determine the subtype of element.
     const elementData: ElementData = {
       id: 'Generate Unique ID', //uuid4()?
