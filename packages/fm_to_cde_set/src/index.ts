@@ -25,26 +25,6 @@ const formattedCurrentDate = `${
 }/${currentDate.getDate()}/${currentDate.getFullYear()}`;
 
 class findingToCdeSetBuilder {
-  //Everything except values?
-  static setElementMetadata(
-    attribute: ChoiceAttribute | NumericAttribute
-  ): Partial<CdeSetData> {
-    const setMetadata: Partial<CdElement> = {
-      id: 'Generate Unique ID', //uuid4()?
-      parent_id: 1,
-      name: attribute.name,
-      definition: attribute.description,
-      question: '',
-      version: {
-        name: 'Initial Version',
-        version_date: formattedCurrentDate,
-        status_date: formattedCurrentDate,
-        status: 'Proposed',
-      },
-      indexCodes: [],
-    };
-    return setMetadata;
-  }
   //Take a finding and generate cdeSet Json
   static findingToCdeSet = (finding: FindingModel): CdeSet => {
     const elements: CdElement[] = [];
@@ -151,7 +131,7 @@ class findingToCdeSetBuilder {
 
   static buildElementFromNumericAttribute(
     attribute: NumericAttribute
-  ): IntegerElement {
+  ): FloatElement {
     //TODO: Need a switch to determine the subtype of element.
     const elementData: ElementData = {
       id: 'Generate Unique ID', //uuid4()?
@@ -166,8 +146,8 @@ class findingToCdeSetBuilder {
         status: 'Proposed',
       },
       index_codes: [],
-      integer_values: {
-        value_type: 'integer',
+      float_values: {
+        value_type: 'float',
         cardinality: {
           min_cardinality: 1,
           max_cardinality: 1,
@@ -176,11 +156,12 @@ class findingToCdeSetBuilder {
           value_min: attribute.minimum,
           value_max: attribute.maximum,
         },
+        value_size: 1,
         step_value: 1,
         unit: '',
         values: [],
       },
     };
-    return new IntegerElement(elementData);
+    return new FloatElement(elementData);
   }
 }
