@@ -8,6 +8,9 @@
     },
     {
       "path": "./packages/observation"
+    },
+    {
+      "path": "./packages/findingModel"
     }
   ]
 }
