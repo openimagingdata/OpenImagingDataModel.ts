@@ -1,11 +1,12 @@
-import { CdeSet, CdElementFactory } from '../../cde_set/src/types/cdeSet';
 import {
+  CdeSet,
+  CdElementFactory,
   CdElement,
   IntegerElement,
   FloatElement,
   BooleanElement,
   ValueSetElement,
-} from '../../cde_set/src/types/cdElement';
+} from '@openimagingdata/cde_set';
 import { z } from 'zod';
 //import { v4 as uuidv4 } from 'uuid';
 //TODO: npm install --save-dev @types/uuid
@@ -91,7 +92,7 @@ class Component {
 type ImagingComponentKeyInput = string | CdElement;
 type ImagingComponentValueInput = string | number | SystemCodeData[];
 
-class ImagingObservationComponent {
+export class ImagingObservationComponent {
   private _data: Partial<Component> = {};
 
   constructor(
@@ -128,7 +129,7 @@ class ImagingObservationComponent {
 
 const rdeIdPattern = /^rde\d{1,3}$/i;
 
-class ObservationBuilder {
+export class ObservationBuilder {
   //TODO: Need to map cde.valueSet.values to component.value
   //cde.valueSet.value = [{value: 'RDE818.0', name: 'acute'}, {value: 'RDE818.1', name: 'chronic'}]
   //component.value = [{system: 'defaultSystem', code: 'RDE818.0', display: 'acute'}, {system: 'defaultSystem', code: 'RDE818.1', display: 'chronic'}]
@@ -348,14 +349,14 @@ export class ImagingObservation {
   }
 }
 
-const ObservationInput = z.object({
+export const ObservationInput = z.object({
   cdeSetId: z.string(),
   observationId: z.string(),
   //optional data, where the data is a Mapping from strings (representing either element names or IDs) or CDElements and values
-  data: z.array(string()),
+  data: z.array(z.string()),
 });
 
-type observationInput = z.infer<typeof ObservationInput>;
+// qtype observationInput = z.infer<typeof ObservationInput>;
 
 export class ObservationId {
   protected _id: string | undefined;

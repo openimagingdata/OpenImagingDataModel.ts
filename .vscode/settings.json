@@ -16,7 +16,9 @@
   },
   "eslint.workingDirectories": [
     { "directory": "packages/cde_set", "changeProcessCWD": true },
-    { "directory": "packages/observation", "changeProcessCWD": true }
+    { "directory": "packages/observation", "changeProcessCWD": true },
+    { "directory": "packages/finding_model", "changeProcessCWD": true },
+    { "directory": "packages/fm_to_cde_set", "changeProcessCWD": true }
   ],
   "console-ninja.toolsToEnableSupportAutomaticallyFor": {
     "vite": false

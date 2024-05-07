@@ -5,7 +5,6 @@ import {
   observationSchema,
   SystemCodeData,
   ImagingObservation,
-  systemCodeSchema,
 } from './observation';
 import { CdeSet } from '../../cde_set/src/types/cdeSet';
 import { CdElement } from '../../cde_set/src/types/cdElement';

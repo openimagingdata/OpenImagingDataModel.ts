@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest';
 
 import {
   FindingModel,
-  FindingData,
-  findingSchema,
+  FindingModelData,
+  findingModelSchema,
   NumericAttribute,
   ChoiceAttribute,
 } from './findingModel';
 
-const findingJson: FindingData = {
+const findingJson: FindingModelData = {
   name: 'calcified pulmonary granuloma',
   description:
     'A type of small lesion in the lungs, often caused by inflammation from diseases such as tuberculosis. These granulomas become calcified as they heal, leaving behind a small area of lung tissue that is harder than normal due to the deposition of calcium salts.',
@@ -95,18 +95,18 @@ const findingJson: FindingData = {
 
 describe('finding', () => {
   it('should parse finding JSON', () => {
-    const parsed = findingSchema.safeParse(findingJson);
+    const parsed = findingModelSchema.safeParse(findingJson);
     if (!parsed.success) throw new Error(parsed.error.message);
-    const findingData: FindingData = parsed.data;
+    const findingData: FindingModelData = parsed.data;
     expect(findingData).toHaveProperty('name', 'calcified pulmonary granuloma');
     expect(findingData).toHaveProperty('attributes');
     expect(findingData.attributes[0]).toHaveProperty('name', 'size');
   });
 
   it('should create instance of Finding class', () => {
-    const parsed = findingSchema.safeParse(findingJson);
+    const parsed = findingModelSchema.safeParse(findingJson);
     if (!parsed.success) throw new Error(parsed.error.message);
-    const findingData: FindingData = parsed.data;
+    const findingData: FindingModelData = parsed.data;
     const finding = new FindingModel(findingData);
     console.log('This is entire finding structure: ');
     //console.log(findingData);
@@ -124,9 +124,9 @@ describe('finding', () => {
   });
 
   it('should appropriately load attributes', () => {
-    const parsed = findingSchema.safeParse(findingJson);
+    const parsed = findingModelSchema.safeParse(findingJson);
     if (!parsed.success) throw new Error(parsed.error.message);
-    const findingData: FindingData = parsed.data;
+    const findingData: FindingModelData = parsed.data;
     const finding = new FindingModel(findingData);
     console.log('This is finding.attributes[0], a numericAttribute: ');
     console.log(finding.attributes[0]);
@@ -148,9 +148,9 @@ describe('finding', () => {
   });
 
   it('should appropriately load choiceAttribute.values', () => {
-    const parsed = findingSchema.safeParse(findingJson);
+    const parsed = findingModelSchema.safeParse(findingJson);
     if (!parsed.success) throw new Error(parsed.error.message);
-    const findingData: FindingData = parsed.data;
+    const findingData: FindingModelData = parsed.data;
     const finding = new FindingModel(findingData);
     const numericAttribute = finding.attributes[0] as NumericAttribute;
     expect(numericAttribute).toHaveProperty('type', 'numeric');

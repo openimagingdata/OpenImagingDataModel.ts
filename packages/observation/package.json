@@ -15,7 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "@openimagingdata/cde_set": "workspace:*",
-    "zod": "^3.21.4"
-  },
-  "devDependencies": {}
+    "zod": "^3.23.6"
+  }
 }

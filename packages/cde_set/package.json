@@ -15,8 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
   "dependencies": {
-    "zod": "^3.21.4"
+    "zod": "^3.23.6"
   }
 }

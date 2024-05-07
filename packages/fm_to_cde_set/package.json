@@ -15,10 +15,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
   "dependencies": {
     "@openimagingdata/cde_set": "workspace:*",
     "@openimagingdata/finding_model": "workspace:*",
-    "zod": "^3.21.4"
+    "zod": "^3.23.6"
   }
 }

@@ -1,13 +1,7 @@
 import { z } from 'zod';
 
 import { bodyPartSchema, BodyPart } from './bodyPart';
-import {
-  elementSchema,
-  CdElement,
-  CdElementFactory,
-  ValueSetElement,
-  ValueSetValue,
-} from './cdElement';
+import { elementSchema, CdElement, CdElementFactory } from './cdElement';
 import { indexCodeSchema, IndexCode } from './indexCode';
 import {
   specialtySchema,
@@ -19,13 +13,7 @@ import {
   referenceSchema,
   //Specialty, //TODO: create specialty class in shared
 } from './shared';
-//import { FindingModel } from '../findingModel/src/findingModel';
 
-import {
-  FindingModel,
-  ChoiceAttribute,
-  NumericAttribute,
-} from '../../../findingModel/src/findingModel';
 const idPattern = /^rdes\d{1,3}$/i;
 
 export const cdeSetSchema = z.object({

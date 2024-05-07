@@ -1,9 +1,6 @@
-import { z } from 'zod';
 import {
   ValueSetElementData,
   FloatElement,
-  IntegerElement,
-  BooleanElement,
   CdElement,
   ValueSetElement,
   ElementData,
@@ -24,30 +21,9 @@ const formattedCurrentDate = `${
   currentDate.getMonth() + 1
 }/${currentDate.getDate()}/${currentDate.getFullYear()}`;
 
-class findingToCdeSetBuilder {
+export class findingToCdeSetBuilder {
   //Take a finding and generate cdeSet Json
   static findingToCdeSet = (finding: FindingModel): CdeSet => {
-    const elements: CdElement[] = [];
-
-    finding.attributes.forEach((attributeData) => {
-      let attribute;
-      let element: CdElement;
-      if (attributeData.type === 'choice') {
-        attribute = new ChoiceAttribute(attributeData as ChoiceAttributesData);
-        element = findingToCdeSetBuilder.buildElementFromAttribute(attribute);
-        elements.push(element);
-      } else if (attributeData.type === 'numeric') {
-        attribute = new NumericAttribute(
-          attributeData as NumericAttributesData
-        );
-        element = findingToCdeSetBuilder.buildElementFromAttribute(attribute);
-        elements.push(element);
-      }
-      if (!attribute) {
-        throw new Error('Attribute type not found');
-      }
-    });
-
     const cdeSetData: CdeSetData = {
       //Set the metadata//
       id: 'rdes1', //TODO: generate a unique id uuidv4()?
@@ -74,11 +50,31 @@ class findingToCdeSetBuilder {
         ],
         organization: [],
       },
+      elements: [],
       history: [],
       specialty: [],
-      elements: elements, //TODO: Set the elements based on the attribute type.
       references: [],
     };
+
+    finding.attributes.forEach((attributeData) => {
+      let attribute;
+      if (attributeData.type === 'choice') {
+        attribute = new ChoiceAttribute(attributeData as ChoiceAttributesData);
+        const valueSetElement: ValueSetElement =
+          findingToCdeSetBuilder.buildElementFromChoiceAttribute(attribute);
+        cdeSet.elements.push(valueSetElement);
+      } else if (attributeData.type === 'numeric') {
+        attribute = new NumericAttribute(
+          attributeData as NumericAttributesData
+        );
+        const numericElement =
+          findingToCdeSetBuilder.buildElementFromNumericAttribute(attribute);
+        cdeSet.elements.push(numericElement);
+      }
+      if (!attribute) {
+        throw new Error('Attribute type not found');
+      }
+    });
 
     //Add the elements from attributes//
 

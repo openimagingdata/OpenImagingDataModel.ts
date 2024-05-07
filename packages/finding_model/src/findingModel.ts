@@ -1,76 +1,50 @@
-import { ZodNull, nullable, z } from 'zod';
-import { CdeSet, CdeSetData } from '../../cde_set/src/types/cdeSet';
-import {
-  ValueSetElementData,
-  FloatElement,
-  IntegerElement,
-  BooleanElement,
-  CdElement,
-  ValueSetElement,
-  ElementData,
-} from '../../cde_set/src/types/cdElement';
+import { z } from 'zod';
 
-const currentDate = new Date();
-const formattedCurrentDate = `${
-  currentDate.getMonth() + 1
-}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
-//Schemas
-export const valuesSchema = z.object({
+const valuesSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
 });
 
 const typeSchema = z.union([z.literal('choice'), z.literal('numeric')]);
 
-export const baseAttributesSchema = z.object({
+const baseAttributesSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   type: typeSchema,
 });
 
-export const numericAttributesSchema = baseAttributesSchema.extend({
+const numericAttributesSchema = baseAttributesSchema.extend({
   //create type as numeric
-  minimum: z.number(), //TODO: Nullable?
+  minimum: z.number().nullable(),
   maximum: z.number().nullable(),
 });
 
-export const choiceAttributesSchema = baseAttributesSchema.extend({
+const choiceAttributesSchema = baseAttributesSchema.extend({
   //tpye: choice literal
   values: z.array(valuesSchema),
 });
 
-export const attributesSchema = z.union([
+const attributesSchema = z.union([
   numericAttributesSchema,
   choiceAttributesSchema,
 ]);
 
-/*
-export const attributesSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('numeric') }),
-  z.object({ type: z.literal('choice') }),
-  list numeric attribute schema an choice
-]); */
-
-//
-
-export const findingSchema = z.object({
+export const findingModelSchema = z.object({
   name: z.string().max(75),
   description: z.string().max(500).optional(),
-  attributes: z.array(attributesSchema), //TODO: array of attributes
+  attributes: z.array(attributesSchema),
 });
 
 //Types
-export type BaseAttributesData = z.infer<typeof baseAttributesSchema>;
-export type ValuesData = z.infer<typeof valuesSchema>;
+type BaseAttributesData = z.infer<typeof baseAttributesSchema>;
+// type ValuesData = z.infer<typeof valuesSchema>;
 export type NumericAttributesData = z.infer<typeof numericAttributesSchema>;
 export type ChoiceAttributesData = z.infer<typeof choiceAttributesSchema>;
-export type AttributesData = z.infer<typeof attributesSchema>;
-export type FindingData = z.infer<typeof findingSchema>;
+type AttributesData = z.infer<typeof attributesSchema>;
+export type FindingModelData = z.infer<typeof findingModelSchema>;
 
 //classes
-export abstract class Attributes<
-  T extends BaseAttributesData = BaseAttributesData
-> {
+abstract class Attributes<T extends BaseAttributesData = BaseAttributesData> {
   protected _data: T;
 
   constructor(baseAttributesData: T) {
@@ -116,29 +90,29 @@ export class NumericAttribute extends Attributes<NumericAttributesData> {
   }
 }
 
-export function isNumericAttribute(
+function isNumericAttributeData(
   attributeData: AttributesData
 ): attributeData is NumericAttributesData {
   return 'type' in attributeData && attributeData.type === 'numeric';
 }
 
-export function isChoiceAttribute(
+function isChoiceAttributeData(
   attributeData: AttributesData
 ): attributeData is ChoiceAttributesData {
   return 'type' in attributeData && attributeData.type === 'choice';
 }
 
 export class FindingModel {
-  private _data: FindingData;
+  private _data: FindingModelData;
   private _attributes: AttributesData[] = [];
 
-  constructor(inData: FindingData) {
+  constructor(inData: FindingModelData) {
     this._data = { ...inData };
 
     this._data.attributes.forEach((attributeData) => {
-      if (isNumericAttribute(attributeData)) {
+      if (isNumericAttributeData(attributeData)) {
         this._attributes.push(new NumericAttribute(attributeData));
-      } else if (isChoiceAttribute(attributeData)) {
+      } else if (isChoiceAttributeData(attributeData)) {
         this._attributes.push(new ChoiceAttribute(attributeData));
       }
     });
@@ -155,4 +129,3 @@ export class FindingModel {
     return this._attributes;
   }
 }
-//TODO: need to indentify attribute tpye based on type field.
