@@ -7,17 +7,9 @@
   "files.autoSave": "onFocusChange", // optional but recommended
   "vs-code-prettier-eslint.prettierLast": false, // set as "true" to run 'prettier' last not first
   "npm.packageManager": "pnpm",
-  "launch": {
-    "configurations": [],
-    "compounds": []
-  },
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "eslint.workingDirectories": [
-    { "directory": "packages/cde_set", "changeProcessCWD": true },
-    { "directory": "packages/observation", "changeProcessCWD": true }
-  ],
   "console-ninja.toolsToEnableSupportAutomaticallyFor": {
     "vite": false
   }
