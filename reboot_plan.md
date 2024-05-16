@@ -26,7 +26,7 @@ We can create a separate package for any tools (e.g., CLI tools) that will use t
 
 ## Core Library Objects
 
-The goal should be to use the Zod library to manage the validation of JSON objects as DTOs (data transfer objects). The pattern will be to define Zod schemata to be used for validation and from those infer DTOs which reflect the JSON or objects that can be used as the inputs to functions. 
+The goal should be to use the Zod library to manage the validation of JSON objects as DTOs (data transfer objects). The pattern will be to define Zod schemata to be used for validation and from those infer DTOs which reflect the JSON or objects that can be used as the inputs to functions.
 
 We then define the actual class objects by hand that define the individual fields as class instances rather than data objects. Each class accepts a DTO as its input, which it then validates using the schema. For each property, we provide a getter using camel case, and a setter that either accepts a class object of the relevant type or a DTO of the companion type (which is then passed for contruction).
 

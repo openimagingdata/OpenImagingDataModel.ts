@@ -1,16 +1,18 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnType": false, // required
-  "editor.formatOnPaste": true, // optional
-  "editor.formatOnSave": true, // optional
-  "editor.formatOnSaveMode": "file", // required to format on save
-  "files.autoSave": "onFocusChange", // optional but recommended
-  "vs-code-prettier-eslint.prettierLast": false, // set as "true" to run 'prettier' last not first
-  "npm.packageManager": "pnpm",
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "console-ninja.toolsToEnableSupportAutomaticallyFor": {
-    "vite": false
-  }
+	"editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+	"editor.rulers": [80],
+	"eslint.probe": [
+		"javascript",
+		"javascriptreact",
+		"json",
+		"jsonc",
+		"markdown",
+		"typescript",
+		"typescriptreact",
+		"yaml"
+	],
+	"eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+	"typescript.tsdk": "node_modules/typescript/lib"
 }
