@@ -1,5 +1,5 @@
 {
-	"name": "OpenImagingDataModel.ts",
+	"name": "@openimagingdata/openimagingdatamodel",
 	"version": "0.0.0",
 	"description": "Tooling for managing data context of a medical imaging exam.",
 	"repository": {

@@ -53,7 +53,7 @@ const versionSchema = z.object({
 
 export type VersionDTO = z.infer<typeof versionSchema>;
 
-export class Version implements Version {
+export class Version implements VersionDTO {
 	public number: number;
 	public date: string;
 
@@ -64,9 +64,6 @@ export class Version implements Version {
 	}
 
 	public toDTO(): VersionDTO {
-		return {
-			number: this.number,
-			date: this.date,
-		};
+		return versionSchema.parse(this);
 	}
 }
