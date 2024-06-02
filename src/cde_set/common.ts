@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { serializable } from "typesafe-class-serializer";
 
 const specialtySchema = z.enum([
 	"AB",
@@ -51,19 +52,65 @@ const versionSchema = z.object({
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
-export type VersionDTO = z.infer<typeof versionSchema>;
+export class Version {
+	public readonly SCHEMA = versionSchema;
 
-export class Version implements VersionDTO {
-	public number: number;
-	public date: string;
+	@serializable("number")
+	accessor number: number;
 
-	constructor(dto: VersionDTO) {
-		dto = versionSchema.parse(dto);
-		this.number = dto.number;
-		this.date = dto.date;
+	@serializable("date")
+	accessor date: string;
+
+	constructor(params: z.infer<typeof versionSchema>) {
+		this.number = params.number;
+		this.date = params.date;
 	}
+}
 
-	public toDTO(): VersionDTO {
-		return versionSchema.parse(this);
+const schemaVersionSchema = z
+	.string()
+	.regex(
+		/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$/,
+	);
+
+export type SchemaVersion = z.infer<typeof schemaVersionSchema>;
+
+const statusSchema = z.object({
+	date: z.string(), // TODO: Add date formatting
+	name: z.enum(["Proposed", "Published", "Retired"]),
+});
+
+export class Status {
+	public readonly SCHEMA = statusSchema;
+
+	@serializable("date")
+	accessor date: z.infer<typeof statusSchema.shape.date>;
+
+	@serializable("name")
+	accessor name: z.infer<typeof statusSchema.shape.name>;
+
+	constructor(params: z.infer<typeof statusSchema>) {
+		this.date = params.date;
+		this.name = params.name;
+	}
+}
+
+const eventSchema = z.object({
+	date: z.string(), // TODO: Add date format pattern
+	status: z.instanceof(Status),
+});
+
+export class Event {
+	public readonly SCHEMA = eventSchema;
+
+	@serializable("date")
+	accessor date: z.infer<typeof eventSchema.shape.date>;
+
+	@serializable("status", Status)
+	accessor status: Status;
+
+	constructor(params: z.infer<typeof eventSchema>) {
+		this.date = params.date;
+		this.status = params.status;
 	}
 }
