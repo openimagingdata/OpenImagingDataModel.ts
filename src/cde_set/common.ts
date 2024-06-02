@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { serializable } from "typesafe-class-serializer";
+import {
+	deserialize,
+	serializable,
+	serialize,
+	validateWith,
+} from "typesafe-class-serializer";
 
 const specialtySchema = z.enum([
 	"AB",
@@ -58,6 +63,7 @@ export class Version {
 	@serializable("number")
 	accessor number: number;
 
+	@validateWith(versionSchema.shape.date)
 	@serializable("date")
 	accessor date: string;
 
@@ -83,6 +89,7 @@ const statusSchema = z.object({
 export class Status {
 	public readonly SCHEMA = statusSchema;
 
+	@validateWith(statusSchema.shape.date)
 	@serializable("date")
 	accessor date: z.infer<typeof statusSchema.shape.date>;
 
@@ -112,5 +119,115 @@ export class Event {
 	constructor(params: z.infer<typeof eventSchema>) {
 		this.date = params.date;
 		this.status = params.status;
+	}
+}
+
+const organizationSchema = z.object({
+	name: z.string(),
+	url: z.string().url().optional(),
+	abbreviation: z.string().optional(),
+	comment: z.string().optional(),
+	role: z
+		.enum(["author", "sponsor", "translator", "reviewer", "contributor"])
+		.optional(),
+});
+
+export class Organization {
+	public readonly SCHEMA = organizationSchema;
+
+	@serializable("name")
+	accessor name: string;
+
+	@validateWith(organizationSchema.shape.url)
+	@serializable("url")
+	accessor url: string | undefined;
+
+	@serializable("abbreviation")
+	accessor abbreviation: string | undefined;
+
+	@serializable("comment")
+	accessor comment: string | undefined;
+
+	@serializable("role")
+	accessor role: z.infer<typeof organizationSchema.shape.role>;
+
+	constructor(params: z.infer<typeof organizationSchema>) {
+		this.name = params.name;
+		this.url = params.url;
+		this.abbreviation = params.abbreviation;
+		this.comment = params.comment;
+		this.role = params.role;
+	}
+}
+
+const personSchema = z.object({
+	name: z.string(),
+	email: z.string().email(),
+	affiliation: z.string().optional(),
+	orcidId: z.string().optional(),
+	url: z.string().url().optional(),
+	role: z.enum(["Author", "Editor", "Translator", "Reviewer"]).optional(),
+});
+
+export class Person {
+	public readonly SCHEMA = personSchema;
+
+	@serializable("name")
+	accessor name: string;
+
+	@validateWith(personSchema.shape.email)
+	@serializable("email")
+	accessor email: string;
+
+	@serializable("affiliation")
+	accessor affiliation: string | undefined;
+
+	@serializable("orcidId")
+	accessor orcidId: string | undefined;
+
+	@validateWith(personSchema.shape.url)
+	@serializable("url")
+	accessor url: string | undefined;
+
+	@serializable("role")
+	accessor role: z.infer<typeof personSchema.shape.role>;
+
+	constructor(params: z.infer<typeof personSchema>) {
+		this.name = params.name;
+		this.email = params.email;
+		this.affiliation = params.affiliation;
+		this.orcidId = params.orcidId;
+		this.url = params.url;
+		this.role = params.role;
+	}
+}
+
+const contributorsSchema = z.object({
+	people: z.array(z.instanceof(Person)),
+	organizations: z.array(z.instanceof(Organization)),
+});
+
+export class Contributors {
+	public readonly SCHEMA = contributorsSchema;
+
+	@serializable("people", {
+		doSerialize: (people) => people.map(serialize),
+		doDeserialize: (people) =>
+			people.map((person) => deserialize(person, Person)),
+	})
+	accessor people: Person[];
+
+	@serializable("organizations", {
+		doSerialize: (organizations) => organizations.map(serialize),
+		doDeserialize: (organizations) =>
+			organizations.map((organization) =>
+				deserialize(organization, Organization),
+			),
+	})
+	accessor organizations: Organization[];
+
+	constructor(params: z.infer<typeof contributorsSchema>) {
+		this.people = params.people;
+		this.organizations = params.organizations;
 	}
 }
