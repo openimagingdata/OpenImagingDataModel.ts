@@ -211,14 +211,15 @@ export class Contributors {
 	public readonly SCHEMA = contributorsSchema;
 
 	@serializable("people", {
-		doSerialize: (people) => people.map(serialize),
+		doSerialize: (people) => people.map((person) => serialize(person)),
 		doDeserialize: (people) =>
 			people.map((person) => deserialize(person, Person)),
 	})
 	accessor people: Person[];
 
 	@serializable("organizations", {
-		doSerialize: (organizations) => organizations.map(serialize),
+		doSerialize: (organizations) =>
+			organizations.map((organization) => serialize(organization)),
 		doDeserialize: (organizations) =>
 			organizations.map((organization) =>
 				deserialize(organization, Organization),
