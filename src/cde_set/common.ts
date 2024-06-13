@@ -6,7 +6,7 @@ import {
 	validateWith,
 } from "typesafe-class-serializer";
 
-const specialtySchema = z.enum([
+export const specialtySchema = z.enum([
 	"AB",
 	"BR",
 	"CA",
@@ -52,7 +52,7 @@ export const SPECIALTY_NAMES = {
 	VA: "Vascular",
 } as const;
 
-const versionSchema = z.object({
+export const versionSchema = z.object({
 	number: z.number().int(),
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
@@ -102,7 +102,7 @@ export class Status {
 	}
 }
 
-const eventSchema = z.object({
+export const eventSchema = z.object({
 	date: z.string(), // TODO: Add date format pattern
 	status: z.instanceof(Status),
 });
@@ -202,7 +202,7 @@ export class Person {
 	}
 }
 
-const contributorsSchema = z.object({
+export const contributorsSchema = z.object({
 	people: z.array(z.instanceof(Person)),
 	organizations: z.array(z.instanceof(Organization)),
 });
@@ -211,16 +211,16 @@ export class Contributors {
 	public readonly SCHEMA = contributorsSchema;
 
 	@serializable("people", {
-		doSerialize: (people) => people.map((person) => serialize(person)),
-		doDeserialize: (people) =>
+		doSerialize: (people: Person[]) => people.map((person) => serialize(person)),
+		doDeserialize: (people: unknown[]) =>
 			people.map((person) => deserialize(person, Person)),
 	})
 	accessor people: Person[];
 
 	@serializable("organizations", {
-		doSerialize: (organizations) =>
+		doSerialize: (organizations: Organization[]) =>
 			organizations.map((organization) => serialize(organization)),
-		doDeserialize: (organizations) =>
+		doDeserialize: (organizations: unknown[]) =>
 			organizations.map((organization) =>
 				deserialize(organization, Organization),
 			),
