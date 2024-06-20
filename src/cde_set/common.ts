@@ -81,7 +81,7 @@ const schemaVersionSchema = z
 
 export type SchemaVersion = z.infer<typeof schemaVersionSchema>;
 
-const statusSchema = z.object({
+export const statusSchema = z.object({
 	date: z.string(), // TODO: Add date formatting
 	name: z.enum(["Proposed", "Published", "Retired"]),
 });
@@ -211,7 +211,8 @@ export class Contributors {
 	public readonly SCHEMA = contributorsSchema;
 
 	@serializable("people", {
-		doSerialize: (people: Person[]) => people.map((person) => serialize(person)),
+		doSerialize: (people: Person[]) =>
+			people.map((person) => serialize(person)),
 		doDeserialize: (people: unknown[]) =>
 			people.map((person) => deserialize(person, Person)),
 	})
@@ -230,5 +231,61 @@ export class Contributors {
 	constructor(params: z.infer<typeof contributorsSchema>) {
 		this.people = params.people;
 		this.organizations = params.organizations;
+	}
+}
+
+export const indexCodesSchema = z.object({
+	system: z.string(), //TODO: ENUM?
+	code: z.string(), //TODO: add regex
+	display: z.string(),
+	url: z.string().url(),
+});
+
+class IndexCodes {
+	public readonly SCHEMA = indexCodesSchema;
+
+	@serializable("system")
+	accessor system: string;
+
+	@serializable("code")
+	accessor code: string;
+
+	@serializable("display")
+	accessor display: string;
+
+	@serializable("url")
+	accessor url: string;
+
+	constructor(params: z.infer<typeof indexCodesSchema>) {
+		//TODO: Want these or | undefined?
+		this.system = params.system;
+		this.code = params.code;
+		this.display = params.display;
+		this.url = params.url;
+	}
+}
+
+export const referencesSchema = z.object({
+	citation: z.string(),
+	doiUrl: z.string().url(),
+	pubmedId: z.number(),
+});
+
+class references {
+	public readonly SCHEMA = referencesSchema;
+
+	@serializable("citation")
+	accessor citation: string;
+
+	@serializable("doiUrl")
+	accessor doiUrl: string;
+
+	@serializable("pubmedId")
+	accessor pubmedId: number;
+
+	constructor(params: z.infer<typeof referencesSchema>) {
+		this.citation = params.citation;
+		this.doiUrl = params.doiUrl;
+		this.pubmedId = params.pubmedId;
 	}
 }
