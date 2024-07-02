@@ -7,6 +7,12 @@ import {
 	statusSchema,
 	indexCodesSchema,
 	referencesSchema,
+	Event,
+	Contributors,
+	References,
+	IndexCodes,
+	Status,
+	Specialty,
 } from "./common.js";
 import {
 	deserialize,
@@ -27,39 +33,13 @@ export const cdeElementBaseSchema = z.object({
 	indexCodes: z.array(indexCodesSchema).optional(),
 	contributors: contributorsSchema.optional(),
 	history: z.array(eventSchema).optional(),
-	specialty: z.array(specialtySchema).optional(),
+
 	references: z.array(referencesSchema).optional(), //TODO: Add referencesSchema to common?
 });
 
 export type cdeElementBase = z.infer<typeof cdeElementBaseSchema>;
 type version = z.infer<typeof versionSchema>;
-type Status = z.infer<typeof statusSchema>;
-type IndexCodes = z.infer<typeof indexCodesSchema>;
-type Contributors = z.infer<typeof contributorsSchema>;
-type Event = z.infer<typeof eventSchema>;
-//type Specialty = z.infer<typeof specialtySchema>;
-//export type Specialty = z.infer<typeof specialtySchema> --> not working properly
-type Specialty =
-	| "AB"
-	| "BR"
-	| "CA"
-	| "CH"
-	| "ER"
-	| "GI"
-	| "GU"
-	| "HN"
-	| "IR"
-	| "MI"
-	| "MK"
-	| "NR"
-	| "OB"
-	| "OI"
-	| "OT"
-	| "PD"
-	| "QI"
-	| "RS"
-	| "VA";
-type References = z.infer<typeof referencesSchema>;
+type status = z.infer<typeof statusSchema>;
 
 class CdElement {
 	public readonly SCHEMA = cdeElementBaseSchema;
@@ -83,34 +63,32 @@ class CdElement {
 	accessor schemaVersion: string;
 
 	@serializable("status")
-	accessor status: Status;
+	accessor status: status;
 
 	@serializable("indexCodes", {
 		doSerialize: (indexCodes: IndexCodes[] | undefined) =>
-			indexCodes?.map((indexCode) => ({
-				code: indexCode.code,
-				system: indexCode.system,
-				display: indexCode.display,
-				url: indexCode.url,
-			})),
-		doDeserialize: (indexCodes: IndexCodes[] | undefined) =>
-			indexCodes?.map((indexCode) => ({
-				code: indexCode.code,
-				system: indexCode.system,
-				display: indexCode.display,
-				url: indexCode.url,
-			})),
+			indexCodes?.map((indexCode) => serialize(indexCode)),
+		doDeserialize: (indexCodes: unknown[] | undefined) =>
+			indexCodes?.map((indexCode) =>
+				deserialize(indexCode as IndexCodes, IndexCodes),
+			),
 	})
-	accessor indexCodes:
-		| { code: string; url: string; system: string; display: string }[]
-		| undefined;
+	accessor indexCodes: IndexCodes[] | undefined;
 
-	@serializable("contributors")
-	accessor contributors: Contributors | undefined;
+	@serializable("contributors", {
+		doSerialize: (contributors: Contributors | undefined) =>
+			contributors ? serialize(contributors) : undefined,
+		doDeserialize: (contributors: unknown | undefined) =>
+			contributors
+				? deserialize(contributors as Contributors, Contributors)
+				: undefined,
+	})
+	contributors?: Contributors | undefined;
 
 	@serializable("specialty", {
+		//Returning an array of serializedProperties instead of array of strings
 		doSerialize: (specialty: Specialty[] | undefined) =>
-			specialty?.map((s) => s as Specialty),
+			specialty?.map((s) => serialize(s)),
 		doDeserialize: (specialty: string[] | undefined) =>
 			specialty?.map((s) => s as Specialty),
 	})
@@ -118,17 +96,19 @@ class CdElement {
 
 	@serializable("history", {
 		doSerialize: (history: Event[] | undefined) =>
-			history?.map((event) => event as Event),
-		doDeserialize: (history: Event[] | undefined) =>
-			history?.map((event) => event as Event),
+			history?.map((event) => serialize(event)),
+		doDeserialize: (history: unknown[] | undefined) =>
+			history?.map((event) => deserialize(event as Event, Event)),
 	})
 	accessor history: Event[] | undefined;
 
 	@serializable("references", {
 		doSerialize: (references: References[] | undefined) =>
-			references?.map((references) => references as References),
-		doDeserialize: (references: References[] | undefined) =>
-			references?.map((references) => references as References),
+			references?.map((reference) => serialize(reference)),
+		doDeserialize: (references: unknown[] | undefined) =>
+			references?.map((reference) =>
+				deserialize(reference as References, References),
+			),
 	})
 	accessor references: References[] | undefined;
 
@@ -140,10 +120,22 @@ class CdElement {
 		this.elementVersion = params.elementVersion;
 		this.schemaVersion = params.schemaVersion;
 		this.status = params.status;
-		this.indexCodes = params.indexCodes;
-		this.contributors = params.contributors;
-		this.specialty = params.specialty;
-		this.history = params.history;
-		this.references = params.references;
+		// params: z.infer<typeof cdeElementBaseSchema> doesnt have SCHEMA property, its an additional property in the class
+		this.indexCodes =
+			params.indexCodes?.map((indexCode) => new IndexCodes(indexCode)) ??
+			undefined;
+		this.contributors = params.contributors
+			? new Contributors(params.contributors)
+			: undefined;
+		this.specialty =
+			params.specialty?.map((specialty) => new Specialty(specialty)) ??
+			undefined;
+		this.history =
+			params.history?.map((event) => new Event(event)) ?? undefined;
 	}
+
+	stripSchema = (obj: any) => {
+		const { SCHEMA, ...rest } = obj;
+		return rest;
+	};
 }

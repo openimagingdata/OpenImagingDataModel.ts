@@ -28,7 +28,7 @@ export const specialtySchema = z.enum([
 	"VA",
 ]);
 
-export type Specialty = z.infer<typeof specialtySchema>;
+export type SpecialtyNames = z.infer<typeof specialtySchema>;
 
 export const SPECIALTY_NAMES = {
 	AB: "Abdominal",
@@ -63,7 +63,6 @@ export class Version {
 	@serializable("number")
 	accessor number: number;
 
-	@validateWith(versionSchema.shape.date)
 	@serializable("date")
 	accessor date: string;
 
@@ -241,7 +240,7 @@ export const indexCodesSchema = z.object({
 	url: z.string().url(),
 });
 
-class IndexCodes {
+export class IndexCodes {
 	public readonly SCHEMA = indexCodesSchema;
 
 	@serializable("system")
@@ -271,7 +270,7 @@ export const referencesSchema = z.object({
 	pubmedId: z.number(),
 });
 
-class references {
+export class References {
 	public readonly SCHEMA = referencesSchema;
 
 	@serializable("citation")
