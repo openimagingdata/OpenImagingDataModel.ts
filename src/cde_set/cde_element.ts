@@ -12,7 +12,6 @@ import {
 	References,
 	IndexCodes,
 	Status,
-	Specialty,
 } from "./common.js";
 import {
 	deserialize,
@@ -33,7 +32,7 @@ export const cdeElementBaseSchema = z.object({
 	indexCodes: z.array(indexCodesSchema).optional(),
 	contributors: contributorsSchema.optional(),
 	history: z.array(eventSchema).optional(),
-
+	specialty: z.array(specialtySchema).optional(),
 	references: z.array(referencesSchema).optional(), //TODO: Add referencesSchema to common?
 });
 
