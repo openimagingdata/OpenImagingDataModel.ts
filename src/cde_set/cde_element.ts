@@ -11,13 +11,11 @@ import {
 	Contributors,
 	References,
 	IndexCodes,
-	Status,
 } from "./common.js";
 import {
 	deserialize,
 	serializable,
 	serialize,
-	validateWith,
 } from "typesafe-class-serializer";
 
 //Want cdElement or cdeElement?
@@ -26,6 +24,7 @@ export const cdeElementBaseSchema = z.object({
 	parent_set: z.string(), //TODO add regex
 	name: z.string(),
 	definition: z.string().optional(),
+	question: z.string().optional(),
 	elementVersion: versionSchema,
 	schemaVersion: z.string(), //TODO: Add regex
 	status: statusSchema,
@@ -36,11 +35,65 @@ export const cdeElementBaseSchema = z.object({
 	references: z.array(referencesSchema).optional(), //TODO: Add referencesSchema to common?
 });
 
+const valueSetValueSchema = z.object({
+	code: z.string(), //TODO: make regex to follow structure: "RDE1695.0"?
+	name: z.string(), //Enum?
+});
+
+class ValueSetValue {
+	public readonly SCHEMA = valueSetValueSchema;
+
+	@serializable("code")
+	accessor code: string;
+
+	@serializable("name")
+	accessor name: string;
+
+	constructor(params: z.infer<typeof valueSetValueSchema>) {
+		this.code = params.code;
+		this.name = params.name;
+	}
+}
+
+const valueSetSchema = z.object({
+	minCardinality: z.number(),
+	maxCardinality: z.number(),
+	values: z.array(valueSetValueSchema),
+});
+
+class ValueSet {
+	public readonly SCHEMA = valueSetSchema;
+
+	@serializable("minCardinality")
+	accessor minCardinality: number;
+
+	@serializable("maxCardinality")
+	accessor maxCardinality: number;
+
+	@serializable("values", {
+		doSerialize: (values: ValueSetValue[]) =>
+			values.map((value) => serialize(value)),
+		doDeserialize: (values: unknown[]) =>
+			values.map((value) => deserialize(value as ValueSetValue, ValueSetValue)),
+	})
+	accessor values: ValueSetValue[];
+
+	constructor(params: z.infer<typeof valueSetSchema>) {
+		this.minCardinality = params.minCardinality;
+		this.maxCardinality = params.maxCardinality;
+		this.values = params.values.map((value) => new ValueSetValue(value));
+	}
+}
+
+export const valueSetElementSchema = cdeElementBaseSchema.extend({
+	valueSet: valueSetSchema,
+});
+
 export type cdeElementBase = z.infer<typeof cdeElementBaseSchema>;
 type version = z.infer<typeof versionSchema>;
 type status = z.infer<typeof statusSchema>;
 
-class CdElement {
+export class BaseElement {
 	public readonly SCHEMA = cdeElementBaseSchema;
 
 	@serializable("id")
@@ -64,6 +117,9 @@ class CdElement {
 	@serializable("status")
 	accessor status: status;
 
+	@serializable("question")
+	accessor question: string | undefined;
+
 	@serializable("indexCodes", {
 		doSerialize: (indexCodes: IndexCodes[] | undefined) =>
 			indexCodes?.map((indexCode) => serialize(indexCode)),
@@ -84,14 +140,7 @@ class CdElement {
 	})
 	contributors?: Contributors | undefined;
 
-	@serializable("specialty", {
-		//Returning an array of serializedProperties instead of array of strings
-		doSerialize: (specialty: Specialty[] | undefined) =>
-			specialty?.map((s) => serialize(s)),
-		doDeserialize: (specialty: string[] | undefined) =>
-			specialty?.map((s) => s as Specialty),
-	})
-	accessor specialty: Specialty[] | undefined;
+	accessor specialty: string[] | undefined;
 
 	@serializable("history", {
 		doSerialize: (history: Event[] | undefined) =>
@@ -119,6 +168,7 @@ class CdElement {
 		this.elementVersion = params.elementVersion;
 		this.schemaVersion = params.schemaVersion;
 		this.status = params.status;
+		this.question = params.question;
 		// params: z.infer<typeof cdeElementBaseSchema> doesnt have SCHEMA property, its an additional property in the class
 		this.indexCodes =
 			params.indexCodes?.map((indexCode) => new IndexCodes(indexCode)) ??
@@ -126,15 +176,24 @@ class CdElement {
 		this.contributors = params.contributors
 			? new Contributors(params.contributors)
 			: undefined;
-		this.specialty =
-			params.specialty?.map((specialty) => new Specialty(specialty)) ??
-			undefined;
+		this.specialty = this.specialty = params.specialty;
 		this.history =
 			params.history?.map((event) => new Event(event)) ?? undefined;
 	}
+}
 
-	stripSchema = (obj: any) => {
-		const { SCHEMA, ...rest } = obj;
-		return rest;
-	};
+export class ValueSetElement extends BaseElement {
+	public readonly SCHEMA = valueSetElementSchema;
+
+	@serializable("valueSet", {
+		doSerialize: (valueSet: ValueSet) => serialize(valueSet),
+		doDeserialize: (valueSet: unknown) =>
+			deserialize(valueSet as ValueSet, ValueSet),
+	})
+	accessor valueSet: ValueSet;
+
+	constructor(params: z.infer<typeof valueSetElementSchema>) {
+		super(params);
+		this.valueSet = new ValueSet(params.valueSet);
+	}
 }
