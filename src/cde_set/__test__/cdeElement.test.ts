@@ -3,9 +3,11 @@ import {
 	cdeElementBaseSchema,
 	BaseElement,
 	ValueSetElement,
+	ValueSetElementData,
 } from "../cde_element.js";
+import { serialize } from "typesafe-class-serializer";
 
-const valueSetElementdata = {
+const valueSetElementdata: ValueSetElementData = {
 	id: "RDE1695",
 	parent_set: "RDES3",
 	name: "Microscopic fat",
@@ -57,12 +59,28 @@ describe("ValueSetElement", () => {
 		const element = new ValueSetElement(valueSetElementdata);
 		expect(element).toBeInstanceOf(BaseElement);
 		expect(element).toBeInstanceOf(ValueSetElement);
+		expect(element.valueSet).toHaveProperty("min_cardinality", 1);
+		expect(element.valueSet).toHaveProperty("max_cardinality", 1);
+		expect(element.valueSet.values).toHaveLength(4);
+		expect(element.valueSet.values[0]).toHaveProperty("code", "RDE1695.0");
+		expect(element.valueSet.values[0]).toHaveProperty("name", "present");
 	});
 
-	it("should serialize and deserialize a ValueSetElement", () => {
+	it("should serialize a ValueSetElement", () => {
 		const element = new ValueSetElement(valueSetElementdata);
-		const serializedElement = element.serialize();
-		const deserializedElement = ValueSetElement.deserialize(serializedElement);
-		expect(deserializedElement).toEqual(element);
+		const serialized = serialize(element);
+		expect(serialized).toHaveProperty("value_set");
+		expect(serialized.value_set).toHaveProperty("values");
+		expect(serialized).toHaveProperty("id", "RDE1695");
+		expect(serialized.value_set).toHaveProperty("min_cardinality", 1);
+	});
+	it("should deserialize a ValueSetElement", () => {
+		const element = new ValueSetElement(valueSetElementdata);
+		const serialized = serialize(element);
+		const deserialized = new ValueSetElement(serialized);
+		expect(deserialized).toEqual(element);
+		expect(deserialized).toBeInstanceOf(BaseElement);
+		expect(deserialized).toBeInstanceOf(ValueSetElement);
+		expect(deserialized.valueSet).toHaveProperty("min_cardinality", 1);
 	});
 });

@@ -25,68 +25,14 @@ export const cdeElementBaseSchema = z.object({
 	name: z.string(),
 	definition: z.string().optional(),
 	question: z.string().optional(),
-	elementVersion: versionSchema,
-	schemaVersion: z.string(), //TODO: Add regex
+	element_version: versionSchema,
+	schema_version: z.string(), //TODO: Add regex
 	status: statusSchema,
-	indexCodes: z.array(indexCodesSchema).optional(),
+	index_codes: z.array(indexCodesSchema).optional(),
 	contributors: contributorsSchema.optional(),
 	history: z.array(eventSchema).optional(),
 	specialty: z.array(specialtySchema).optional(),
 	references: z.array(referencesSchema).optional(), //TODO: Add referencesSchema to common?
-});
-
-const valueSetValueSchema = z.object({
-	code: z.string(), //TODO: make regex to follow structure: "RDE1695.0"?
-	name: z.string(), //Enum?
-});
-
-class ValueSetValue {
-	public readonly SCHEMA = valueSetValueSchema;
-
-	@serializable("code")
-	accessor code: string;
-
-	@serializable("name")
-	accessor name: string;
-
-	constructor(params: z.infer<typeof valueSetValueSchema>) {
-		this.code = params.code;
-		this.name = params.name;
-	}
-}
-
-const valueSetSchema = z.object({
-	minCardinality: z.number(),
-	maxCardinality: z.number(),
-	values: z.array(valueSetValueSchema),
-});
-
-class ValueSet {
-	public readonly SCHEMA = valueSetSchema;
-
-	@serializable("minCardinality")
-	accessor minCardinality: number;
-
-	@serializable("maxCardinality")
-	accessor maxCardinality: number;
-
-	@serializable("values", {
-		doSerialize: (values: ValueSetValue[]) =>
-			values.map((value) => serialize(value)),
-		doDeserialize: (values: unknown[]) =>
-			values.map((value) => deserialize(value as ValueSetValue, ValueSetValue)),
-	})
-	accessor values: ValueSetValue[];
-
-	constructor(params: z.infer<typeof valueSetSchema>) {
-		this.minCardinality = params.minCardinality;
-		this.maxCardinality = params.maxCardinality;
-		this.values = params.values.map((value) => new ValueSetValue(value));
-	}
-}
-
-export const valueSetElementSchema = cdeElementBaseSchema.extend({
-	valueSet: valueSetSchema,
 });
 
 export type cdeElementBase = z.infer<typeof cdeElementBaseSchema>;
@@ -108,10 +54,10 @@ export class BaseElement {
 	@serializable("definition")
 	accessor definition: string | undefined;
 
-	@serializable("elementVersion")
+	@serializable("element_version")
 	accessor elementVersion: version;
 
-	@serializable("schemaVersion")
+	@serializable("schema_version")
 	accessor schemaVersion: string;
 
 	@serializable("status")
@@ -120,7 +66,7 @@ export class BaseElement {
 	@serializable("question")
 	accessor question: string | undefined;
 
-	@serializable("indexCodes", {
+	@serializable("index_codes", {
 		doSerialize: (indexCodes: IndexCodes[] | undefined) =>
 			indexCodes?.map((indexCode) => serialize(indexCode)),
 		doDeserialize: (indexCodes: unknown[] | undefined) =>
@@ -165,13 +111,13 @@ export class BaseElement {
 		this.parent_set = params.parent_set;
 		this.name = params.name;
 		this.definition = params.definition;
-		this.elementVersion = params.elementVersion;
-		this.schemaVersion = params.schemaVersion;
+		this.elementVersion = params.element_version;
+		this.schemaVersion = params.schema_version;
 		this.status = params.status;
 		this.question = params.question;
 		// params: z.infer<typeof cdeElementBaseSchema> doesnt have SCHEMA property, its an additional property in the class
 		this.indexCodes =
-			params.indexCodes?.map((indexCode) => new IndexCodes(indexCode)) ??
+			params.index_codes?.map((indexCode) => new IndexCodes(indexCode)) ??
 			undefined;
 		this.contributors = params.contributors
 			? new Contributors(params.contributors)
@@ -182,10 +128,66 @@ export class BaseElement {
 	}
 }
 
+const valueSetValueSchema = z.object({
+	code: z.string(), //TODO: make regex to follow structure: "RDE1695.0"?
+	name: z.string(), //Enum?
+});
+
+class ValueSetValue {
+	public readonly SCHEMA = valueSetValueSchema;
+
+	@serializable("code")
+	accessor code: string;
+
+	@serializable("name")
+	accessor name: string;
+
+	constructor(params: z.infer<typeof valueSetValueSchema>) {
+		this.code = params.code;
+		this.name = params.name;
+	}
+}
+
+const valueSetSchema = z.object({
+	min_cardinality: z.number(),
+	max_cardinality: z.number(),
+	values: z.array(valueSetValueSchema),
+});
+
+class ValueSet {
+	public readonly SCHEMA = valueSetSchema;
+
+	@serializable("min_cardinality")
+	accessor min_cardinality: number;
+
+	@serializable("max_cardinality")
+	accessor max_cardinality: number;
+
+	@serializable("values", {
+		doSerialize: (values: ValueSetValue[]) =>
+			values.map((value) => serialize(value)),
+		doDeserialize: (values: unknown[]) =>
+			values.map((value) => deserialize(value as ValueSetValue, ValueSetValue)),
+	})
+	accessor values: ValueSetValue[];
+
+	constructor(params: z.infer<typeof valueSetSchema>) {
+		this.min_cardinality = params.min_cardinality;
+		this.max_cardinality = params.max_cardinality;
+		this.values = params.values.map((value) => new ValueSetValue(value));
+	}
+}
+
+export const valueSetElementSchema = cdeElementBaseSchema.extend({
+	value_set: valueSetSchema,
+});
+
+export type ValueSetElementData = z.infer<typeof valueSetElementSchema>;
+
 export class ValueSetElement extends BaseElement {
 	public readonly SCHEMA = valueSetElementSchema;
 
-	@serializable("valueSet", {
+	@serializable("value_set", {
 		doSerialize: (valueSet: ValueSet) => serialize(valueSet),
 		doDeserialize: (valueSet: unknown) =>
 			deserialize(valueSet as ValueSet, ValueSet),
@@ -194,6 +196,6 @@ export class ValueSetElement extends BaseElement {
 
 	constructor(params: z.infer<typeof valueSetElementSchema>) {
 		super(params);
-		this.valueSet = new ValueSet(params.valueSet);
+		this.valueSet = new ValueSet(params.value_set);
 	}
 }
