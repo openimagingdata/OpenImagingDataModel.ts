@@ -238,7 +238,7 @@ const integerElementSchema = cdeElementBaseSchema.extend({
 class IntegerValue {
 	public readonly SCHEMA = integerValueSchema;
 
-	@serializable
+	@serializable("min_value")
 	accessor min_value: number | undefined;
 
 	@serializable("max_value")
