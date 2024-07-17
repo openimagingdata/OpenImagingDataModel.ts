@@ -213,7 +213,7 @@ export class Contributors {
 		doSerialize: (people: Person[]) =>
 			people.map((person) => serialize(person)),
 		doDeserialize: (people: unknown[]) =>
-			people.map((person) => deserialize(person, Person)),
+			people.map((person) => deserialize(person as Person, Person)),
 	})
 	accessor people: Person[];
 
@@ -222,7 +222,7 @@ export class Contributors {
 			organizations.map((organization) => serialize(organization)),
 		doDeserialize: (organizations: unknown[]) =>
 			organizations.map((organization) =>
-				deserialize(organization, Organization),
+				deserialize(organization as Organization, Organization),
 			),
 	})
 	accessor organizations: Organization[];

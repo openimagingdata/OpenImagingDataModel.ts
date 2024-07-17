@@ -129,8 +129,11 @@ export class BaseElement {
 }
 
 const valueSetValueSchema = z.object({
-	code: z.string(), //TODO: make regex to follow structure: "RDE1695.0"?
+	code: z.string(), //TODO: make regex to follow structure ex: "RDE1695.0"?
+	value: z.string().optional(),
 	name: z.string(), //Enum?
+	definition: z.string().optional(),
+	index_codes: z.array(indexCodesSchema).optional(),
 });
 
 class ValueSetValue {
@@ -142,9 +145,30 @@ class ValueSetValue {
 	@serializable("name")
 	accessor name: string;
 
+	@serializable("definition")
+	accessor definition: string | undefined;
+
+	@serializable("value")
+	accessor value: string | undefined;
+
+	@serializable("index_codes", {
+		doSerialize: (indexCodes: IndexCodes[] | undefined) =>
+			indexCodes?.map((indexCode) => serialize(indexCode)),
+		doDeserialize: (indexCodes: unknown[] | undefined) =>
+			indexCodes?.map((indexCode) =>
+				deserialize(indexCode as IndexCodes, IndexCodes),
+			),
+	})
+	accessor indexCodes: IndexCodes[] | undefined;
+
 	constructor(params: z.infer<typeof valueSetValueSchema>) {
 		this.code = params.code;
 		this.name = params.name;
+		this.value = params.value;
+		this.definition = params.definition;
+		this.indexCodes =
+			params.index_codes?.map((indexCode) => new IndexCodes(indexCode)) ??
+			undefined;
 	}
 }
 
@@ -197,5 +221,105 @@ export class ValueSetElement extends BaseElement {
 	constructor(params: z.infer<typeof valueSetElementSchema>) {
 		super(params);
 		this.valueSet = new ValueSet(params.value_set);
+	}
+}
+
+const integerValueSchema = z.object({
+	min_value: z.number().optional(),
+	max_value: z.number().optional(),
+	step: z.number().optional(),
+	unit: z.string().optional(),
+});
+
+const integerElementSchema = cdeElementBaseSchema.extend({
+	integer_value: integerValueSchema,
+});
+
+class IntegerValue {
+	public readonly SCHEMA = integerValueSchema;
+
+	@serializable
+	accessor min_value: number | undefined;
+
+	@serializable("max_value")
+	accessor max_value: number | undefined;
+
+	@serializable("step")
+	accessor step: number | undefined;
+
+	@serializable("unit")
+	accessor unit: string | undefined;
+
+	constructor(params: z.infer<typeof integerValueSchema>) {
+		this.min_value = params.min_value;
+		this.max_value = params.max_value;
+		this.step = params.step;
+		this.unit = params.unit;
+	}
+}
+
+export class IntegerElement extends BaseElement {
+	public readonly SCHEMA = integerElementSchema;
+
+	@serializable("integer_value", {
+		doSerialize: (integerValue: IntegerValue) => serialize(integerValue),
+		doDeserialize: (integerValue: unknown) =>
+			deserialize(integerValue as IntegerValue, IntegerValue),
+	})
+	accessor integerValue: IntegerValue;
+
+	constructor(params: z.infer<typeof integerElementSchema>) {
+		super(params);
+		this.integerValue = new IntegerValue(params.integer_value);
+	}
+}
+
+const floatValueSchema = z.object({
+	min_value: z.number().optional(),
+	max_value: z.number().optional(),
+	step: z.number().optional(),
+	unit: z.string().optional(),
+});
+
+const floatElementSchema = cdeElementBaseSchema.extend({
+	float_value: floatValueSchema,
+});
+
+class FloatValue {
+	public readonly SCHEMA = floatValueSchema;
+
+	@serializable("min_value")
+	accessor min_value: number | undefined;
+
+	@serializable("max_value")
+	accessor max_value: number | undefined;
+
+	@serializable("step")
+	accessor step: number | undefined;
+
+	@serializable("unit")
+	accessor unit: string | undefined;
+
+	constructor(params: z.infer<typeof floatValueSchema>) {
+		this.min_value = params.min_value;
+		this.max_value = params.max_value;
+		this.step = params.step;
+		this.unit = params.unit;
+	}
+}
+
+export class FloatElement extends BaseElement {
+	public readonly SCHEMA = floatElementSchema;
+
+	@serializable("float_value", {
+		doSerialize: (floatValue: FloatValue) => serialize(floatValue),
+		doDeserialize: (floatValue: unknown) =>
+			deserialize(floatValue as FloatValue, FloatValue),
+	})
+	accessor floatValue: FloatValue;
+
+	constructor(params: z.infer<typeof floatElementSchema>) {
+		super(params);
+		this.floatValue = new FloatValue(params.float_value);
 	}
 }
