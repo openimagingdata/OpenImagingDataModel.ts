@@ -41,6 +41,7 @@
 		"@types/eslint": "^8.56.10",
 		"@vitest/coverage-v8": "^1.6.0",
 		"console-fail-test": "^0.2.3",
+		"esbuild": "^0.23.0",
 		"eslint": "^9.4.0",
 		"eslint-plugin-deprecation": "^2.0.0",
 		"eslint-plugin-jsdoc": "^48.2.7",
@@ -54,8 +55,8 @@
 		"prettier-plugin-curly": "^0.2.1",
 		"prettier-plugin-packagejson": "^2.5.0",
 		"release-it": "^17.3.0",
-		"tsup": "^8.0.2",
-		"typescript": "^5.4.5",
+		"tsup": "^8.1.2",
+		"typescript": "^5.5.3",
 		"typescript-eslint": "^7.11.0",
 		"vitest": "^1.6.0"
 	},
