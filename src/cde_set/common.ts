@@ -5,6 +5,7 @@ import {
 	serialize,
 	validateWith,
 } from "typesafe-class-serializer";
+import { JSONSchema, Schema } from "@effect/schema";
 
 export const specialtySchema = z.enum([
 	"AB",
@@ -56,6 +57,25 @@ export const versionSchema = z.object({
 	number: z.number().int(),
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
+
+const versionSchemaEffect = Schema.Struct({
+	number: Schema.Number,
+	date: Schema.String.pipe(Schema.pattern(/^\d{4}-\d{2}-\d{2}$/)),
+});
+
+type versionType = Schema.Schema.Type<typeof versionSchemaEffect>;
+
+class VersionEffect {
+	public number: number;
+	public date: string;
+
+	constructor(inData: versionType) {
+		this.number = inData.number;
+		this.date = inData.date;
+	}
+}
+
+const versionJSONSchema = JSONSchema.make(versionSchemaEffect);
 
 export class Version {
 	public readonly SCHEMA = versionSchema;
