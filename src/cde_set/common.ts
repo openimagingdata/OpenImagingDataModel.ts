@@ -7,7 +7,7 @@ import {
 } from "typesafe-class-serializer";
 import { JSONSchema, Schema } from "@effect/schema";
 
-export const specialtySchema = z.enum([
+enum specialtyOptions {
 	"AB",
 	"BR",
 	"CA",
@@ -27,9 +27,9 @@ export const specialtySchema = z.enum([
 	"QI",
 	"RS",
 	"VA",
-]);
+}
 
-export type SpecialtyNames = z.infer<typeof specialtySchema>;
+const specialty = Schema.Enums(specialtyOptions);
 
 export const SPECIALTY_NAMES = {
 	AB: "Abdominal",
@@ -53,19 +53,14 @@ export const SPECIALTY_NAMES = {
 	VA: "Vascular",
 } as const;
 
-export const versionSchema = z.object({
-	number: z.number().int(),
-	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-});
-
-const versionSchemaEffect = Schema.Struct({
+const versionSchema = Schema.Struct({
 	number: Schema.Number,
 	date: Schema.String.pipe(Schema.pattern(/^\d{4}-\d{2}-\d{2}$/)),
 });
 
-type versionType = Schema.Schema.Type<typeof versionSchemaEffect>;
+type versionType = Schema.Schema.Type<typeof versionSchema>;
 
-class VersionEffect {
+class Version {
 	public number: number;
 	public date: string;
 
@@ -75,236 +70,181 @@ class VersionEffect {
 	}
 }
 
-const versionJSONSchema = JSONSchema.make(versionSchemaEffect);
+const versionJSONSchema = JSONSchema.make(versionSchema);
 
-export class Version {
-	public readonly SCHEMA = versionSchema;
+const schemaVersionSchema = Schema.String.pipe(
+	Schema.pattern(
+		/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/,
+	),
+);
 
-	@serializable("number")
-	accessor number: number;
+type SchemaVersion = Schema.Schema.Type<typeof schemaVersionSchema>;
 
-	@serializable("date")
-	accessor date: string;
-
-	constructor(params: z.infer<typeof versionSchema>) {
-		this.number = params.number;
-		this.date = params.date;
-	}
+enum statusOptions {
+	"Proposed",
+	"Published",
+	"Retired",
 }
 
-const schemaVersionSchema = z
-	.string()
-	.regex(
-		/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$/,
-	);
+const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-export type SchemaVersion = z.infer<typeof schemaVersionSchema>;
-
-export const statusSchema = z.object({
-	date: z.string(), // TODO: Add date formatting
-	name: z.enum(["Proposed", "Published", "Retired"]),
+const statusSchema = Schema.Struct({
+	date: Schema.String.pipe(Schema.pattern(datePattern)), //TODO Check regex matches correctly
+	name: Schema.Enums(statusOptions),
 });
+
+const statusJSONSchema = JSONSchema.make(statusSchema);
+
+type StatusType = Schema.Schema.Type<typeof statusSchema>;
 
 export class Status {
-	public readonly SCHEMA = statusSchema;
+	public date: string;
+	public name: statusOptions;
 
-	@validateWith(statusSchema.shape.date)
-	@serializable("date")
-	accessor date: z.infer<typeof statusSchema.shape.date>;
-
-	@serializable("name")
-	accessor name: z.infer<typeof statusSchema.shape.name>;
-
-	constructor(params: z.infer<typeof statusSchema>) {
-		this.date = params.date;
-		this.name = params.name;
+	constructor(inData: StatusType) {
+		this.date = inData.date;
+		this.name = inData.name;
 	}
 }
 
-export const eventSchema = z.object({
-	date: z.string(), // TODO: Add date format pattern
-	status: z.instanceof(Status),
+export const eventSchema = Schema.Struct({
+	date: Schema.String.pipe(Schema.pattern(datePattern)), // TODO: Add date format pattern
+	status: statusSchema,
 });
+
+type eventType = Schema.Schema.Type<typeof eventSchema>;
 
 export class Event {
-	public readonly SCHEMA = eventSchema;
+	public date: string;
+	public status: StatusType;
 
-	@serializable("date")
-	accessor date: z.infer<typeof eventSchema.shape.date>;
-
-	@serializable("status", Status)
-	accessor status: Status;
-
-	constructor(params: z.infer<typeof eventSchema>) {
-		this.date = params.date;
-		this.status = params.status;
+	constructor(inData: eventType) {
+		this.date = inData.date;
+		this.status = inData.status;
 	}
 }
 
-const organizationSchema = z.object({
-	name: z.string(),
-	url: z.string().url().optional(),
-	abbreviation: z.string().optional(),
-	comment: z.string().optional(),
-	role: z
-		.enum(["author", "sponsor", "translator", "reviewer", "contributor"])
-		.optional(),
+enum roleOptions {
+	"author",
+	"sponsor",
+	"translator",
+	"reviewer",
+	"contributor",
+}
+
+const organizationSchema = Schema.Struct({
+	name: Schema.String,
+	url: Schema.String, //TODO: Validate URL???
+	abbreviation: Schema.optional(Schema.String),
+	comment: Schema.optional(Schema.String),
+	role: Schema.optional(Schema.Enums(roleOptions)),
 });
+
+type organizationType = Schema.Schema.Type<typeof organizationSchema>;
 
 export class Organization {
-	public readonly SCHEMA = organizationSchema;
+	public name: string;
+	public url: string;
+	public abbreviation: string | undefined;
+	public comment: string | undefined;
+	public role: roleOptions | undefined;
 
-	@serializable("name")
-	accessor name: string;
-
-	@validateWith(organizationSchema.shape.url)
-	@serializable("url")
-	accessor url: string | undefined;
-
-	@serializable("abbreviation")
-	accessor abbreviation: string | undefined;
-
-	@serializable("comment")
-	accessor comment: string | undefined;
-
-	@serializable("role")
-	accessor role: z.infer<typeof organizationSchema.shape.role>;
-
-	constructor(params: z.infer<typeof organizationSchema>) {
-		this.name = params.name;
-		this.url = params.url;
-		this.abbreviation = params.abbreviation;
-		this.comment = params.comment;
-		this.role = params.role;
+	constructor(inData: organizationType) {
+		this.name = inData.name;
+		this.url = inData.url;
+		this.abbreviation = inData.abbreviation;
+		this.comment = inData.comment;
+		this.role = inData.role;
 	}
 }
 
-const personSchema = z.object({
-	name: z.string(),
-	email: z.string().email(),
-	affiliation: z.string().optional(),
-	orcidId: z.string().optional(),
-	url: z.string().url().optional(),
-	role: z.enum(["Author", "Editor", "Translator", "Reviewer"]).optional(),
+const personSchema = Schema.Struct({
+	name: Schema.String,
+	email: Schema.String, //No z.string().optional() equivalent in Schema
+	affiliation: Schema.optional(Schema.String),
+	orcidId: Schema.optional(Schema.String),
+	url: Schema.optional(Schema.String),
+	role: Schema.optional(Schema.Enums(roleOptions)),
 });
+
+type personType = Schema.Schema.Type<typeof personSchema>;
 
 export class Person {
-	public readonly SCHEMA = personSchema;
+	public name: string;
+	public email: string;
+	public affiliation: string | undefined;
+	public orcidId: string | undefined;
+	public url: string | undefined;
+	public role: roleOptions | undefined;
 
-	@serializable("name")
-	accessor name: string;
-
-	@validateWith(personSchema.shape.email)
-	@serializable("email")
-	accessor email: string;
-
-	@serializable("affiliation")
-	accessor affiliation: string | undefined;
-
-	@serializable("orcidId")
-	accessor orcidId: string | undefined;
-
-	@validateWith(personSchema.shape.url)
-	@serializable("url")
-	accessor url: string | undefined;
-
-	@serializable("role")
-	accessor role: z.infer<typeof personSchema.shape.role>;
-
-	constructor(params: z.infer<typeof personSchema>) {
-		this.name = params.name;
-		this.email = params.email;
-		this.affiliation = params.affiliation;
-		this.orcidId = params.orcidId;
-		this.url = params.url;
-		this.role = params.role;
+	constructor(inData: personType) {
+		this.name = inData.name;
+		this.email = inData.email;
+		this.affiliation = inData.affiliation;
+		this.orcidId = inData.orcidId;
+		this.url = inData.url;
+		this.role = inData.role;
 	}
 }
 
-export const contributorsSchema = z.object({
-	people: z.array(z.instanceof(Person)),
-	organizations: z.array(z.instanceof(Organization)),
+const contributorsSchema = Schema.Struct({
+	people: Schema.Array(personSchema),
+	organizations: Schema.Array(organizationSchema),
 });
+
+type contributorsType = Schema.Schema.Type<typeof contributorsSchema>;
 
 export class Contributors {
-	public readonly SCHEMA = contributorsSchema;
+	public people: personType[];
+	public organizations: organizationType[];
 
-	@serializable("people", {
-		doSerialize: (people: Person[]) =>
-			people.map((person) => serialize(person)),
-		doDeserialize: (people: unknown[]) =>
-			people.map((person) => deserialize(person as Person, Person)),
-	})
-	accessor people: Person[];
-
-	@serializable("organizations", {
-		doSerialize: (organizations: Organization[]) =>
-			organizations.map((organization) => serialize(organization)),
-		doDeserialize: (organizations: unknown[]) =>
-			organizations.map((organization) =>
-				deserialize(organization as Organization, Organization),
-			),
-	})
-	accessor organizations: Organization[];
-
-	constructor(params: z.infer<typeof contributorsSchema>) {
-		this.people = params.people;
-		this.organizations = params.organizations;
+	constructor(inData: contributorsType) {
+		this.people = inData.people.map((person) => new Person(person));
+		this.organizations = inData.organizations.map(
+			(organization) => new Organization(organization),
+		);
 	}
 }
 
-export const indexCodesSchema = z.object({
-	system: z.string(), //TODO: ENUM?
-	code: z.string(), //TODO: add regex
-	display: z.string(),
-	url: z.string().url(),
+export const indexCodesSchema = Schema.Struct({
+	system: Schema.String, //TODO: ENUM?
+	code: Schema.String, //TODO: add regex
+	display: Schema.String,
+	url: Schema.String,
 });
+
+type indexCodesType = Schema.Schema.Type<typeof indexCodesSchema>;
 
 export class IndexCodes {
-	public readonly SCHEMA = indexCodesSchema;
+	public system: string;
+	public code: string;
+	public display: string;
+	public url: string;
 
-	@serializable("system")
-	accessor system: string;
-
-	@serializable("code")
-	accessor code: string;
-
-	@serializable("display")
-	accessor display: string;
-
-	@serializable("url")
-	accessor url: string;
-
-	constructor(params: z.infer<typeof indexCodesSchema>) {
-		//TODO: Want these or | undefined?
-		this.system = params.system;
-		this.code = params.code;
-		this.display = params.display;
-		this.url = params.url;
+	constructor(inData: indexCodesType) {
+		this.system = inData.system;
+		this.code = inData.code;
+		this.display = inData.display;
+		this.url = inData.url;
 	}
 }
 
-export const referencesSchema = z.object({
-	citation: z.string(),
-	doiUrl: z.string().url(),
-	pubmedId: z.number(),
+export const referencesSchema = Schema.Struct({
+	citation: Schema.String,
+	doiUrl: Schema.String, //TODO: Validate URL???
+	pubmedId: Schema.Number,
 });
 
+type referencesType = Schema.Schema.Type<typeof referencesSchema>;
+
 export class References {
-	public readonly SCHEMA = referencesSchema;
+	public citation: string;
+	public doiUrl: string;
+	public pubmedId: number;
 
-	@serializable("citation")
-	accessor citation: string;
-
-	@serializable("doiUrl")
-	accessor doiUrl: string;
-
-	@serializable("pubmedId")
-	accessor pubmedId: number;
-
-	constructor(params: z.infer<typeof referencesSchema>) {
-		this.citation = params.citation;
-		this.doiUrl = params.doiUrl;
-		this.pubmedId = params.pubmedId;
+	constructor(inData: referencesType) {
+		this.citation = inData.citation;
+		this.doiUrl = inData.doiUrl;
+		this.pubmedId = inData.pubmedId;
 	}
 }
