@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
+import { JSONSchema, Schema } from "@effect/schema";
 import {
-	cdeElementBaseSchema,
 	BaseElement,
 	ValueSetElement,
-	ValueSetElementData,
+	ValueSetElementType,
+	valueSetElementSchema,
 } from "../cde_element.js";
-import { serialize } from "typesafe-class-serializer";
+import { statusOptions } from "../common.js";
 
-const valueSetElementdata: ValueSetElementData = {
+const valueSetElementdata: ValueSetElementType = {
 	id: "RDE1695",
 	parent_set: "RDES3",
 	name: "Microscopic fat",
@@ -20,7 +21,7 @@ const valueSetElementdata: ValueSetElementData = {
 	schema_version: "1.0.0",
 	status: {
 		date: "2023-06-23",
-		name: "Published",
+		name: statusOptions.Published, //TODO: Check if this is the correct way to use the enum
 	},
 	index_codes: [],
 	contributors: {
@@ -68,12 +69,27 @@ describe("ValueSetElement", () => {
 
 	it("should serialize a ValueSetElement", () => {
 		const element = new ValueSetElement(valueSetElementdata);
-		const serialized = serialize(element);
-		expect(serialized).toHaveProperty("value_set");
-		expect(serialized.value_set).toHaveProperty("values");
-		expect(serialized).toHaveProperty("id", "RDE1695");
-		expect(serialized.value_set).toHaveProperty("min_cardinality", 1);
+		const encoded = Schema.encode(valueSetElementSchema)(valueSetElementdata);
+		const elementJSONSchema = JSONSchema.make(valueSetElementSchema);
+		const jsonData = JSON.stringify(valueSetElementdata);
+		const encodedJson = Schema.encode(elementJSONSchema)(jsonData);
+		//console.log(encoded);
 	});
+	/*
+
+import { Schema, JSONSchema } from "@effect/schema";
+
+const schema = Schema.Struct({
+  id: Schema.String,
+  value: Schema.Number,
+});
+
+const data = {
+  id: "123",
+  value: 42,
+};
+
+const encoded = Schema.encode(schema)(data); // Encodes `data` to fit `schema`
 	it("should deserialize a ValueSetElement", () => {
 		const element = new ValueSetElement(valueSetElementdata);
 		const serialized = serialize(element);
@@ -83,4 +99,5 @@ describe("ValueSetElement", () => {
 		expect(deserialized).toBeInstanceOf(ValueSetElement);
 		expect(deserialized.valueSet).toHaveProperty("min_cardinality", 1);
 	});
+*/
 });

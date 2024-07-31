@@ -1,13 +1,6 @@
-import { z } from "zod";
-import {
-	deserialize,
-	serializable,
-	serialize,
-	validateWith,
-} from "typesafe-class-serializer";
 import { JSONSchema, Schema } from "@effect/schema";
 
-enum specialtyOptions {
+export enum specialtyAbbreviations {
 	"AB",
 	"BR",
 	"CA",
@@ -29,42 +22,57 @@ enum specialtyOptions {
 	"VA",
 }
 
-const specialty = Schema.Enums(specialtyOptions);
+export enum specialtyName {
+	"Allergy and Immunology",
+	"Cardiology",
+	"Critical Care Medicine",
+	"Dermatology",
+	"Emergency Medicine",
+	"Endocrinology",
+	"Gastroenterology",
+	"Geriatrics",
+	"Hematology",
+	"Infectious Disease",
+	"Medical Genetics",
+	"Nephrology",
+	"Obstetrics and Gynecology",
+	"Oncology",
+	"Otolaryngology",
+	"Pediatrics",
+	"Quality Improvement",
+	"Radiology",
+	"Vascular Medicine",
+}
 
-export const SPECIALTY_NAMES = {
-	AB: "Abdominal",
-	BR: "Breast",
-	CA: "Cardiac",
-	CH: "Chest",
-	ER: "Emergency Radiology",
-	GI: "Gastrointestinal",
-	GU: "Genitourinary",
-	HN: "Head and Neck",
-	IR: "Interventional Radiology",
-	MI: "Molecular Imaging",
-	MK: "Musculoskeletal",
-	NR: "Neuroradiology",
-	OB: "Obstetrics/Gynecology",
-	OI: "Oncologic Imaging",
-	OT: "Other",
-	PD: "Pediatric",
-	QI: "Quality Improvement",
-	RS: "Radiation Safety",
-	VA: "Vascular",
-} as const;
+export const specialtySchema = Schema.Struct({
+	abbreviation: Schema.Enums(specialtyAbbreviations),
+	name: Schema.Enums(specialtyName),
+});
 
-const versionSchema = Schema.Struct({
+export type SpecialtyType = Schema.Schema.Type<typeof specialtySchema>;
+
+export class Specialty {
+	public abbreviation: specialtyAbbreviations;
+	public name: specialtyName;
+
+	constructor(inData: SpecialtyType) {
+		this.abbreviation = inData.abbreviation;
+		this.name = inData.name;
+	}
+}
+
+export const versionSchema = Schema.Struct({
 	number: Schema.Number,
 	date: Schema.String.pipe(Schema.pattern(/^\d{4}-\d{2}-\d{2}$/)),
 });
 
-type versionType = Schema.Schema.Type<typeof versionSchema>;
+export type VersionType = Schema.Schema.Type<typeof versionSchema>;
 
 class Version {
 	public number: number;
 	public date: string;
 
-	constructor(inData: versionType) {
+	constructor(inData: VersionType) {
 		this.number = inData.number;
 		this.date = inData.date;
 	}
@@ -72,15 +80,15 @@ class Version {
 
 const versionJSONSchema = JSONSchema.make(versionSchema);
 
-const schemaVersionSchema = Schema.String.pipe(
+export const schemaVersionSchema = Schema.String.pipe(
 	Schema.pattern(
 		/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/,
 	),
 );
 
-type SchemaVersion = Schema.Schema.Type<typeof schemaVersionSchema>;
+type SchemaVersionType = Schema.Schema.Type<typeof schemaVersionSchema>;
 
-enum statusOptions {
+export enum statusOptions {
 	"Proposed",
 	"Published",
 	"Retired",
@@ -88,14 +96,14 @@ enum statusOptions {
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-const statusSchema = Schema.Struct({
+export const statusSchema = Schema.Struct({
 	date: Schema.String.pipe(Schema.pattern(datePattern)), //TODO Check regex matches correctly
 	name: Schema.Enums(statusOptions),
 });
 
 const statusJSONSchema = JSONSchema.make(statusSchema);
 
-type StatusType = Schema.Schema.Type<typeof statusSchema>;
+export type StatusType = Schema.Schema.Type<typeof statusSchema>;
 
 export class Status {
 	public date: string;
@@ -112,19 +120,19 @@ export const eventSchema = Schema.Struct({
 	status: statusSchema,
 });
 
-type eventType = Schema.Schema.Type<typeof eventSchema>;
+export type EventType = Schema.Schema.Type<typeof eventSchema>;
 
 export class Event {
 	public date: string;
 	public status: StatusType;
 
-	constructor(inData: eventType) {
+	constructor(inData: EventType) {
 		this.date = inData.date;
 		this.status = inData.status;
 	}
 }
 
-enum roleOptions {
+export enum roleOptions {
 	"author",
 	"sponsor",
 	"translator",
@@ -140,7 +148,7 @@ const organizationSchema = Schema.Struct({
 	role: Schema.optional(Schema.Enums(roleOptions)),
 });
 
-type organizationType = Schema.Schema.Type<typeof organizationSchema>;
+export type OrganizationType = Schema.Schema.Type<typeof organizationSchema>;
 
 export class Organization {
 	public name: string;
@@ -149,7 +157,7 @@ export class Organization {
 	public comment: string | undefined;
 	public role: roleOptions | undefined;
 
-	constructor(inData: organizationType) {
+	constructor(inData: OrganizationType) {
 		this.name = inData.name;
 		this.url = inData.url;
 		this.abbreviation = inData.abbreviation;
@@ -167,7 +175,7 @@ const personSchema = Schema.Struct({
 	role: Schema.optional(Schema.Enums(roleOptions)),
 });
 
-type personType = Schema.Schema.Type<typeof personSchema>;
+export type PersonType = Schema.Schema.Type<typeof personSchema>;
 
 export class Person {
 	public name: string;
@@ -177,7 +185,7 @@ export class Person {
 	public url: string | undefined;
 	public role: roleOptions | undefined;
 
-	constructor(inData: personType) {
+	constructor(inData: PersonType) {
 		this.name = inData.name;
 		this.email = inData.email;
 		this.affiliation = inData.affiliation;
@@ -187,18 +195,18 @@ export class Person {
 	}
 }
 
-const contributorsSchema = Schema.Struct({
+export const contributorsSchema = Schema.Struct({
 	people: Schema.Array(personSchema),
 	organizations: Schema.Array(organizationSchema),
 });
 
-type contributorsType = Schema.Schema.Type<typeof contributorsSchema>;
+export type ContributorsType = Schema.Schema.Type<typeof contributorsSchema>;
 
 export class Contributors {
-	public people: personType[];
-	public organizations: organizationType[];
+	public people: PersonType[];
+	public organizations: OrganizationType[];
 
-	constructor(inData: contributorsType) {
+	constructor(inData: ContributorsType) {
 		this.people = inData.people.map((person) => new Person(person));
 		this.organizations = inData.organizations.map(
 			(organization) => new Organization(organization),
@@ -213,7 +221,7 @@ export const indexCodesSchema = Schema.Struct({
 	url: Schema.String,
 });
 
-type indexCodesType = Schema.Schema.Type<typeof indexCodesSchema>;
+export type IndexCodesType = Schema.Schema.Type<typeof indexCodesSchema>;
 
 export class IndexCodes {
 	public system: string;
@@ -221,7 +229,7 @@ export class IndexCodes {
 	public display: string;
 	public url: string;
 
-	constructor(inData: indexCodesType) {
+	constructor(inData: IndexCodesType) {
 		this.system = inData.system;
 		this.code = inData.code;
 		this.display = inData.display;
@@ -235,14 +243,14 @@ export const referencesSchema = Schema.Struct({
 	pubmedId: Schema.Number,
 });
 
-type referencesType = Schema.Schema.Type<typeof referencesSchema>;
+export type ReferencesType = Schema.Schema.Type<typeof referencesSchema>;
 
 export class References {
 	public citation: string;
 	public doiUrl: string;
 	public pubmedId: number;
 
-	constructor(inData: referencesType) {
+	constructor(inData: ReferencesType) {
 		this.citation = inData.citation;
 		this.doiUrl = inData.doiUrl;
 		this.pubmedId = inData.pubmedId;
