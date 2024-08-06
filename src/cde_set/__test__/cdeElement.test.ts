@@ -70,34 +70,8 @@ describe("ValueSetElement", () => {
 	it("should serialize a ValueSetElement", () => {
 		const element = new ValueSetElement(valueSetElementdata);
 		const encoded = Schema.encode(valueSetElementSchema)(valueSetElementdata);
-		const elementJSONSchema = JSONSchema.make(valueSetElementSchema);
 		const jsonData = JSON.stringify(valueSetElementdata);
-		const encodedJson = Schema.encode(elementJSONSchema)(jsonData);
-		//console.log(encoded);
+		const elementJSONSchema = JSONSchema.make(valueSetElementSchema);
+		//const encodedJson = Schema.encode(elementJSONSchema)(jsonData);
 	});
-	/*
-
-import { Schema, JSONSchema } from "@effect/schema";
-
-const schema = Schema.Struct({
-  id: Schema.String,
-  value: Schema.Number,
-});
-
-const data = {
-  id: "123",
-  value: 42,
-};
-
-const encoded = Schema.encode(schema)(data); // Encodes `data` to fit `schema`
-	it("should deserialize a ValueSetElement", () => {
-		const element = new ValueSetElement(valueSetElementdata);
-		const serialized = serialize(element);
-		const deserialized = new ValueSetElement(serialized);
-		expect(deserialized).toEqual(element);
-		expect(deserialized).toBeInstanceOf(BaseElement);
-		expect(deserialized).toBeInstanceOf(ValueSetElement);
-		expect(deserialized.valueSet).toHaveProperty("min_cardinality", 1);
-	});
-*/
 });
