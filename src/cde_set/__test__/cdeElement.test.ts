@@ -74,4 +74,6 @@ describe("ValueSetElement", () => {
 		const elementJSONSchema = JSONSchema.make(valueSetElementSchema);
 		//const encodedJson = Schema.encode(elementJSONSchema)(jsonData);
 	});
+
+	it("CdElementFactory", () => {});
 });

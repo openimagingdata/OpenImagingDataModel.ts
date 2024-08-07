@@ -25,6 +25,7 @@ import {
 } from "./common.js";
 
 import { JSONSchema, Schema } from "@effect/schema";
+import { Either } from "effect";
 
 export const cdElementBaseSchema = Schema.Struct({
 	id: Schema.String,
@@ -113,6 +114,7 @@ export class ValueSetValue {
 	}
 }
 
+//effects-ts schemas do not have a .extend method, so we have to redefine the schema?
 export const valueSetSchema = Schema.Struct({
 	min_cardinality: Schema.Number,
 	max_cardinality: Schema.Number,
@@ -204,3 +206,134 @@ export class FloatElement extends BaseElement {
 }
 
 //NEED BooleanElement
+
+export const booleanElementSchema = Schema.Struct({
+	...cdElementBaseSchema.fields,
+	boolean_value: Schema.String,
+});
+
+export type BooleanElementType = Schema.Schema.Type<
+	typeof booleanElementSchema
+>;
+
+export class BooleanElement extends BaseElement {
+	public booleanValue: string;
+
+	constructor(inData: BooleanElementType) {
+		super(inData);
+		this.booleanValue = inData.boolean_value;
+	}
+}
+
+const elementUnionSchema = Schema.Union(
+	valueSetElementSchema,
+	integerElementSchema,
+	floatElementSchema,
+	booleanElementSchema,
+);
+
+export class CdElementFactory {
+	// Static factory method to create the right subclass of CdElement
+	static create(
+		inData: unknown,
+	): ValueSetElement | IntegerElement | FloatElement | BooleanElement | null {
+		// Decode the input data using the base schema
+		const baseResult = Schema.decodeUnknownEither(elementUnionSchema)(inData);
+
+		if (Either.isLeft(baseResult)) {
+			console.error("Base schema validation error:", baseResult.left);
+			throw new Error("Invalid element data");
+		}
+
+		const baseData = baseResult.right;
+
+		if ("value_set" in baseData) {
+			const valueSetResult = Schema.decodeUnknownEither(valueSetElementSchema)(
+				inData,
+			);
+			if (Either.isRight(valueSetResult)) {
+				return new ValueSetElement(valueSetResult.right);
+			} else {
+				console.error(
+					"ValueSetElement schema validation error:",
+					valueSetResult.left,
+				);
+			}
+		} else if ("integer_value" in baseData) {
+			const integerResult =
+				Schema.decodeUnknownEither(integerElementSchema)(inData);
+			if (Either.isRight(integerResult)) {
+				return new IntegerElement(integerResult.right);
+			} else {
+				console.error(
+					"IntegerElement schema validation error:",
+					integerResult.left,
+				);
+			}
+		} else if ("float_value" in baseData) {
+			const floatResult =
+				Schema.decodeUnknownEither(floatElementSchema)(inData);
+			if (Either.isRight(floatResult)) {
+				return new FloatElement(floatResult.right);
+			} else {
+				console.error(
+					"IntegerElement schema validation error:",
+					floatResult.left,
+				);
+			}
+		} else if ("boolean_value" in baseData) {
+			const booleanResult =
+				Schema.decodeUnknownEither(booleanElementSchema)(inData);
+			if (Either.isRight(booleanResult)) {
+				return new BooleanElement(booleanResult.right);
+			} else {
+				console.error(
+					"IntegerElement schema validation error:",
+					booleanResult.left,
+				);
+			}
+		} else {
+			console.error("Unknown element type:", baseData);
+		}
+
+		return null;
+	}
+}
+
+/*
+function cdElementFactory(data: unknown): ValueSetElement | IntegerElement | FloatElement | BooleanElement | null {
+	const baseResult = Schema.decodeUnknownEither(elementUnionSchema)(data);
+	if (Either.isLeft(baseResult)) {
+	  console.error('Base schema validation error:', baseResult.left);
+	  return null;
+	}
+  
+	const baseData = baseResult.right;
+  
+	if ('value_set' in baseData) {
+	  const valueSetResult = Schema.decodeUnknownEither(valueSetElementSchema)(data);
+	  if (Either.isRight(valueSetResult)) {
+		return new ValueSetElement(valueSetResult.right);
+	  }
+	} else if ('integer_value' in baseData) {
+	  const integerResult = Schema.decodeUnknownEither(integerElementSchema)(data);
+	  if (Either.isRight(integerResult)) {
+		return new IntegerElement(integerResult.right);
+	  }
+	} else if ('float_value' in baseData) {
+	  const floatResult = Schema.decodeUnknownEither(floatElementSchema)(data);
+	  if (Either.isRight(floatResult)) {
+		return new FloatElement(floatResult.right);
+	  }
+	} else if ('boolean_value' in baseData) {
+	  const booleanResult = Schema.decodeUnknownEither(booleanElementSchema)(data);
+	  if (Either.isRight(booleanResult)) {
+		return new BooleanElement(booleanResult.right);
+	  }
+	} else {
+	  console.error('Unknown element type:', baseData);
+	}
+  
+	return null;
+  }
+	*/
