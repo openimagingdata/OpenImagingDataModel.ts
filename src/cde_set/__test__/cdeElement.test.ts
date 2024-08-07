@@ -5,6 +5,7 @@ import {
 	ValueSetElement,
 	ValueSetElementType,
 	valueSetElementSchema,
+	CdElementFactory,
 } from "../cde_element.js";
 import { statusOptions } from "../common.js";
 
@@ -75,5 +76,9 @@ describe("ValueSetElement", () => {
 		//const encodedJson = Schema.encode(elementJSONSchema)(jsonData);
 	});
 
-	it("CdElementFactory", () => {});
+	it("CdElementFactory", () => {
+		const element = CdElementFactory.create(valueSetElementdata);
+		expect(element).toBeInstanceOf(BaseElement);
+		expect(element).toBeInstanceOf(ValueSetElement);
+	});
 });
