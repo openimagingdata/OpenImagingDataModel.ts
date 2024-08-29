@@ -225,17 +225,19 @@ export class BooleanElement extends BaseElement {
 	}
 }
 
-const elementUnionSchema = Schema.Union(
+export const elementUnionSchema = Schema.Union(
 	valueSetElementSchema,
 	integerElementSchema,
 	floatElementSchema,
 	booleanElementSchema,
 );
 
+export type ElementType = Schema.Schema.Type<typeof elementUnionSchema>;
+
 export class CdElementFactory {
 	// Static factory method to create the right subclass of CdElement
 	static create(
-		inData: unknown,
+		inData: unknown, //TODO: Cant have this be BaseElement type????
 	): ValueSetElement | IntegerElement | FloatElement | BooleanElement | null {
 		// Decode the input data using the base schema
 		const baseResult = Schema.decodeUnknownEither(elementUnionSchema)(inData);
@@ -299,41 +301,3 @@ export class CdElementFactory {
 		return null;
 	}
 }
-
-/*
-function cdElementFactory(data: unknown): ValueSetElement | IntegerElement | FloatElement | BooleanElement | null {
-	const baseResult = Schema.decodeUnknownEither(elementUnionSchema)(data);
-	if (Either.isLeft(baseResult)) {
-	  console.error('Base schema validation error:', baseResult.left);
-	  return null;
-	}
-  
-	const baseData = baseResult.right;
-  
-	if ('value_set' in baseData) {
-	  const valueSetResult = Schema.decodeUnknownEither(valueSetElementSchema)(data);
-	  if (Either.isRight(valueSetResult)) {
-		return new ValueSetElement(valueSetResult.right);
-	  }
-	} else if ('integer_value' in baseData) {
-	  const integerResult = Schema.decodeUnknownEither(integerElementSchema)(data);
-	  if (Either.isRight(integerResult)) {
-		return new IntegerElement(integerResult.right);
-	  }
-	} else if ('float_value' in baseData) {
-	  const floatResult = Schema.decodeUnknownEither(floatElementSchema)(data);
-	  if (Either.isRight(floatResult)) {
-		return new FloatElement(floatResult.right);
-	  }
-	} else if ('boolean_value' in baseData) {
-	  const booleanResult = Schema.decodeUnknownEither(booleanElementSchema)(data);
-	  if (Either.isRight(booleanResult)) {
-		return new BooleanElement(booleanResult.right);
-	  }
-	} else {
-	  console.error('Unknown element type:', baseData);
-	}
-  
-	return null;
-  }
-	*/

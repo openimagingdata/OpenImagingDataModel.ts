@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { JSONSchema, Schema } from "@effect/schema";
+import { Either } from "effect";
 import {
 	BaseElement,
 	ValueSetElement,
@@ -8,8 +9,10 @@ import {
 	CdElementFactory,
 } from "../cde_element.js";
 import { statusOptions } from "../common.js";
+import { encode } from "@effect/schema/Schema";
+import { right } from "effect/Either";
 
-const valueSetElementdata: ValueSetElementType = {
+const valueSetElementdata = {
 	id: "RDE1695",
 	parent_set: "RDES3",
 	name: "Microscopic fat",
@@ -67,18 +70,78 @@ describe("ValueSetElement", () => {
 		expect(element.valueSet.values[0]).toHaveProperty("code", "RDE1695.0");
 		expect(element.valueSet.values[0]).toHaveProperty("name", "present");
 	});
+});
 
-	it("should serialize a ValueSetElement", () => {
-		const element = new ValueSetElement(valueSetElementdata);
-		const encoded = Schema.encode(valueSetElementSchema)(valueSetElementdata);
-		const jsonData = JSON.stringify(valueSetElementdata);
-		const elementJSONSchema = JSONSchema.make(valueSetElementSchema);
-		//const encodedJson = Schema.encode(elementJSONSchema)(jsonData);
-	});
-
-	it("CdElementFactory", () => {
+describe("CdeElementFactory", () => {
+	it("CdElementFactory should generate proper element subtype", () => {
 		const element = CdElementFactory.create(valueSetElementdata);
 		expect(element).toBeInstanceOf(BaseElement);
 		expect(element).toBeInstanceOf(ValueSetElement);
 	});
 });
+
+//Advantage of using encode function: encode allows you to specify how specific types should be serialized. For instance,
+//a Date object can be transformed into an ISO string, or a number stored as a string can be converted to a proper number before serialization.
+describe("Encoding to JSON from ValueSetElement", () => {
+	it("Encoding to JSON from ValueSetElement", () => {
+		const encodedData = Schema.encode(valueSetElementSchema)(
+			valueSetElementdata,
+		);
+		const serialized = JSON.stringify(encodedData, null, 2);
+		console.log(JSON.stringify(encodedData));
+	});
+});
+
+//decodeUnknownEither takes a schema as input (in this case, valueSetElementSchema) and returns a decoder function.
+//This decoder function will take an unknown input and return an Either type, which represents either a success (Right) or failure (Left).
+//Type change: This decoder function will take an unknown input and return an Either type, which represents either a success (Right) or failure (Left).
+describe("Decoding from ValueSetElementData", () => {
+	it("Decoding from ValueSetElementData", () => {
+		const decodeValueSetElement = Schema.decodeUnknownEither(
+			valueSetElementSchema,
+		);
+		const result = decodeValueSetElement(valueSetElementdata);
+		if (Either.isRight(result)) {
+			console.log("Decode Success");
+			console.log("Decoded data: ", result.right);
+		} else {
+			console.log("Decoding failed: ", result.left);
+		}
+	});
+	it("Decoding from JSON", () => {
+		// valueSetElementdata is the object we want to validate
+		const JSONstring = JSON.stringify(valueSetElementdata); // Convert object to JSON string
+
+		// Use parseJson with valueSetElementSchema to validate and decode
+		//schema will take json string and validate against valueSetElementSchema
+		const schema = Schema.parseJson(valueSetElementSchema);
+
+		// decode is the function to parse and validate the JSON string
+		const decode = Schema.decodeUnknownSync(schema);
+
+		// Decode the JSON string into an object
+		const decoded = decode(JSONstring);
+
+		console.log("decoded from string: ", decoded);
+
+		// Expect the decoded object to match the original data
+		expect(decoded).toEqual(valueSetElementdata);
+	});
+});
+
+/*
+What is my goal here?
+Recieve JSON data and convert to ValueSetElement object?
+Take ValueSetElement object and convert to JSON data for transmission
+Use gpt to generate obj from text?
+
+Encode allows you to specify how specific types should be serialized. For instance, 
+a Date object can be transformed into an ISO string, or a number stored as a string can be converted to a proper number before serialization.
+
+How decode works: 
+**decodeUnknownEither takes a schema as input (in this case, valueSetElementSchema) and returns a decoder function.
+Type change: This decoder function will take an unknown input and return an Either type, which represents either a success (Right) or failure (Left).
+
+encode function would take attribues defined in the schema and change their type when encoding? 
+
+*/
