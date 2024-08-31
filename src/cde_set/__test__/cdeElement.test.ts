@@ -8,7 +8,7 @@ import {
 	valueSetElementSchema,
 	CdElementFactory,
 } from "../cde_element.js";
-import { statusOptions } from "../common.js";
+import { StatusOptions } from "../common.js";
 import { encode } from "@effect/schema/Schema";
 import { right } from "effect/Either";
 
@@ -25,7 +25,7 @@ const valueSetElementdata = {
 	schema_version: "1.0.0",
 	status: {
 		date: "2023-06-23",
-		name: statusOptions.Published, //TODO: Check if this is the correct way to use the enum
+		//name: "Published", //TODO: Not working. String literal not working as expected. Enum not working as expected
 	},
 	index_codes: [],
 	contributors: {

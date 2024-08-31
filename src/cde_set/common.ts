@@ -1,6 +1,7 @@
 import { JSONSchema, Schema } from "@effect/schema";
 
 export enum specialtyAbbreviations {
+	"AR",
 	"AB",
 	"BR",
 	"CA",
@@ -23,6 +24,7 @@ export enum specialtyAbbreviations {
 }
 
 export enum specialtyName {
+	"Abdominal Radiology",
 	"Allergy and Immunology",
 	"Cardiology",
 	"Critical Care Medicine",
@@ -59,6 +61,14 @@ export class Specialty {
 		this.abbreviation = inData.abbreviation;
 		this.name = inData.name;
 	}
+
+	getAbbreviation() {
+		return this.abbreviation;
+	}
+
+	getName() {
+		return this.name;
+	}
 }
 
 export const versionSchema = Schema.Struct({
@@ -88,17 +98,20 @@ export const schemaVersionSchema = Schema.String.pipe(
 
 type SchemaVersionType = Schema.Schema.Type<typeof schemaVersionSchema>;
 
-export enum statusOptions {
-	"Proposed",
-	"Published",
-	"Retired",
-}
+export type StatusOptions = "Proposed" | "Published" | "Retired";
+
+// Define a schema for the StatusOptions using string literals
+const statusOptionsSchema = Schema.Union(
+	Schema.Literal("Proposed"),
+	Schema.Literal("Published"),
+	Schema.Literal("Retired"),
+);
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
 export const statusSchema = Schema.Struct({
-	date: Schema.String.pipe(Schema.pattern(datePattern)), //TODO Check regex matches correctly
-	name: Schema.Enums(statusOptions),
+	date: Schema.String.pipe(Schema.pattern(datePattern)),
+	name: Schema.optional(statusOptionsSchema),
 });
 
 const statusJSONSchema = JSONSchema.make(statusSchema);
@@ -107,7 +120,7 @@ export type StatusType = Schema.Schema.Type<typeof statusSchema>;
 
 export class Status {
 	public date: string;
-	public name: statusOptions;
+	public name: StatusOptions | undefined;
 
 	constructor(inData: StatusType) {
 		this.date = inData.date;
@@ -132,30 +145,37 @@ export class Event {
 	}
 }
 
-export enum roleOptions {
-	"author",
-	"sponsor",
-	"translator",
-	"reviewer",
-	"contributor",
-}
+export type RoleOptions =
+	| "author"
+	| "sponsor"
+	| "translator"
+	| "reviewer"
+	| "contributor";
+
+const roleSchema = Schema.Union(
+	Schema.Literal("author"),
+	Schema.Literal("sponsor"),
+	Schema.Literal("translator"),
+	Schema.Literal("reviewer"),
+	Schema.Literal("contributor"),
+);
 
 const organizationSchema = Schema.Struct({
 	name: Schema.String,
-	url: Schema.String, //TODO: Validate URL???
+	url: Schema.optional(Schema.String), //TODO: Validate URL???
 	abbreviation: Schema.optional(Schema.String),
 	comment: Schema.optional(Schema.String),
-	role: Schema.optional(Schema.Enums(roleOptions)),
+	role: Schema.optional(roleSchema),
 });
 
 export type OrganizationType = Schema.Schema.Type<typeof organizationSchema>;
 
 export class Organization {
 	public name: string;
-	public url: string;
+	public url: string | undefined;
 	public abbreviation: string | undefined;
 	public comment: string | undefined;
-	public role: roleOptions | undefined;
+	public role: RoleOptions | undefined;
 
 	constructor(inData: OrganizationType) {
 		this.name = inData.name;
@@ -172,7 +192,7 @@ const personSchema = Schema.Struct({
 	affiliation: Schema.optional(Schema.String),
 	orcidId: Schema.optional(Schema.String),
 	url: Schema.optional(Schema.String),
-	role: Schema.optional(Schema.Enums(roleOptions)),
+	role: Schema.optional(roleSchema),
 });
 
 export type PersonType = Schema.Schema.Type<typeof personSchema>;
@@ -183,7 +203,7 @@ export class Person {
 	public affiliation: string | undefined;
 	public orcidId: string | undefined;
 	public url: string | undefined;
-	public role: roleOptions | undefined;
+	public role: RoleOptions | undefined;
 
 	constructor(inData: PersonType) {
 		this.name = inData.name;
@@ -239,8 +259,8 @@ export class IndexCodes {
 
 export const referencesSchema = Schema.Struct({
 	citation: Schema.String,
-	doiUrl: Schema.String, //TODO: Validate URL???
-	pubmedId: Schema.Number,
+	doi_url: Schema.String, //TODO: Validate URL???
+	pubmed_id: Schema.String,
 });
 
 export type ReferencesType = Schema.Schema.Type<typeof referencesSchema>;
@@ -248,11 +268,11 @@ export type ReferencesType = Schema.Schema.Type<typeof referencesSchema>;
 export class References {
 	public citation: string;
 	public doiUrl: string;
-	public pubmedId: number;
+	public pubmedId: string;
 
 	constructor(inData: ReferencesType) {
 		this.citation = inData.citation;
-		this.doiUrl = inData.doiUrl;
-		this.pubmedId = inData.pubmedId;
+		this.doiUrl = inData.doi_url;
+		this.pubmedId = inData.pubmed_id;
 	}
 }

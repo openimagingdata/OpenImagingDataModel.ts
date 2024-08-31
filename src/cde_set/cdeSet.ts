@@ -25,10 +25,10 @@ import { URL } from "url";
 
 export const cdeSetSchema = Schema.Struct({
 	id: Schema.String,
-	parent_set: Schema.String,
+	parent_set: Schema.optional(Schema.String),
 	name: Schema.String,
-	definition: Schema.optional(Schema.String),
-	element_version: versionSchema,
+	description: Schema.optional(Schema.String),
+	element_version: Schema.optional(versionSchema),
 	schema_version: Schema.String,
 	status: statusSchema,
 	question: Schema.optional(Schema.String),
@@ -70,6 +70,10 @@ export class CdeSet {
 		return this._data.name;
 	}
 
+	get description() {
+		return this._data.description;
+	}
+
 	get schemaVersion() {
 		return this._data.schema_version;
 	}
@@ -99,7 +103,7 @@ export class CdeSet {
 	}
 
 	get elements() {
-		return [...this._data.elements];
+		return [...this._elements];
 	}
 
 	static async fetchFromRepo(rdesId: string): Promise<CdeSet | null> {
