@@ -208,9 +208,9 @@ describe("CdeSet Encoding", () => {
 			console.log("Original Data: ", cdeSetData);
 			//expect(result).toEqual(cdeSetData); --> Fail
 			//Differences:
-			//set_version Field: Present in the Original Data, absent in the Result.
-			//specialties Field: Present in the Original Data, absent in the Result.
-			//Element Fields: The integer_value in RDE41 and value_set in RDE42 are present in the Original Data but absent in the Result.
+			//specialties Field: Present in the Original Data but absent in the Result.
+			//integer_value Field in RDE41: Present in the Original Data but absent in the Result.
+			//value_set Field in RDE42: Present in the Original Data but absent in the Result.
 		}
 	});
 });
