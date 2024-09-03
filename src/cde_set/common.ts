@@ -1,54 +1,98 @@
 import { JSONSchema, Schema } from "@effect/schema";
 
-export enum specialtyAbbreviations {
-	"AR",
-	"AB",
-	"BR",
-	"CA",
-	"CH",
-	"ER",
-	"GI",
-	"GU",
-	"HN",
-	"IR",
-	"MI",
-	"MK",
-	"NR",
-	"OB",
-	"OI",
-	"OT",
-	"PD",
-	"QI",
-	"RS",
-	"VA",
-}
+export type specialtyAbbreviations =
+	| "AR"
+	| "AB"
+	| "BR"
+	| "CA"
+	| "CH"
+	| "ER"
+	| "GI"
+	| "GU"
+	| "HN"
+	| "IR"
+	| "MI"
+	| "MK"
+	| "NR"
+	| "OB"
+	| "OI"
+	| "OT"
+	| "PD"
+	| "QI"
+	| "RS"
+	| "VA";
 
-export enum specialtyName {
-	"Abdominal Radiology",
-	"Allergy and Immunology",
-	"Cardiology",
-	"Critical Care Medicine",
-	"Dermatology",
-	"Emergency Medicine",
-	"Endocrinology",
-	"Gastroenterology",
-	"Geriatrics",
-	"Hematology",
-	"Infectious Disease",
-	"Medical Genetics",
-	"Nephrology",
-	"Obstetrics and Gynecology",
-	"Oncology",
-	"Otolaryngology",
-	"Pediatrics",
-	"Quality Improvement",
-	"Radiology",
-	"Vascular Medicine",
-}
+export const specialtyAbbreviationsSchema = Schema.Union(
+	Schema.Literal("AR"),
+	Schema.Literal("AB"),
+	Schema.Literal("BR"),
+	Schema.Literal("CA"),
+	Schema.Literal("CH"),
+	Schema.Literal("ER"),
+	Schema.Literal("GI"),
+	Schema.Literal("GU"),
+	Schema.Literal("HN"),
+	Schema.Literal("IR"),
+	Schema.Literal("MI"),
+	Schema.Literal("MK"),
+	Schema.Literal("NR"),
+	Schema.Literal("OB"),
+	Schema.Literal("OI"),
+	Schema.Literal("OT"),
+	Schema.Literal("PD"),
+	Schema.Literal("QI"),
+	Schema.Literal("RS"),
+	Schema.Literal("VA"),
+);
+
+export type specialtyName =
+	| "Abdominal Radiology"
+	| "Allergy and Immunology"
+	| "Cardiology"
+	| "Critical Care Medicine"
+	| "Dermatology"
+	| "Emergency Medicine"
+	| "Endocrinology"
+	| "Gastroenterology"
+	| "Geriatrics"
+	| "Hematology"
+	| "Infectious Disease"
+	| "Medical Genetics"
+	| "Nephrology"
+	| "Obstetrics and Gynecology"
+	| "Oncology"
+	| "Otolaryngology"
+	| "Pediatrics"
+	| "Quality Improvement"
+	| "Radiology"
+	| "Vascular Medicine";
+
+const specialtyNameSchema = Schema.Union(
+	Schema.Literal("Abdominal Radiology"),
+	Schema.Literal("Allergy and Immunology"),
+	Schema.Literal("Cardiology"),
+	Schema.Literal("Critical Care Medicine"),
+	Schema.Literal("Dermatology"),
+	Schema.Literal("Emergency Medicine"),
+	Schema.Literal("Endocrinology"),
+	Schema.Literal("Gastroenterology"),
+	Schema.Literal("Geriatrics"),
+	Schema.Literal("Hematology"),
+	Schema.Literal("Infectious Disease"),
+	Schema.Literal("Medical Genetics"),
+	Schema.Literal("Nephrology"),
+	Schema.Literal("Obstetrics and Gynecology"),
+	Schema.Literal("Oncology"),
+	Schema.Literal("Otolaryngology"),
+	Schema.Literal("Pediatrics"),
+	Schema.Literal("Quality Improvement"),
+	Schema.Literal("Radiology"),
+	Schema.Literal("Vascular Medicine"),
+);
 
 export const specialtySchema = Schema.Struct({
-	abbreviation: Schema.Enums(specialtyAbbreviations),
-	name: Schema.Enums(specialtyName),
+	abbreviation: specialtyAbbreviationsSchema,
+	name: specialtyNameSchema,
 });
 
 export type SpecialtyType = Schema.Schema.Type<typeof specialtySchema>;
@@ -155,18 +199,18 @@ export class Event {
 }
 
 export type RoleOptions =
-	| "author"
-	| "sponsor"
-	| "translator"
-	| "reviewer"
-	| "contributor";
+	| "Author"
+	| "Sponsor"
+	| "Translator"
+	| "Reviewer"
+	| "Contributor";
 
 const roleSchema = Schema.Union(
-	Schema.Literal("author"),
-	Schema.Literal("sponsor"),
-	Schema.Literal("translator"),
-	Schema.Literal("reviewer"),
-	Schema.Literal("contributor"),
+	Schema.Literal("Author"),
+	Schema.Literal("Sponsor"),
+	Schema.Literal("Translator"),
+	Schema.Literal("Reviewer"),
+	Schema.Literal("Contributor"),
 );
 
 const organizationSchema = Schema.Struct({

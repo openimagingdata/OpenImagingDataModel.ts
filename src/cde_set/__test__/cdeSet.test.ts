@@ -2,13 +2,6 @@ import { describe, it, expect } from "vitest";
 import { JSONSchema, Schema } from "@effect/schema";
 import { Either } from "effect";
 import { CdeSet, cdeSetSchema, CdeSetType } from "../cdeSet.js";
-import {
-	Specialty,
-	specialtyName,
-	specialtyAbbreviations,
-	specialtySchema,
-	SpecialtyType,
-} from "../common.js";
 import { BaseElement, IntegerElement } from "../cde_element.js";
 
 const cdeSetData = {
@@ -22,7 +15,7 @@ const cdeSetData = {
 	schema_version: "1.0.0",
 	status: {
 		date: "2016-01-03",
-		//name: "Proposed"
+		name: "Proposed" as "Proposed",
 	},
 	references: [
 		{
@@ -49,7 +42,7 @@ const cdeSetData = {
 		people: [
 			{
 				name: "Tarik Alkasab",
-				//role: "Author",
+				role: "Author" as "Author",
 				email: "talkasab@partners.org",
 			},
 			{
@@ -63,12 +56,12 @@ const cdeSetData = {
 	},
 	specialties: [
 		{
-			name: specialtyName["Abdominal Radiology"],
-			abbreviation: specialtyAbbreviations.AR,
+			name: "Abdominal Radiology" as "Abdominal Radiology",
+			abbreviation: "AR" as "AR",
 		},
 		{
-			name: "Genitourinary Radiology",
-			abbreviation: "GU",
+			name: "Genitourinary Radiology" as "Genitourinary Radiology",
+			abbreviation: "GU" as "GU",
 		},
 	],
 	index_codes: [],
@@ -84,7 +77,7 @@ const cdeSetData = {
 			},
 			schema_version: "1.0.0",
 			status: {
-				//name: "Proposed", //TODO --> Not working
+				name: "Proposed" as "Proposed", //TODO --> Not working
 				date: "2016-01-03",
 			},
 			index_codes: [
@@ -97,12 +90,12 @@ const cdeSetData = {
 			],
 			specialty: [
 				{
-					name: specialtyName["Abdominal Radiology"], //Enum not working
-					abbreviation: specialtyAbbreviations.AR, //Enum not working
+					name: "Abdominal Radiology" as "Abdominal Radiology",
+					abbreviation: "AR" as "AR",
 				},
 				{
-					name: specialtyName["Geriatrics"],
-					abbreviation: specialtyAbbreviations.GU,
+					name: "Geriatrics" as "Geriatrics",
+					abbreviation: "GU" as "GU",
 				},
 			],
 			integer_value: {
@@ -124,7 +117,7 @@ const cdeSetData = {
 			schema_version: "1.0.0",
 			status: {
 				date: "2016-01-03",
-				//name: "Proposed"
+				name: "Proposed" as "Proposed",
 			},
 			value_set: {
 				min_cardinality: 1,
