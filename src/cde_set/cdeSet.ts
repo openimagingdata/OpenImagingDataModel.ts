@@ -9,6 +9,7 @@ import {
 	statusSchema,
 	indexCodesSchema,
 	referencesSchema,
+	setVersionSchaema,
 } from "./common.js";
 
 import {
@@ -29,7 +30,7 @@ export const cdeSetSchema = Schema.Struct({
 	name: Schema.String,
 	description: Schema.optional(Schema.String),
 	element_version: Schema.optional(versionSchema),
-	schema_version: Schema.String,
+	set_version: setVersionSchaema,
 	status: statusSchema,
 	question: Schema.optional(Schema.String),
 	index_codes: Schema.optional(Schema.Array(indexCodesSchema)),
@@ -74,8 +75,8 @@ export class CdeSet {
 		return this._data.description;
 	}
 
-	get schemaVersion() {
-		return this._data.schema_version;
+	get setVersion() {
+		return this._data.set_version;
 	}
 
 	get status() {

@@ -19,8 +19,6 @@ import {
 	ContributorsType,
 	IndexCodesType,
 	ReferencesType,
-	roleOptions,
-	statusOptions,
 	SpecialtyType,
 } from "./common.js";
 

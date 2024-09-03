@@ -80,34 +80,69 @@ describe("CdeElementFactory", () => {
 	});
 });
 
-//Advantage of using encode function: encode allows you to specify how specific types should be serialized. For instance,
-//a Date object can be transformed into an ISO string, or a number stored as a string can be converted to a proper number before serialization.
-describe("Encoding to JSON from ValueSetElement", () => {
-	it("Encoding to JSON from ValueSetElement", () => {
-		const encodedData = Schema.encode(valueSetElementSchema)(
+describe("Encoding", () => {
+	it("Encoding from data to ValueSetElement", () => {
+		const encodedDataEither = Schema.encodeEither(valueSetElementSchema)(
 			valueSetElementdata,
 		);
-		const serialized = JSON.stringify(encodedData, null, 2);
-		console.log(JSON.stringify(encodedData));
+		const serialized = JSON.stringify(encodedDataEither, null, 2);
+		if (Either.isRight(encodedDataEither)) {
+			const encodedData = encodedDataEither.right;
+			console.log("Encoded data: ", encodedData);
+			expect(encodedData).toHaveProperty("id", "RDE1695");
+			expect(encodedData).toHaveProperty("name", "Microscopic fat");
+			expect(encodedData).toHaveProperty("value_set");
+			expect(encodedData).toHaveProperty("element_version");
+			expect(encodedData).toHaveProperty("status");
+			expect(encodedData).toHaveProperty("specialty");
+			expect(encodedData.value_set).toHaveProperty("min_cardinality", 1);
+			expect(encodedData.value_set).toHaveProperty("max_cardinality", 1);
+			expect(encodedData.value_set).toHaveProperty("values");
+			expect(encodedData.value_set.values).toHaveLength(4);
+			expect(encodedData.value_set.values[0]).toHaveProperty(
+				"code",
+				"RDE1695.0",
+			);
+			expect(encodedData.value_set.values[0]).toHaveProperty("name", "present");
+		} else {
+			console.log("Encoding failed: ", encodedDataEither.left);
+		}
 	});
 });
 
-//decodeUnknownEither takes a schema as input (in this case, valueSetElementSchema) and returns a decoder function.
-//This decoder function will take an unknown input and return an Either type, which represents either a success (Right) or failure (Left).
-//Type change: This decoder function will take an unknown input and return an Either type, which represents either a success (Right) or failure (Left).
 describe("Decoding from ValueSetElementData", () => {
 	it("Decoding from ValueSetElementData", () => {
-		const decodeValueSetElement = Schema.decodeUnknownEither(
-			valueSetElementSchema,
-		);
-		const result = decodeValueSetElement(valueSetElementdata);
-		if (Either.isRight(result)) {
+		const decode = Schema.decodeUnknownEither(valueSetElementSchema);
+		const decodedValueSetElementEither = decode(valueSetElementdata);
+		if (Either.isRight(decodedValueSetElementEither)) {
 			console.log("Decode Success");
-			console.log("Decoded data: ", result.right);
+			const decodedValueSetElement = decodedValueSetElementEither.right;
+			expect(decodedValueSetElement).toHaveProperty("id", "RDE1695");
+			expect(decodedValueSetElement).toHaveProperty("name", "Microscopic fat");
+			expect(decodedValueSetElement).toHaveProperty("value_set");
+			expect(decodedValueSetElement).toHaveProperty("element_version");
+			expect(decodedValueSetElement).toHaveProperty("status");
+			expect(decodedValueSetElement).toHaveProperty("specialty");
+			expect(decodedValueSetElement.value_set).toHaveProperty(
+				"min_cardinality",
+				1,
+			);
+			expect(decodedValueSetElement.value_set).toHaveProperty(
+				"max_cardinality",
+				1,
+			);
+			expect(decodedValueSetElement.value_set).toHaveProperty("values");
+			expect(decodedValueSetElement.value_set.values).toHaveLength(4);
+			expect(decodedValueSetElement.value_set.values[0]).toHaveProperty(
+				"code",
+				"RDE1695.0",
+			);
 		} else {
-			console.log("Decoding failed: ", result.left);
+			console.log("Decoding failed: ", decodedValueSetElementEither.left);
 		}
 	});
+
+	//TODO: finish
 	it("Decoding from JSON", () => {
 		// valueSetElementdata is the object we want to validate
 		const JSONstring = JSON.stringify(valueSetElementdata); // Convert object to JSON string
@@ -128,20 +163,3 @@ describe("Decoding from ValueSetElementData", () => {
 		expect(decoded).toEqual(valueSetElementdata);
 	});
 });
-
-/*
-What is my goal here?
-Recieve JSON data and convert to ValueSetElement object?
-Take ValueSetElement object and convert to JSON data for transmission
-Use gpt to generate obj from text?
-
-Encode allows you to specify how specific types should be serialized. For instance, 
-a Date object can be transformed into an ISO string, or a number stored as a string can be converted to a proper number before serialization.
-
-How decode works: 
-**decodeUnknownEither takes a schema as input (in this case, valueSetElementSchema) and returns a decoder function.
-Type change: This decoder function will take an unknown input and return an Either type, which represents either a success (Right) or failure (Left).
-
-encode function would take attribues defined in the schema and change their type when encoding? 
-
-*/

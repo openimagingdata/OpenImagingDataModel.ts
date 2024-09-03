@@ -98,6 +98,15 @@ export const schemaVersionSchema = Schema.String.pipe(
 
 type SchemaVersionType = Schema.Schema.Type<typeof schemaVersionSchema>;
 
+export const setVersionSchaema = Schema.Struct({
+	number: Schema.Number,
+	date: Schema.String, //Change to date
+});
+
+export type SetVersionType = Schema.Schema.Type<typeof setVersionSchaema>;
+
+export const setVersionJSONSchema = JSONSchema.make(setVersionSchaema);
+
 export type StatusOptions = "Proposed" | "Published" | "Retired";
 
 // Define a schema for the StatusOptions using string literals
@@ -267,12 +276,12 @@ export type ReferencesType = Schema.Schema.Type<typeof referencesSchema>;
 
 export class References {
 	public citation: string;
-	public doiUrl: string;
-	public pubmedId: string;
+	public doi_url: string;
+	public pubmed_id: string;
 
 	constructor(inData: ReferencesType) {
 		this.citation = inData.citation;
-		this.doiUrl = inData.doi_url;
-		this.pubmedId = inData.pubmed_id;
+		this.doi_url = inData.doi_url;
+		this.pubmed_id = inData.pubmed_id;
 	}
 }
