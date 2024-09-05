@@ -39,7 +39,7 @@ export const cdeSetSchema = Schema.Struct({
 	specialties: Schema.optional(Schema.Array(specialtySchema)),
 	history: Schema.optional(Schema.Array(eventSchema)),
 	references: Schema.optional(Schema.Array(referencesSchema)),
-	elements: Schema.Array(cdElementBaseSchema),
+	elements: Schema.Array(elementUnionSchema),
 });
 
 export type CdeSetType = Schema.Schema.Type<typeof cdeSetSchema>;

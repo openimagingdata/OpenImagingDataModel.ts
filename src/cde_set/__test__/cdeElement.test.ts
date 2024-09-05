@@ -64,11 +64,11 @@ describe("ValueSetElement", () => {
 		const element = new ValueSetElement(valueSetElementdata);
 		expect(element).toBeInstanceOf(BaseElement);
 		expect(element).toBeInstanceOf(ValueSetElement);
-		expect(element.valueSet).toHaveProperty("min_cardinality", 1);
-		expect(element.valueSet).toHaveProperty("max_cardinality", 1);
-		expect(element.valueSet.values).toHaveLength(4);
-		expect(element.valueSet.values[0]).toHaveProperty("code", "RDE1695.0");
-		expect(element.valueSet.values[0]).toHaveProperty("name", "present");
+		expect(element.value_set).toHaveProperty("min_cardinality", 1);
+		expect(element.value_set).toHaveProperty("max_cardinality", 1);
+		expect(element.value_set.values).toHaveLength(4);
+		expect(element.value_set.values[0]).toHaveProperty("code", "RDE1695.0");
+		expect(element.value_set.values[0]).toHaveProperty("name", "present");
 	});
 });
 
@@ -77,7 +77,7 @@ describe("CdeElementFactory", () => {
 		const element = CdElementFactory.create(valueSetElementdata);
 		expect(element).toBeInstanceOf(BaseElement);
 		expect(element).toBeInstanceOf(ValueSetElement);
-		expect(element).toHaveProperty("valueSet");
+		expect(element).toHaveProperty("value_set");
 		console.log("Element: ", element);
 	});
 });

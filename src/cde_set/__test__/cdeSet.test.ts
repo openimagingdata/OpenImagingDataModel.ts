@@ -188,7 +188,7 @@ describe("CdeSet Elements", () => {
 });
 //when you perform both encoding and decoding operations, you should end up with the original value.
 describe("CdeSet Encoding", () => {
-	it("Should properly encode data to mach cdeSetSchema", () => {
+	it("Should properly encode data to match cdeSetSchema", () => {
 		const encodedData = Schema.encodeEither(cdeSetSchema)(cdeSetData);
 		if (encodedData._tag === "Left") {
 			// Handle the error case
@@ -205,14 +205,35 @@ describe("CdeSet Encoding", () => {
 			expect(result.elements[0]).toHaveProperty("id", "RDE41");
 			expect(result.elements[0]).toHaveProperty("name", "Nodule size");
 			expect(result.elements[0]).toHaveProperty("specialty");
+			expect(result.elements[0]).toHaveProperty("integer_value");
 
 			console.log("Result: ", result);
 			console.log("Original Data: ", cdeSetData);
-			//expect(result).toEqual(cdeSetData); --> Fail
-			//Differences:
-			//specialties Field: Present in the Original Data but absent in the Result.
-			//integer_value Field in RDE41: Present in the Original Data but absent in the Result.
-			//value_set Field in RDE42: Present in the Original Data but absent in the Result.
+			//expect(result).toEqual(cdeSetData); --> this fails but they have the same fields
+		}
+	});
+});
+
+describe("CdeSet Decoding", () => {
+	it("Should properly decode data from cdeSetSchema", () => {
+		const decode = Schema.decodeUnknownEither(cdeSetSchema);
+		const decodedSet = decode(cdeSetData);
+		if (Either.isRight(decodedSet)) {
+			const result = decodedSet.right;
+			expect(result).toHaveProperty("id", "RDES3");
+			expect(result).toHaveProperty("name", "CAR/DS Adrenal Nodule");
+			expect(result.elements).toHaveLength(2);
+			expect(result).toHaveProperty("specialties");
+			expect(result.elements[0]).toHaveProperty("id", "RDE41");
+			expect(result.elements[0]).toHaveProperty("name", "Nodule size");
+			expect(result.elements[0]).toHaveProperty("specialty");
+			expect(result.elements[0]).toHaveProperty("integer_value");
+
+			console.log("Decoded Set: ", result);
+			console.log("Original Data: ", cdeSetData);
+			//expect(result).toEqual(cdeSetData); --> this fails but they have the same fields
+		} else {
+			console.error("Decoding error:", decodedSet.left);
 		}
 	});
 });

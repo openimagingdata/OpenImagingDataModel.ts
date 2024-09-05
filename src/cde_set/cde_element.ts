@@ -143,11 +143,17 @@ export type ValueSetElementType = Schema.Schema.Type<
 >;
 
 export class ValueSetElement extends BaseElement {
-	public valueSet: ValueSetType;
+	private _data: ValueSetElementType;
+	public value_set: ValueSetType;
 
 	constructor(inData: ValueSetElementType) {
 		super(inData);
-		this.valueSet = inData.value_set;
+		this._data = { ...inData };
+		this.value_set = inData.value_set;
+	}
+
+	get valueSet() {
+		return this._data.value_set;
 	}
 }
 
