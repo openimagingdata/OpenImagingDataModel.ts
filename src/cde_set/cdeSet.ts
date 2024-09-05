@@ -30,12 +30,13 @@ export const cdeSetSchema = Schema.Struct({
 	name: Schema.String,
 	description: Schema.optional(Schema.String),
 	element_version: Schema.optional(versionSchema),
+	schema_version: Schema.String,
 	set_version: setVersionSchaema,
 	status: statusSchema,
 	question: Schema.optional(Schema.String),
 	index_codes: Schema.optional(Schema.Array(indexCodesSchema)),
 	contributors: Schema.optional(contributorsSchema),
-	specialty: Schema.optional(Schema.Array(specialtySchema)),
+	specialties: Schema.optional(Schema.Array(specialtySchema)),
 	history: Schema.optional(Schema.Array(eventSchema)),
 	references: Schema.optional(Schema.Array(referencesSchema)),
 	elements: Schema.Array(cdElementBaseSchema),
@@ -71,6 +72,14 @@ export class CdeSet {
 		return this._data.name;
 	}
 
+	get parentSet() {
+		return this._data.parent_set;
+	}
+
+	get schemaVersion() {
+		return this._data.schema_version;
+	}
+
 	get description() {
 		return this._data.description;
 	}
@@ -96,7 +105,7 @@ export class CdeSet {
 	}
 
 	get specialties() {
-		return [...(this._data.specialty ?? [])];
+		return [...(this._data.specialties ?? [])];
 	}
 
 	get references() {

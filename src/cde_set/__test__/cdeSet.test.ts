@@ -60,7 +60,7 @@ const cdeSetData = {
 			abbreviation: "AR" as "AR",
 		},
 		{
-			name: "Genitourinary Radiology" as "Genitourinary Radiology",
+			name: "Genitourinary Radiology" as "Geriatrics", //Not seeing "Genitourinary Radiology"??
 			abbreviation: "GU" as "GU",
 		},
 	],
@@ -94,7 +94,7 @@ const cdeSetData = {
 					abbreviation: "AR" as "AR",
 				},
 				{
-					name: "Geriatrics" as "Geriatrics",
+					name: "Genitourinary Radiology" as "Genitourinary Radiology",
 					abbreviation: "GU" as "GU",
 				},
 			],
@@ -201,8 +201,10 @@ describe("CdeSet Encoding", () => {
 			expect(result).toHaveProperty("id", "RDES3");
 			expect(result).toHaveProperty("name", "CAR/DS Adrenal Nodule");
 			expect(result.elements).toHaveLength(2);
+			expect(result).toHaveProperty("specialties");
 			expect(result.elements[0]).toHaveProperty("id", "RDE41");
 			expect(result.elements[0]).toHaveProperty("name", "Nodule size");
+			expect(result.elements[0]).toHaveProperty("specialty");
 
 			console.log("Result: ", result);
 			console.log("Original Data: ", cdeSetData);

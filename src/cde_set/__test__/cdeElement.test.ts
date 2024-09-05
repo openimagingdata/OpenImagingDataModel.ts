@@ -77,6 +77,8 @@ describe("CdeElementFactory", () => {
 		const element = CdElementFactory.create(valueSetElementdata);
 		expect(element).toBeInstanceOf(BaseElement);
 		expect(element).toBeInstanceOf(ValueSetElement);
+		expect(element).toHaveProperty("valueSet");
+		console.log("Element: ", element);
 	});
 });
 

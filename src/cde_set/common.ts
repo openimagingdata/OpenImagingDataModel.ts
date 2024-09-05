@@ -53,6 +53,7 @@ export type specialtyName =
 	| "Dermatology"
 	| "Emergency Medicine"
 	| "Endocrinology"
+	| "Genitourinary Radiology"
 	| "Gastroenterology"
 	| "Geriatrics"
 	| "Hematology"
@@ -74,6 +75,7 @@ const specialtyNameSchema = Schema.Union(
 	Schema.Literal("Critical Care Medicine"),
 	Schema.Literal("Dermatology"),
 	Schema.Literal("Emergency Medicine"),
+	Schema.Literal("Genitourinary Radiology"),
 	Schema.Literal("Endocrinology"),
 	Schema.Literal("Gastroenterology"),
 	Schema.Literal("Geriatrics"),
