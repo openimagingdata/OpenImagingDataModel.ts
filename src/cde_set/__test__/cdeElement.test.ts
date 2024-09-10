@@ -91,6 +91,7 @@ describe("Encoding", () => {
 		if (Either.isRight(encodedDataEither)) {
 			const encodedData = encodedDataEither.right;
 			console.log("Encoded data: ", encodedData);
+			expect;
 			expect(encodedData).toHaveProperty("id", "RDE1695");
 			expect(encodedData).toHaveProperty("name", "Microscopic fat");
 			expect(encodedData).toHaveProperty("value_set");
