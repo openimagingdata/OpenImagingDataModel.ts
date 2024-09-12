@@ -96,7 +96,7 @@ describe("findingModel", () => {
 	it("should create a new FindingModel from finding model data", () => {
 		const findingModel = new FindingModel(findingJson);
 		expect(findingModel).toBeInstanceOf(FindingModel);
-		expect(findingModel.finding_name).toBe("calcified pulmonary granuloma");
+		expect(findingModel.name).toBe("calcified pulmonary granuloma");
 		expect(findingModel.description).toBe(
 			"A type of small lesion in the lungs, often caused by inflammation from diseases such as tuberculosis. These granulomas become calcified as they heal, leaving behind a small area of lung tissue that is harder than normal due to the deposition of calcium salts.",
 		);

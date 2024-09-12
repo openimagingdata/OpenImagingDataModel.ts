@@ -93,11 +93,11 @@ class NumericAttribute {
 }
 
 export class FindingModel {
-	finding_name: string;
+	name: string;
 	description: string;
 	attributes: Attribute[];
 	constructor(inData: FindingModelType) {
-		this.finding_name = inData.name;
+		this.name = inData.name;
 		this.description = inData.description;
 		this.attributes = inData.attributes.map((attribute) => {
 			if (attribute.type === "choice") {
