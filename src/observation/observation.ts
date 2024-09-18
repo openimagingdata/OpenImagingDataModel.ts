@@ -77,6 +77,8 @@ const ObservationFunctionParams = z.object({
 	),
 });
 
+export type ObservationResult = z.infer<typeof ObservationFunctionParams>;
+
 const ObservationFunctionParamsJSON = zodToJsonSchema(
 	ObservationFunctionParams,
 ); //TODO remove this line
@@ -94,15 +96,56 @@ if (!apiKey) {
 
 const openai = new OpenAI({ apiKey });
 
-const runAIRequest = async (textInput: string) => {
+const runAIRequest = async (
+	textInput: string,
+): Promise<ObservationResult | null> => {
 	try {
 		const completion = await openai.beta.chat.completions.parse({
 			model: "gpt-4o-2024-08-06",
 			messages: [
 				{
 					role: "system",
-					content:
-						"You are an assistant that helps structure health data as observations.",
+					content: `You are an assistant that helps structure health data as observations. I will provide the data and you will generate the observation resource in FHIR format.
+            There are several types of components including: 
+            - String with a string value
+            - Integer with a integer value
+            - Float with a flaot value
+            - CodeableConcept with a code and optional value
+            You can use these components to structure the observation.
+
+            Here is an example of the different component types: 
+            component: [
+                {
+                  code: [
+                    {
+                      system: 'http://loinc.org',
+                      code: '12345-6',
+                      display: 'Test Observation',
+                    },
+                  ],
+                  value: [
+                    {
+                      system: 'http://snomed.info/sct',
+                      code: '123456789',
+                      display: 'Aorta',
+                    },
+                  ],
+                },
+                {
+                  code: [
+                    {
+                      system: 'http://loinc.org',
+                      code: '12345-6',
+                      display: 'Test Observation',
+                    },
+                  ],
+                  value: '6', //TODO: what is its namedvalueString?
+                },
+              ],
+            };
+            
+            
+            `,
 				},
 				{ role: "user", content: textInput },
 			],
@@ -113,23 +156,46 @@ const runAIRequest = async (textInput: string) => {
 				}),
 			],
 		});
-		// Print the entire response for debugging
-		console.log("Full API Response:", JSON.stringify(completion, null, 2));
+
+		// Print Response for debugging
+		//console.log("Full API Response:", JSON.stringify(completion, null, 2));
 
 		const toolCalls = completion.choices?.[0]?.message?.tool_calls;
 		if (toolCalls && toolCalls.length > 0 && toolCalls[0]?.function) {
-			console.log(toolCalls[0].function.parsed_arguments);
+			// Extract the result and cast it to ObservationResult
+			const result = toolCalls[0].function.parsed_arguments;
+			return result as ObservationResult;
 		} else {
 			console.error("No valid tool call or function in the response.");
+			return null;
 		}
 	} catch (error) {
 		console.error("Error:", error);
+		throw error; // Rethrow the error to be handled by .catch()
 	}
 };
 
 // Example usage
 const userTextInput = "Record an observation for blood pressure measurement.";
-runAIRequest(userTextInput);
+const radiologyText = `CT Abdomen and Pelvis with contrast shows a 2.3 cm hypodense lesion in segment VII of the liver.
+ The lesion exhibits peripheral enhancement in the arterial phase with delayed washout, consistent with hepatocellular carcinoma. 
+ No evidence of metastatic disease or lymphadenopathy is seen. The remaining liver parenchyma is unremarkable. No ascites is present.`;
+runAIRequest(radiologyText)
+	.then((observation) => {
+		if (observation) {
+			// Access properties from the resolved value
+			console.log("Observation ID:", observation.id);
+			console.log("Observation Code:", observation.code);
+			console.log("Observation Body Site:", observation.bodySite);
+			console.log("Observation Components:", observation.component);
+			console.log("Here is the observation", observation);
+		} else {
+			console.log("No valid finding returned.");
+		}
+	})
+	.catch((error) => {
+		console.error("Error:", error);
+	});
 
 /*
 //Notes
