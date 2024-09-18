@@ -26,6 +26,9 @@ dependencies:
   zod:
     specifier: ^3.23.8
     version: 3.23.8
+  zod-to-json-schema:
+    specifier: ^3.23.3
+    version: 3.23.3(zod@3.23.8)
 
 devDependencies:
   '@eslint-community/eslint-plugin-eslint-comments':
@@ -6068,6 +6071,14 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+  /zod-to-json-schema@3.23.3(zod@3.23.8):
+    resolution: {integrity: sha512-TYWChTxKQbRJp5ST22o/Irt9KC5nj7CdBKYB/AosCRdj/wxEMvv4NNaj9XVUHDOIp53ZxArGhnw5HMZziPFjog==}
+    peerDependencies:
+      zod: ^3.23.3
+    dependencies:
+      zod: 3.23.8
+    dev: false
 
   /zod-validation-error@3.3.0(zod@3.23.8):
     resolution: {integrity: sha512-Syib9oumw1NTqEv4LT0e6U83Td9aVRk9iTXPUQr1otyV1PuXQKOvOwhMNqZIq5hluzHP2pMgnOmHEo7kPdI2mw==}
