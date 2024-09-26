@@ -11,10 +11,10 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const jsonSchema = JSONSchema.make(findingModelSchema); //This did not work. Responds with "Not a valid json format"
-console.log("New json Schema this one: ", jsonSchema);
+//console.log("New json Schema this one: ", jsonSchema);
 
 const findingModelExampleJson = JSON.stringify(findingModelExample, null, 2);
-console.log("Finding Model Example JSON:", findingModelExampleJson);
+//console.log("Finding Model Example JSON:", findingModelExampleJson);
 
 import { OpenAI } from "openai";
 
@@ -88,7 +88,15 @@ async function generateJsonFromSchemaAndData(schema: any, data: string) {
 
 	// Call the function with the schema and data
 	const generatedJson = await generateJsonFromSchemaAndData(mySchema, report);
-	console.log("Generated JSON:", generatedJson);
+	console.log("Generated Finding from open AI first prompt:", generatedJson);
+	console.log(
+		"example attribute first AI example: ",
+		generatedJson.attributes[1],
+	);
+	console.log(
+		"example attribute values from first AI example: ",
+		generatedJson.attributes[1].values[0],
+	);
 })();
 
 (async () => {
@@ -114,7 +122,7 @@ async function generateJsonFromSchemaAndData(schema: any, data: string) {
 	// Call the function with the schema and data
 	const generatedJson = await generateJsonFromSchemaAndData(mySchema, report);
 	console.log(
-		"Second Generated JSON and stringified:",
+		"Second Generated finding from openAI and stringified:",
 		JSON.stringify(generatedJson, null, 2),
 	);
 
@@ -122,11 +130,14 @@ async function generateJsonFromSchemaAndData(schema: any, data: string) {
 	const decodedFinding = decode(generatedJson);
 	if (Either.isRight(decodedFinding)) {
 		const decodedData = decodedFinding.right;
-		console.log("Decoded Data: ", decodedData);
+		console.log("Decoded AI generated Finding: ", decodedData);
 	} else {
 		console.log("Error: ", decodedFinding.left);
 	}
 
 	const newFinding = new FindingModel(generatedJson);
-	console.log("New Finding: ", newFinding);
+	console.log(
+		"New Finding Instance created from AI generated JSON: ",
+		newFinding,
+	);
 })();

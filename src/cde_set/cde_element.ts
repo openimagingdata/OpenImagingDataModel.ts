@@ -44,19 +44,19 @@ export const cdElementBaseSchema = Schema.Struct({
 export type cdElementBaseType = Schema.Schema.Type<typeof cdElementBaseSchema>;
 
 export class BaseElement {
-	public id: string;
-	public parent_set: string;
-	public name: string;
-	public definition: string | undefined;
-	public elementVersion: VersionType;
-	public schemaVersion: string;
-	public status: StatusType;
-	public question: string | undefined;
-	public indexCodes: IndexCodesType[] | undefined;
-	public contributors: ContributorsType | undefined;
-	public specialty: SpecialtyType[] | undefined;
-	public history: EventType[] | undefined;
-	public references: ReferencesType[] | undefined;
+	id: string;
+	parent_set: string;
+	name: string;
+	definition: string | undefined;
+	elementVersion: VersionType;
+	schemaVersion: string;
+	status: StatusType;
+	question: string | undefined;
+	indexCodes: IndexCodesType[] | undefined;
+	contributors: ContributorsType | undefined;
+	specialty: SpecialtyType[] | undefined;
+	history: EventType[] | undefined;
+	references: ReferencesType[] | undefined;
 
 	constructor(inData: cdElementBaseType) {
 		this.id = inData.id;
@@ -95,11 +95,11 @@ export const valueSetValueSchema = Schema.Struct({
 export type ValueSetValueType = Schema.Schema.Type<typeof valueSetValueSchema>;
 
 export class ValueSetValue {
-	public code: string;
-	public name: string;
-	public definition: string | undefined;
-	public value: string | undefined;
-	public indexCodes: IndexCodesType[] | undefined;
+	code: string;
+	name: string;
+	definition: string | undefined;
+	value: string | undefined;
+	indexCodes: IndexCodesType[] | undefined;
 
 	constructor(inData: ValueSetValueType) {
 		this.code = inData.code;
@@ -122,9 +122,9 @@ export const valueSetSchema = Schema.Struct({
 export type ValueSetType = Schema.Schema.Type<typeof valueSetSchema>;
 
 export class ValueSet {
-	public minCardinality: number;
-	public maxCardinality: number;
-	public values: ValueSetValueType[];
+	minCardinality: number;
+	maxCardinality: number;
+	values: ValueSetValueType[];
 
 	constructor(inData: ValueSetType) {
 		this.minCardinality = inData.min_cardinality;
@@ -144,7 +144,7 @@ export type ValueSetElementType = Schema.Schema.Type<
 
 export class ValueSetElement extends BaseElement {
 	private _data: ValueSetElementType;
-	public value_set: ValueSetType;
+	value_set: ValueSetType;
 
 	constructor(inData: ValueSetElementType) {
 		super(inData);
@@ -176,7 +176,7 @@ export type IntegerElementType = Schema.Schema.Type<
 >;
 
 export class IntegerElement extends BaseElement {
-	public integerValue: IntegerValueType;
+	integerValue: IntegerValueType;
 
 	constructor(inData: IntegerElementType) {
 		super(inData);
@@ -201,7 +201,7 @@ export const floatElementSchema = Schema.Struct({
 export type FloatElementType = Schema.Schema.Type<typeof floatElementSchema>;
 
 export class FloatElement extends BaseElement {
-	public floatValue: FloatValueType;
+	floatValue: FloatValueType;
 
 	constructor(inData: FloatElementType) {
 		super(inData);
@@ -221,7 +221,7 @@ export type BooleanElementType = Schema.Schema.Type<
 >;
 
 export class BooleanElement extends BaseElement {
-	public booleanValue: string;
+	booleanValue: string;
 
 	constructor(inData: BooleanElementType) {
 		super(inData);
