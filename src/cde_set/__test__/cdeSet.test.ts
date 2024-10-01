@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { JSONSchema, Schema } from "@effect/schema";
+import { Schema } from "@effect/schema";
 import { Either } from "effect";
-import { CdeSet, cdeSetSchema, CdeSetType } from "../cdeSet.js";
+import { CdeSet, cdeSetSchema } from "../cdeSet.js";
 import { BaseElement, IntegerElement } from "../cde_element.js";
 
 const cdeSetData = {
@@ -15,7 +15,7 @@ const cdeSetData = {
 	schema_version: "1.0.0",
 	status: {
 		date: "2016-01-03",
-		name: "Proposed" as "Proposed",
+		name: "Proposed" as const,
 	},
 	references: [
 		{
@@ -42,7 +42,7 @@ const cdeSetData = {
 		people: [
 			{
 				name: "Tarik Alkasab",
-				role: "Author" as "Author",
+				role: "Author" as const,
 				email: "talkasab@partners.org",
 			},
 			{
@@ -56,12 +56,12 @@ const cdeSetData = {
 	},
 	specialties: [
 		{
-			name: "Abdominal Radiology" as "Abdominal Radiology",
-			abbreviation: "AR" as "AR",
+			name: "Abdominal Radiology" as const,
+			abbreviation: "AR" as const,
 		},
 		{
 			name: "Genitourinary Radiology" as "Geriatrics", //Not seeing "Genitourinary Radiology"??
-			abbreviation: "GU" as "GU",
+			abbreviation: "GU" as const,
 		},
 	],
 	index_codes: [],
@@ -77,7 +77,7 @@ const cdeSetData = {
 			},
 			schema_version: "1.0.0",
 			status: {
-				name: "Proposed" as "Proposed", //TODO --> Not working
+				name: "Proposed" as const, //TODO --> Not working
 				date: "2016-01-03",
 			},
 			index_codes: [
@@ -90,12 +90,12 @@ const cdeSetData = {
 			],
 			specialty: [
 				{
-					name: "Abdominal Radiology" as "Abdominal Radiology",
-					abbreviation: "AR" as "AR",
+					name: "Abdominal Radiology" as const,
+					abbreviation: "AR" as const,
 				},
 				{
-					name: "Genitourinary Radiology" as "Genitourinary Radiology",
-					abbreviation: "GU" as "GU",
+					name: "Genitourinary Radiology" as const,
+					abbreviation: "GU" as const,
 				},
 			],
 			integer_value: {
@@ -117,7 +117,7 @@ const cdeSetData = {
 			schema_version: "1.0.0",
 			status: {
 				date: "2016-01-03",
-				name: "Proposed" as "Proposed",
+				name: "Proposed" as const,
 			},
 			value_set: {
 				min_cardinality: 1,
@@ -170,7 +170,7 @@ const cdeSetData = {
 describe("cdeSetData", () => {
 	it("should create a new cdeSet from cdeSetData", () => {
 		const element = new CdeSet(cdeSetData);
-		expect(element) instanceof CdeSet;
+		expect(element).toBeInstanceOf(CdeSet);
 		expect(element).toHaveProperty("id", "RDES3");
 		expect(element).toHaveProperty("name", "CAR/DS Adrenal Nodule");
 		expect(element).toHaveProperty("specialties");
@@ -237,25 +237,3 @@ describe("CdeSet Decoding", () => {
 		}
 	});
 });
-
-/*
-//when you perform both encoding and decoding operations, you should end up with the original value.
-describe("CdeSet Decoding and Encoding", () => {
-	it("Should properly encode and decode", () => {
-		const decode = Schema.decodeUnknownEither(cdeSetSchema);
-		const decodedSet = decode(cdeSetData);
-		if (Either.isRight(decodedSet)) {
-			
-			const encodedSet = Schema.encode(cdeSetSchema)(decodedSet.right);
-			console.log("Encoded Set:", JSON.stringify(encodedSet, null, 2));
-			console.log("Original Data:", JSON.stringify(cdeSetData, null, 2));
-			expect(encodedSet).toEqual(cdeSetData);
-			//Encoded is missing integer_values, and has a wrapper property
-			console.log("Successfully Decoded");
-		} else {
-			console.error("Decoding error:", decodedSet.left);
-		}
-
-	});
-});
-*/

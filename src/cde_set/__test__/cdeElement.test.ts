@@ -1,16 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { JSONSchema, Schema } from "@effect/schema";
+import { Schema } from "@effect/schema";
 import { Either } from "effect";
 import {
 	BaseElement,
 	ValueSetElement,
-	ValueSetElementType,
 	valueSetElementSchema,
 	CdElementFactory,
 } from "../cde_element.js";
-import { StatusOptions } from "../common.js";
-import { encode } from "@effect/schema/Schema";
-import { right } from "effect/Either";
 
 const valueSetElementdata = {
 	id: "RDE1695",
@@ -87,7 +83,6 @@ describe("Encoding", () => {
 		const encodedDataEither = Schema.encodeEither(valueSetElementSchema)(
 			valueSetElementdata,
 		);
-		const serialized = JSON.stringify(encodedDataEither, null, 2);
 		if (Either.isRight(encodedDataEither)) {
 			const encodedData = encodedDataEither.right;
 			console.log("Encoded data: ", encodedData);

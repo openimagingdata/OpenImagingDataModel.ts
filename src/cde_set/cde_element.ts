@@ -14,15 +14,13 @@ import {
 	VersionType,
 	StatusType,
 	EventType,
-	OrganizationType,
-	PersonType,
 	ContributorsType,
 	IndexCodesType,
 	ReferencesType,
 	SpecialtyType,
 } from "./common.js";
 
-import { JSONSchema, Schema } from "@effect/schema";
+import { Schema } from "@effect/schema";
 import { Either } from "effect";
 
 export const cdElementBaseSchema = Schema.Struct({

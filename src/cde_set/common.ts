@@ -124,25 +124,11 @@ export const versionSchema = Schema.Struct({
 
 export type VersionType = Schema.Schema.Type<typeof versionSchema>;
 
-class Version {
-	public number: number;
-	public date: string;
-
-	constructor(inData: VersionType) {
-		this.number = inData.number;
-		this.date = inData.date;
-	}
-}
-
-const versionJSONSchema = JSONSchema.make(versionSchema);
-
 export const schemaVersionSchema = Schema.String.pipe(
 	Schema.pattern(
-		/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/,
+		/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-z-][0-9a-z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-z-][0-9a-z-]*))*))?(?:\+([0-9a-z-]+(?:\.[0-9a-z-]+)*))?$/i,
 	),
 );
-
-type SchemaVersionType = Schema.Schema.Type<typeof schemaVersionSchema>;
 
 export const setVersionSchaema = Schema.Struct({
 	number: Schema.Number,
@@ -168,8 +154,6 @@ export const statusSchema = Schema.Struct({
 	date: Schema.String.pipe(Schema.pattern(datePattern)),
 	name: Schema.optional(statusOptionsSchema),
 });
-
-const statusJSONSchema = JSONSchema.make(statusSchema);
 
 export type StatusType = Schema.Schema.Type<typeof statusSchema>;
 

@@ -1,11 +1,4 @@
-import { describe, it, expect } from "vitest";
-import { JSONSchema, Schema } from "@effect/schema";
-import {
-	FindingModelType,
-	FindingModel,
-	findingModelSchema,
-} from "../findingModel.js";
-import { Either } from "effect";
+import { FindingModelType, FindingModel } from "../findingModel.js";
 
 export const findingJsonExample: FindingModelType = {
 	name: "calcified pulmonary granuloma",

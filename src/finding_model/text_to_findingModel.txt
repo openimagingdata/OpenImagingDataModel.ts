@@ -1,16 +1,13 @@
 import { findingModelSchema, FindingModel } from "./findingModel.js";
-import * as S from "@effect/schema/Schema";
-import * as JSONSchema from "@effect/schema/JSONSchema";
 import { Schema } from "@effect/schema";
 import {
 	findingModelExample,
-	findingJsonExample,
 } from "./data/findingExample.js";
 import { Either } from "effect";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const jsonSchema = JSONSchema.make(findingModelSchema); //This did not work. Responds with "Not a valid json format"
+//const jsonSchema = JSONSchema.make(findingModelSchema); //This did not work. Responds with "Not a valid json format"
 //console.log("New json Schema this one: ", jsonSchema);
 
 const findingModelExampleJson = JSON.stringify(findingModelExample, null, 2);
@@ -96,6 +93,7 @@ async function generateJsonFromSchemaAndData(schema: any, data: string) {
 	console.log(
 		"example attribute values from first AI example: ",
 		generatedJson.attributes[1].values[0],
+	// Call the function with the schema and data
 	);
 })();
 

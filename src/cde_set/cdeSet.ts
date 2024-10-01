@@ -13,16 +13,10 @@ import {
 } from "./common.js";
 
 import {
-	ValueSetElement,
 	CdElementFactory,
 	BaseElement,
-	cdElementBaseSchema,
-	cdElementBaseType,
-	ElementType,
 	elementUnionSchema,
 } from "./cde_element.js";
-
-import { URL } from "url";
 
 export const cdeSetSchema = Schema.Struct({
 	id: Schema.String,
@@ -46,7 +40,7 @@ export type CdeSetType = Schema.Schema.Type<typeof cdeSetSchema>;
 
 export class CdeSet {
 	private _data: CdeSetType;
-	private _elements: BaseElement[] = []; //This shouldnt work, need the subtype but ElementType not working. Works because subtypes extend the super
+	private _elements: BaseElement[] = [];
 
 	constructor(inData: CdeSetType) {
 		this._data = { ...inData };
