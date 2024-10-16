@@ -16,6 +16,7 @@ import {
 	CdElementFactory,
 	BaseElement,
 	elementUnionSchema,
+	cdElementBaseType,
 } from "./cde_element.js";
 
 export const cdeSetSchema = Schema.Struct({
@@ -151,6 +152,10 @@ export class CdeSet {
 
 	get elements() {
 		return [...this._elements];
+	}
+
+	addElement(element: BaseElement) {
+		this._elements.push(element);
 	}
 
 	static async fetchFromRepo(rdesId: string): Promise<CdeSet | null> {

@@ -309,7 +309,7 @@ export const createSetFromFindingModel = (model: FindingModel): CdeSet => {
 				values,
 				attribute.description,
 			);
-			newSet.elements.push(newElement);
+			newSet.addElement(newElement);
 		} else {
 			//if attribute is numeric, create a float element
 			const newElement = createFloatElement(
@@ -319,7 +319,8 @@ export const createSetFromFindingModel = (model: FindingModel): CdeSet => {
 				null,
 				attribute.unit,
 			);
-			newSet.elements.push(newElement);
+			newSet.addElement(newElement);
 		}
 	});
+	return newSet;
 };

@@ -12,7 +12,10 @@ import {
 	createFloatElement,
 	createBooleanElement,
 	createValueSetElement,
+	createSetFromFindingModel,
 } from "../cdeSetFactory.js";
+import { FindingModel } from "../../finding_model/findingModel.js";
+import { findingJsonExample } from "../../finding_model/data/findingExample.js";
 
 describe("SetFactory", () => {
 	it("should create a CdeSet correctly", () => {
@@ -71,7 +74,7 @@ describe("SetFactory", () => {
 
 	it("should create a ValueSetElement with valid input", () => {
 		const name = "Sample Element";
-		const values = ["Value 1", "Value 2"];
+		const values = [{ name: "Value 1" }, { name: "Value 2" }];
 		const definition = "Element Definition";
 		const question = "Element Question";
 
@@ -94,5 +97,17 @@ describe("SetFactory", () => {
 		expect(() =>
 			createValueSetElement("Single Value", [{ name: "Only One" }]),
 		).toThrow("Value set must have at least two values");
+	});
+
+	it("Should be able to produce a CdeSet from Finding Model", () => {
+		const findingModel = new FindingModel(findingJsonExample); // Add finding Model Data
+		expect(findingModel).toBeInstanceOf(FindingModel);
+		const cdeSet = createSetFromFindingModel(findingModel);
+		expect(cdeSet).toBeInstanceOf(CdeSet);
+		expect(cdeSet.name).toBe("calcified pulmonary granuloma");
+		expect(cdeSet.schemaVersion).toBe("1.0.0");
+		console.log("CDE Set from Finding Model: ", cdeSet);
+		//console.log("CDE Set Elements HERE: ", cdeSet.elements); //Empty array currently
+		//expect(cdeSet.elements.length).toBe(4);
 	});
 });
