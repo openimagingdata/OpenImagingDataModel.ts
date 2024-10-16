@@ -316,9 +316,12 @@ export const createSetFromFindingModel = (model: FindingModel): CdeSet => {
 				attribute.name,
 				attribute.minimum,
 				attribute.maximum,
-				null,
+				undefined,
 				attribute.unit,
 			);
+			if (attribute.description) {
+				newElement.definition = attribute.description;
+			}
 			newSet.addElement(newElement);
 		}
 	});

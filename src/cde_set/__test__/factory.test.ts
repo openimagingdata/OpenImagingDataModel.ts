@@ -107,7 +107,7 @@ describe("SetFactory", () => {
 		expect(cdeSet.name).toBe("calcified pulmonary granuloma");
 		expect(cdeSet.schemaVersion).toBe("1.0.0");
 		console.log("CDE Set from Finding Model: ", cdeSet);
-		//console.log("CDE Set Elements HERE: ", cdeSet.elements); //Empty array currently
-		//expect(cdeSet.elements.length).toBe(4);
+		//console.log("CDE Set Elements: ", cdeSet.elements); //Empty array currently
+		expect(cdeSet.elements.length).toBe(4);
 	});
 });
