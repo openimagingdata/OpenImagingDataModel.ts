@@ -8,9 +8,11 @@ import {
 	IntegerValue,
 	FloatValue,
 	valueSetSchema,
+	cdElementBaseType,
 } from "./cde_element.js";
 import { Schema } from "@effect/schema";
 import { Either } from "effect";
+import { FindingModel } from "../finding_model/findingModel.js";
 
 export interface ValueArgs {
 	name: string;
@@ -175,7 +177,7 @@ export const createBooleanElement = (name: string): BooleanElement => {
 
 export const createValueSetElement = (
 	name: string,
-	values: (Record<string, string> | string)[], //more specific type than just string.
+	values: ValueArgs[],
 	definition: string | null = null,
 	question: string | null = null,
 	min_cardinality = 1,
@@ -201,7 +203,7 @@ export const createValueSetElement = (
     present, and assigns value in snake_case if not already defined. This ensures all values are in 
     a consistent format for further processing.*/
 	const checkAndFixValue = (
-		value: Record<string, string> | string,
+		value: ValueArgs | string,
 		index: number,
 	): Record<string, string> => {
 		const outValue = (
@@ -291,4 +293,33 @@ export const createPresenceElement = (
 	];
 
 	return createValueSetElement(name, values, definition, question);
+};
+
+export const createSetFromFindingModel = (model: FindingModel): CdeSet => {
+	const newSet = createSet(model.name, model.description, true);
+	model.attributes.forEach((attribute) => {
+		//if attribute is a choice, create a value set element
+		if (attribute.type === "choice") {
+			const values = attribute.values.map((value) => ({
+				name: value.name,
+				value: value.description,
+			}));
+			const newElement = createValueSetElement(
+				attribute.name,
+				values,
+				attribute.description,
+			);
+			newSet.elements.push(newElement);
+		} else {
+			//if attribute is numeric, create a float element
+			const newElement = createFloatElement(
+				attribute.name,
+				attribute.minimum,
+				attribute.maximum,
+				null,
+				attribute.unit,
+			);
+			newSet.elements.push(newElement);
+		}
+	});
 };
