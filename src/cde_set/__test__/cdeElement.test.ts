@@ -7,6 +7,7 @@ import {
 	valueSetElementSchema,
 	CdElementFactory,
 } from "../cde_element.js";
+import { CdeSet } from "../cdeSet.js";
 
 const valueSetElementdata = {
 	id: "RDE1695",

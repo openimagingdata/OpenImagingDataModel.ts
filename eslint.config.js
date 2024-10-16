@@ -15,6 +15,8 @@ export default tseslint.config(
 			"node_modules",
 			"pnpm-lock.yaml",
 			"**/*.snap",
+			"**/*.test.ts", // Ignore test files
+			"**/*.spec.ts", // Ignore spec files if applicable
 		],
 	},
 	{

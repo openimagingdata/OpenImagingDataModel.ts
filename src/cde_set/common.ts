@@ -124,20 +124,30 @@ export const versionSchema = Schema.Struct({
 
 export type VersionType = Schema.Schema.Type<typeof versionSchema>;
 
+export class Version {
+	readonly number: number;
+	readonly date: string;
+
+	constructor(number: number, date: string) {
+		this.number = number;
+		this.date = date;
+	}
+}
+
 export const schemaVersionSchema = Schema.String.pipe(
 	Schema.pattern(
 		/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-z-][0-9a-z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-z-][0-9a-z-]*))*))?(?:\+([0-9a-z-]+(?:\.[0-9a-z-]+)*))?$/i,
 	),
 );
 
-export const setVersionSchaema = Schema.Struct({
+export const setVersionSchema = Schema.Struct({
 	number: Schema.Number,
 	date: Schema.String, //Change to date
 });
 
-export type SetVersionType = Schema.Schema.Type<typeof setVersionSchaema>;
+export type SetVersionType = Schema.Schema.Type<typeof setVersionSchema>;
 
-export const setVersionJSONSchema = JSONSchema.make(setVersionSchaema);
+export const setVersionJSONSchema = JSONSchema.make(setVersionSchema);
 
 export type StatusOptions = "Proposed" | "Published" | "Retired";
 
@@ -161,9 +171,9 @@ export class Status {
 	public date: string;
 	public name: StatusOptions | undefined;
 
-	constructor(inData: StatusType) {
-		this.date = inData.date;
-		this.name = inData.name;
+	constructor(date: string, name: StatusOptions) {
+		this.date = date;
+		this.name = name;
 	}
 }
 

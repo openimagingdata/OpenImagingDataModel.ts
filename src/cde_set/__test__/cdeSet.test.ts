@@ -236,4 +236,65 @@ describe("CdeSet Decoding", () => {
 			console.error("Decoding error:", decodedSet.left);
 		}
 	});
+	describe("CdeSet Serialize Function", () => {
+		it("CdeSet.serialize function should return json string then parse into JSON obj representing CdeSet", () => {
+			const serializedData = CdeSet.serialize(cdeSetData);
+			console.log("Serialized Data: ", serializedData);
+			if (serializedData !== null) {
+				const parsedData = JSON.parse(serializedData);
+				expect(parsedData).toHaveProperty("id", "RDES3");
+				expect(parsedData).toHaveProperty("name", "CAR/DS Adrenal Nodule");
+				expect(parsedData).toHaveProperty("elements");
+				expect(parsedData).toHaveProperty("specialties");
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				expect(parsedData.elements).toHaveLength(2);
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				expect(parsedData.elements[0]).toHaveProperty("id", "RDE41");
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				expect(parsedData.elements[0]).toHaveProperty("name", "Nodule size");
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+				expect(parsedData.elements[0]).toHaveProperty("specialty");
+			} else {
+				throw new Error("Serialized data is null");
+			}
+		});
+	});
+	describe("CdeSet Serialize Function", () => {
+		it("CdeSet.serialize function serialize instance of CdeSet", () => {
+			const newCdeSet = new CdeSet(cdeSetData);
+			const serializedData = CdeSet.serialize(newCdeSet);
+			console.log("Serialized Data: ", serializedData);
+			if (serializedData !== null) {
+			} else {
+				throw new Error("Serialized data is null");
+			}
+		});
+	});
+	describe("CdeSet Deserialize Function", () => {
+		it("CdeSet.deserialize function should return a new CdeSet object from a JSON string", () => {
+			const serializedData = CdeSet.serialize(cdeSetData);
+			if (serializedData !== null) {
+				const newCdeSet = CdeSet.deserialize(serializedData);
+				expect(newCdeSet).toBeInstanceOf(CdeSet);
+				expect(newCdeSet).toHaveProperty("id", "RDES3");
+				expect(newCdeSet).toHaveProperty("name", "CAR/DS Adrenal Nodule");
+				expect(newCdeSet).toHaveProperty("specialties");
+				if (newCdeSet !== null) {
+					expect(newCdeSet.elements).toHaveLength(2);
+					expect(newCdeSet.elements[0]).toHaveProperty("id", "RDE41");
+					expect(newCdeSet.elements[0]).toHaveProperty("name", "Nodule size");
+					expect(newCdeSet.elements[0]).toHaveProperty("specialty");
+				} else {
+					throw new Error("Deserialized data is null");
+				}
+			} else {
+				throw new Error("Serialized data is null");
+			}
+		});
+	});
 });
+
+/*
+JSON String: Primarily used for data transfer, especially over networks (e.g., in HTTP requests and responses). It is a text format that represents structured data but cannot be manipulated directly.
+JSON Object: Used for accessing and manipulating the properties and values of the data once it has been parsed into a JavaScript object. This allows for easy interaction within the application.
+*/

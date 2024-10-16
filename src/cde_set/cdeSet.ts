@@ -9,7 +9,7 @@ import {
 	statusSchema,
 	indexCodesSchema,
 	referencesSchema,
-	setVersionSchaema,
+	setVersionSchema,
 } from "./common.js";
 
 import {
@@ -25,7 +25,7 @@ export const cdeSetSchema = Schema.Struct({
 	description: Schema.optional(Schema.String),
 	element_version: Schema.optional(versionSchema),
 	schema_version: Schema.String,
-	set_version: setVersionSchaema,
+	set_version: setVersionSchema,
 	status: statusSchema,
 	question: Schema.optional(Schema.String),
 	index_codes: Schema.optional(Schema.Array(indexCodesSchema)),
@@ -57,6 +57,49 @@ export class CdeSet {
 			}
 		});
 	}
+
+	static serialize = (inData: CdeSetType | CdeSet): string | null => {
+		let dataToSerialize: CdeSetType;
+
+		// Check if inData is an instance of CdeSet and extract _data if so
+		if (inData instanceof CdeSet) {
+			dataToSerialize = inData._data;
+		} else {
+			dataToSerialize = inData;
+		}
+
+		// Serialize the data
+		const encodedData = Schema.encodeEither(cdeSetSchema)(dataToSerialize);
+		if (Either.isRight(encodedData)) {
+			const encodedDataRight = encodedData.right;
+			const serializedData = JSON.stringify(encodedDataRight, null, 2);
+			return serializedData;
+		} else {
+			console.error("Serialization failed:", encodedData.left);
+			return null;
+		}
+	};
+
+	static deserialize = (inData: string | object) => {
+		let parsedData;
+
+		if (typeof inData === "string") {
+			parsedData = JSON.parse(inData);
+		} else {
+			parsedData = inData;
+		}
+
+		const decode = Schema.decodeUnknownEither(cdeSetSchema);
+		const decodedData = decode(parsedData);
+
+		if (Either.isRight(decodedData)) {
+			const decodedDataRight = decodedData.right;
+			return new CdeSet(decodedDataRight);
+		} else {
+			console.error("Decoding failed:", decodedData.left);
+			return null;
+		}
+	};
 
 	get id() {
 		return this._data.id;

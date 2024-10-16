@@ -129,6 +129,17 @@ export class ValueSet {
 		this.maxCardinality = inData.max_cardinality;
 		this.values = inData.values.map((value) => new ValueSetValue(value));
 	}
+
+	modelValidate(inData: ValueSetType) {
+		const valueSetDecoder = Schema.decodeUnknownEither(valueSetSchema);
+		const decodedInData = valueSetDecoder(inData);
+		if (Either.isLeft(decodedInData)) {
+			console.error("ValueSet schema validation error:", decodedInData.left);
+			throw new Error("Invalid value set data");
+		} else {
+			return decodedInData.right;
+		}
+	}
 }
 
 export const valueSetElementSchema = Schema.Struct({
@@ -173,6 +184,20 @@ export type IntegerElementType = Schema.Schema.Type<
 	typeof integerElementSchema
 >;
 
+export class IntegerValue {
+	min_value: number | undefined;
+	max_value: number | undefined;
+	step: number | undefined;
+	unit: string | undefined;
+
+	constructor(inData: IntegerValueType) {
+		this.min_value = inData.min_value;
+		this.max_value = inData.max_value;
+		this.step = inData.step;
+		this.unit = inData.unit;
+	}
+}
+
 export class IntegerElement extends BaseElement {
 	integerValue: IntegerValueType;
 
@@ -191,6 +216,20 @@ export const floatValueSchema = Schema.Struct({
 
 export type FloatValueType = Schema.Schema.Type<typeof floatValueSchema>;
 
+export class FloatValue {
+	min_value: number | undefined;
+	max_value: number | undefined;
+	step: number | undefined;
+	unit: string | undefined;
+
+	constructor(inData: FloatValueType) {
+		this.min_value = inData.min_value;
+		this.max_value = inData.max_value;
+		this.step = inData.step;
+		this.unit = inData.unit;
+	}
+}
+
 export const floatElementSchema = Schema.Struct({
 	...cdElementBaseSchema.fields,
 	float_value: floatValueSchema,
@@ -206,8 +245,6 @@ export class FloatElement extends BaseElement {
 		this.floatValue = inData.float_value;
 	}
 }
-
-//NEED BooleanElement
 
 export const booleanElementSchema = Schema.Struct({
 	...cdElementBaseSchema.fields,
