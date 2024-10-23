@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Schema } from "@effect/schema";
 import { Either } from "effect";
-import { CdeSet, cdeSetSchema } from "../cdeSet.js";
+import { CdeSet, cdeSetSchema } from "../cde_set.js";
 import { BaseElement, IntegerElement } from "../cde_element.js";
 
 const cdeSetData = {

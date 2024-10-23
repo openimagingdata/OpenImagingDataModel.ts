@@ -5,7 +5,7 @@ import {
 	ValueSetElement,
 	BooleanElement,
 } from "../cde_element.js";
-import { CdeSet } from "../cdeSet.js";
+import { CdeSet } from "../cde_set.js";
 import {
 	createSet,
 	createIntegerElement,
@@ -13,8 +13,8 @@ import {
 	createBooleanElement,
 	createValueSetElement,
 	createSetFromFindingModel,
-} from "../cdeSetFactory.js";
-import { FindingModel } from "../../finding_model/findingModel.js";
+} from "../factory.js";
+import { FindingModel } from "../../finding_model/finding_model.js";
 import { findingJsonExample } from "../../finding_model/data/findingExample.js";
 
 describe("SetFactory", () => {

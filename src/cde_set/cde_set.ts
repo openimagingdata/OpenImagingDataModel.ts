@@ -16,7 +16,6 @@ import {
 	CdElementFactory,
 	BaseElement,
 	elementUnionSchema,
-	cdElementBaseType,
 } from "./cde_element.js";
 
 export const cdeSetSchema = Schema.Struct({

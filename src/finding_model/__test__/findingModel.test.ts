@@ -4,7 +4,7 @@ import {
 	FindingModelType,
 	FindingModel,
 	findingModelSchema,
-} from "../findingModel.js";
+} from "../finding_model.js";
 import { Either } from "effect";
 
 const findingJson: FindingModelType = {

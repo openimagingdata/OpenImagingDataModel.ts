@@ -1,10 +1,4 @@
 import { Schema } from "@effect/schema";
-
-const attributeTypeSchema = Schema.Union(
-	Schema.Literal("choice"),
-	Schema.Literal("numeric"),
-);
-
 // ChoiceValue model
 const choiceValueSchema = Schema.Struct({
 	name: Schema.String,

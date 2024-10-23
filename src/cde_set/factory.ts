@@ -1,5 +1,5 @@
 import { Version, Status, Event, StatusOptions } from "./common.js";
-import { CdeSet } from "./cdeSet.js";
+import { CdeSet } from "./cde_set.js";
 import {
 	IntegerElement,
 	FloatElement,
@@ -8,11 +8,10 @@ import {
 	IntegerValue,
 	FloatValue,
 	valueSetSchema,
-	cdElementBaseType,
 } from "./cde_element.js";
 import { Schema } from "@effect/schema";
 import { Either } from "effect";
-import { FindingModel } from "../finding_model/findingModel.js";
+import { FindingModel } from "../finding_model/finding_model.js";
 
 export interface ValueArgs {
 	name: string;
@@ -326,4 +325,69 @@ export const createSetFromFindingModel = (model: FindingModel): CdeSet => {
 		}
 	});
 	return newSet;
+};
+
+//Add element-defining functions in factory.ts
+export const createElement = (
+	inData: unknown, //TODO: Cant have this be BaseElement type????
+): ValueSetElement | IntegerElement | FloatElement | BooleanElement | null => {
+	// Decode the input data using the base schema
+	const baseResult = Schema.decodeUnknownEither(elementUnionSchema)(inData);
+
+	if (Either.isLeft(baseResult)) {
+		console.error("Base schema validation error:", baseResult.left);
+		throw new Error("Invalid element data");
+	}
+
+	const baseData = baseResult.right;
+
+	if ("value_set" in baseData) {
+		const valueSetResult = Schema.decodeUnknownEither(valueSetElementSchema)(
+			inData,
+		);
+		if (Either.isRight(valueSetResult)) {
+			return new ValueSetElement(valueSetResult.right);
+		} else {
+			console.error(
+				"ValueSetElement schema validation error:",
+				valueSetResult.left,
+			);
+		}
+	} else if ("integer_value" in baseData) {
+		const integerResult =
+			Schema.decodeUnknownEither(integerElementSchema)(inData);
+		if (Either.isRight(integerResult)) {
+			return new IntegerElement(integerResult.right);
+		} else {
+			console.error(
+				"IntegerElement schema validation error:",
+				integerResult.left,
+			);
+		}
+	} else if ("float_value" in baseData) {
+		const floatResult = Schema.decodeUnknownEither(floatElementSchema)(inData);
+		if (Either.isRight(floatResult)) {
+			return new FloatElement(floatResult.right);
+		} else {
+			console.error(
+				"IntegerElement schema validation error:",
+				floatResult.left,
+			);
+		}
+	} else if ("boolean_value" in baseData) {
+		const booleanResult =
+			Schema.decodeUnknownEither(booleanElementSchema)(inData);
+		if (Either.isRight(booleanResult)) {
+			return new BooleanElement(booleanResult.right);
+		} else {
+			console.error(
+				"IntegerElement schema validation error:",
+				booleanResult.left,
+			);
+		}
+	} else {
+		console.error("Unknown element type:", baseData);
+	}
+
+	return null;
 };

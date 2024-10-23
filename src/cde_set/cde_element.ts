@@ -273,6 +273,7 @@ export const elementUnionSchema = Schema.Union(
 
 export type ElementType = Schema.Schema.Type<typeof elementUnionSchema>;
 
+//
 export class CdElementFactory {
 	// Static factory method to create the right subclass of CdElement
 	static create(
