@@ -8,6 +8,11 @@ import {
 	IntegerValue,
 	FloatValue,
 	valueSetSchema,
+	elementUnionSchema,
+	valueSetElementSchema,
+	integerElementSchema,
+	floatElementSchema,
+	booleanElementSchema,
 } from "./cde_element.js";
 import { Schema } from "@effect/schema";
 import { Either } from "effect";
