@@ -1,4 +1,4 @@
-import { FindingModelType, FindingModel } from "../finding_model.js";
+import { type FindingModelType, FindingModel } from "../finding_model.js";
 
 export const findingJsonExample: FindingModelType = {
 	name: "calcified pulmonary granuloma",

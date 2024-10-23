@@ -11,13 +11,13 @@ import {
 	Contributors,
 	References,
 	IndexCodes,
-	VersionType,
-	StatusType,
-	EventType,
-	ContributorsType,
-	IndexCodesType,
-	ReferencesType,
-	SpecialtyType,
+	type VersionType,
+	type StatusType,
+	type EventType,
+	type ContributorsType,
+	type IndexCodesType,
+	type ReferencesType,
+	type SpecialtyType,
 } from "./common.js";
 
 import { Schema } from "@effect/schema";

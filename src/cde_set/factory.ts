@@ -1,4 +1,4 @@
-import { Version, Status, Event, StatusOptions } from "./common.js";
+import { Version, Status, Event, type StatusOptions } from "./common.js";
 import { CdeSet } from "./cde_set.js";
 import {
 	IntegerElement,
@@ -41,7 +41,7 @@ export const createSet = (
 	}
 
 	const randomDigits = generateRandomDigits();
-	const today = new Date().toISOString().split("T")[0];
+	const today = new Date().toISOString().split("T")[0] || "";
 	const version = new Version(1, today);
 	const status = new Status(today, "Proposed");
 	const eventInput = { date: today, status } as const;
@@ -72,7 +72,7 @@ export const defaultElementMetadata = (name: string) => {
 		throw new Error("Name is required for a CDE Element");
 	}
 
-	const today = new Date().toISOString().split("T")[0];
+	const today = new Date().toISOString().split("T")[0] || "";
 	const randomDigits = generateRandomDigits();
 
 	return {

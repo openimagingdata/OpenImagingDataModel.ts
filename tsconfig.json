@@ -1,17 +1,24 @@
 {
 	"compilerOptions": {
-		"declaration": true,
-		"declarationMap": true,
-		"esModuleInterop": true,
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
-		"noEmit": false,
-		"outDir": "lib",
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
-		"sourceMap": true,
-		"strict": true,
-		"target": "ES2022"
+	  /* Base Options: */
+	  "esModuleInterop": true,
+	  "skipLibCheck": true,
+	  "target": "es2022",
+	  "allowJs": true,
+	  "resolveJsonModule": true,
+	  "moduleDetection": "force",
+	  "isolatedModules": true,
+	  "verbatimModuleSyntax": true,
+  	  "strict": true,
+	  "noUncheckedIndexedAccess": true,
+	  "noImplicitOverride": true,
+  	  "module": "NodeNext",
+	  "outDir": "dist",
+	  "rootDir": "src",
+	  "sourceMap": true,
+  	  "declaration": true,
+  	  "declarationMap": true
 	},
-	"include": ["src"]
-}
+	"include": ["src/**/*"], 
+	"exclude": ["node_modules", "dist", "eslint.config.js", "vitest.config.ts"]
+  }
