@@ -8,16 +8,7 @@
     "url": "https://github.com/openimagingdata/OpenImagingDataModel.ts"
   },
   "license": "MIT",
-  "authors": [
-    {
-      "name": "openimagingdata",
-      "email": "tarik@alkasab.org"
-    },
-    {
-      "name": "Kyle Macri",
-      "email": ""
-    }
-  ],
+  "authors": "openimagingdata <tarik@alkasab.org>, Kyle Macri <kyle@example.com>",
   "type": "module",
   "main": "./dist/index.js",
   "files": [
