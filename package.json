@@ -1,6 +1,7 @@
 {
   "name": "@openimagingdata/openimagingdatamodel",
   "version": "0.0.0",
+  "types": "./dist/index.d.ts",
   "description": "Tooling for managing data context of a medical imaging exam.",
   "repository": {
     "type": "git",
@@ -18,23 +19,23 @@
     }
   ],
   "type": "module",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "files": [
-    "lib/",
+    "dist/",
     "package.json",
     "LICENSE.md",
     "README.md"
   ],
   "scripts": {
     "build": "tsc",
-    "ci": "npm run build",
+    "ci": "npm run build && npm run check-format && npm run check-exports && npm run lint && npm run test",
     "format": "prettier --write .",
+    "check-format": "prettier --check .",
+	  "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest",
+    "test":"vitest run",
+    "dev": "vitest",
     "tsc": "tsc"
-  },
-  "lint-staged": {
-    "*": "prettier --ignore-unknown --write"
   },
   "dependencies": {
     "@effect-ts/core": "^0.58.0",
@@ -42,11 +43,10 @@
     "dotenv": "^16.4.5",
     "effect": "^3.6.1",
     "fast-check": "^2.0.0",
-    "openai": "^4.58.2",
-    "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.3"
+    "openai": "^4.58.2"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.16.4",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.3.0",
     "@release-it/conventional-changelog": "^8.0.1",
     "@types/eslint": "^8.56.10",
