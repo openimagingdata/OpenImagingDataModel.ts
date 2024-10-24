@@ -1,67 +1,68 @@
 {
-	"name": "@openimagingdata/openimagingdatamodel",
-	"version": "0.0.0",
-	"description": "Tooling for managing data context of a medical imaging exam.",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/openimagingdata/OpenImagingDataModel.ts"
-	},
-	"license": "MIT",
-	"authors": [
-		{
-		"name": "openimagingdata",
-		"email": "tarik@alkasab.org"
-		},
-		{
-		"name": "Kyle Macri",
-		"email": ""
-		}
-	],
-	"type": "module",
-	"main": "./lib/index.js",
-	"files": [
-		"lib/",
-		"package.json",
-		"LICENSE.md",
-		"README.md"
-	],
-	"scripts": {
-		"build": "tsc",
-		"format": "prettier .",
-		"lint": "eslint . --max-warnings 0",
-		"test": "vitest",
-		"tsc": "tsc"
-	},
-	"lint-staged": {
-		"*": "prettier --ignore-unknown --write"
-	},
-	"dependencies": {
-		"@effect-ts/core": "^0.58.0",
-		"@effect/schema": "^0.69.2",
-		"dotenv": "^16.4.5",
-		"effect": "^3.6.1",
-		"fast-check": "^2.0.0",
-		"openai": "^4.58.2",
-		"zod": "^3.23.8",
-		"zod-to-json-schema": "^3.23.3"
-	},
-	"devDependencies": {
-		"@eslint-community/eslint-plugin-eslint-comments": "^4.3.0",
-		"@release-it/conventional-changelog": "^8.0.1",
-		"@types/eslint": "^8.56.10",
-		"console-fail-test": "^0.2.3",
-		"eslint": "^9.4.0",
-		"eslint-plugin-vitest": "^0.5.4",
-		"prettier": "^3.3.0",
-		"typescript": "^5.6.2",
-		"typescript-eslint": "^7.11.0",
-		"vitest": "^1.6.0"
-	},
-	"packageManager": "pnpm@8.15.4",
-	"engines": {
-		"node": ">=18"
-	},
-	"publishConfig": {
-		"provenance": true
-	}
+  "name": "@openimagingdata/openimagingdatamodel",
+  "version": "0.0.0",
+  "description": "Tooling for managing data context of a medical imaging exam.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openimagingdata/OpenImagingDataModel.ts"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "openimagingdata",
+      "email": "tarik@alkasab.org"
+    },
+    {
+      "name": "Kyle Macri",
+      "email": ""
+    }
+  ],
+  "type": "module",
+  "main": "./lib/index.js",
+  "files": [
+    "lib/",
+    "package.json",
+    "LICENSE.md",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "ci": "npm run build",
+    "format": "prettier --write .",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest",
+    "tsc": "tsc"
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write"
+  },
+  "dependencies": {
+    "@effect-ts/core": "^0.58.0",
+    "@effect/schema": "^0.69.2",
+    "dotenv": "^16.4.5",
+    "effect": "^3.6.1",
+    "fast-check": "^2.0.0",
+    "openai": "^4.58.2",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.3"
+  },
+  "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.3.0",
+    "@release-it/conventional-changelog": "^8.0.1",
+    "@types/eslint": "^8.56.10",
+    "console-fail-test": "^0.2.3",
+    "eslint": "^9.4.0",
+    "eslint-plugin-vitest": "^0.5.4",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^7.11.0",
+    "vitest": "^1.6.0"
+  },
+  "packageManager": "pnpm@8.15.4",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
 }
