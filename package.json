@@ -31,11 +31,13 @@
     "ci": "npm run build && npm run check-format && npm run check-exports && npm run lint && npm run test",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-	  "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
+    "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
     "lint": "eslint . --max-warnings 0",
-    "test":"vitest run",
+    "test": "vitest run",
     "dev": "vitest",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "local-release": "changeset version && changeset publish",
+    "prepublishOnly": "npm run ci"
   },
   "dependencies": {
     "@effect-ts/core": "^0.58.0",
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.16.4",
+    "@changesets/cli": "^2.27.9",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.3.0",
     "@release-it/conventional-changelog": "^8.0.1",
     "@types/eslint": "^8.56.10",
