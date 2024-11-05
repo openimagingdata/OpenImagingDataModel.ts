@@ -12,11 +12,13 @@ import {
   setVersionSchema,
 } from './common.js';
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   CdElementFactory,
-  BaseElement,
+  BaseElement,  // This is defined but not used
   elementUnionSchema,
 } from './cde_element.js';
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 export const cdeSetSchema = Schema.Struct({
   id: Schema.String,

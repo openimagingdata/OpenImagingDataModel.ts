@@ -1,77 +1,85 @@
-import { z } from 'zod';
+import { Schema } from '@effect/schema';
 
-// Schemas
-
-export const systemCodeSchema = z.object({
-  system: z.string(),
-  code: z.string().optional(),
-  display: z.string().optional(),
+// System Code Schema
+export const systemCodeSchema = Schema.Struct({
+  system: Schema.String,
+  code: Schema.optional(Schema.String),
+  display: Schema.optional(Schema.String),
 });
 
-export const codeableConceptValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  value: z.array(systemCodeSchema).nullable(),
+// Codeable Concept Value Schema
+export const codeableConceptValueSchema = Schema.Struct({
+  code: Schema.Array(systemCodeSchema),
+  value: Schema.NullOr(Schema.Array(systemCodeSchema)),
 });
 
-export const stringValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  value: z.string().nullable(),
+// String Value Schema
+export const stringValueSchema = Schema.Struct({
+  code: Schema.Array(systemCodeSchema),
+  value: Schema.NullOr(Schema.String),
 });
 
-export const integerValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  value: z.number().int().nullable(),
+// Integer Value Schema
+export const integerValueSchema = Schema.Struct({
+  code: Schema.Array(systemCodeSchema),
+  value: Schema.NullOr(Schema.Int), // Schema.Int ensures integers only
 });
 
-export const floatValueSchema = z.object({
-  code: z.array(systemCodeSchema),
-  value: z.number().nullable(),
+// Float Value Schema
+export const floatValueSchema = Schema.Struct({
+  code: Schema.Array(systemCodeSchema),
+  value: Schema.NullOr(Schema.Number),
 });
 
-export const componentSchema = z.union([
+// Component Schema Union
+export const componentSchema = Schema.Union(
   codeableConceptValueSchema,
   stringValueSchema,
   integerValueSchema,
   floatValueSchema,
-]);
+);
 
-export const observationSchema = z.object({
-  resourceType: z.literal('Observation'),
-  id: z.string().optional(),
+// Observation Schema
+export const observationSchema = Schema.Struct({
+  resourceType: Schema.Literal('Observation'),
+  id: Schema.optional(Schema.String),
   code: systemCodeSchema,
-  bodySite: z
-    .object({
+  bodySite: Schema.optional(
+    Schema.Struct({
       code: systemCodeSchema,
-    })
-    .optional(),
-  component: z.array(componentSchema),
+    }),
+  ),
+  component: Schema.Array(componentSchema),
 });
 
-const ObservationFunctionParams = z.object({
-  resourceType: z.literal('Observation'),
-  id: z.string().optional(),
+// Observation Function Params Schema
+export const ObservationFunctionParams = Schema.Struct({
+  resourceType: Schema.Literal('Observation'),
+  id: Schema.optional(Schema.String),
   code: systemCodeSchema,
-  bodySite: z
-    .object({
-      code: z
-        .object({
-          system: z.string(),
-          code: z.string().optional(),
-          display: z.string().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
-  component: z.array(
-    z.object({
-      code: z.object({
-        system: z.string(),
-        code: z.string().optional(),
-        display: z.string().optional(),
-      }),
-      value: z.union([z.string(), z.number()]).nullable(),
+  bodySite: Schema.optional(
+    Schema.Struct({
+      code: Schema.optional(systemCodeSchema),
+    }),
+  ),
+  component: Schema.Array(
+    Schema.Struct({
+      code: systemCodeSchema,
+      value: Schema.NullOr(Schema.Union(Schema.String, Schema.Number)),
     }),
   ),
 });
 
-export type ObservationResult = z.infer<typeof ObservationFunctionParams>;
+// Types from schemas
+export type SystemCodeType = Schema.Schema.Type<typeof systemCodeSchema>;
+export type CodeableConceptValueType = Schema.Schema.Type<
+  typeof codeableConceptValueSchema
+>;
+export type StringValueType = Schema.Schema.Type<typeof stringValueSchema>;
+export type IntegerValueType = Schema.Schema.Type<typeof integerValueSchema>;
+export type FloatValueType = Schema.Schema.Type<typeof floatValueSchema>;
+export type ComponentType = Schema.Schema.Type<typeof componentSchema>;
+export type ObservationType = Schema.Schema.Type<typeof observationSchema>;
+export type ObservationFunctionParamsType = Schema.Schema.Type<
+  typeof ObservationFunctionParams
+>;

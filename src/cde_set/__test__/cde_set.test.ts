@@ -265,6 +265,19 @@ describe('CdeSet Decoding', () => {
       const serializedData = CdeSet.serialize(newCdeSet);
       console.log('Serialized Data: ', serializedData);
       if (serializedData !== null) {
+        const parsedData = JSON.parse(serializedData);
+        expect(parsedData).toHaveProperty('id', 'RDES3');
+        expect(parsedData).toHaveProperty('name', 'CAR/DS Adrenal Nodule');
+        expect(parsedData).toHaveProperty('elements');
+        expect(parsedData).toHaveProperty('specialties');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(parsedData.elements).toHaveLength(2);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(parsedData.elements[0]).toHaveProperty('id', 'RDE41');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(parsedData.elements[0]).toHaveProperty('name', 'Nodule size');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(parsedData.elements[0]).toHaveProperty('specialty');
       } else {
         throw new Error('Serialized data is null');
       }
