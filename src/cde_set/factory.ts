@@ -16,9 +16,7 @@ import {
 } from './cde_element.js';
 import { Schema } from '@effect/schema';
 import { Either } from 'effect';
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FindingModel } from '../finding_model/finding_model.js';
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 export interface ValueArgs {
   name: string;
