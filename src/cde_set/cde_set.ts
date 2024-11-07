@@ -13,10 +13,10 @@ import {
 } from './common.js';
 
 import {
-  CdElementFactory,
-  BaseElement,  // This is defined but not used
+  CdElementFactory, 
   elementUnionSchema,
 } from './cde_element.js';
+import type { BaseElement } from './cde_element.js'; //Importing as type otherwise throwing unused variable error in the compiled js
 
 export const cdeSetSchema = Schema.Struct({
   id: Schema.String,

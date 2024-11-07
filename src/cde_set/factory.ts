@@ -16,7 +16,7 @@ import {
 } from './cde_element.js';
 import { Schema } from '@effect/schema';
 import { Either } from 'effect';
-import { FindingModel } from '../finding_model/finding_model.js';
+import type { FindingModel } from '../finding_model/finding_model.js'; //Importing as type otherwise throwing unused variable error in the compiled js
 
 export interface ValueArgs {
   name: string;
