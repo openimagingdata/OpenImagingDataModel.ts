@@ -1,4 +1,5 @@
 import { Schema } from '@effect/schema';
+import { Either } from 'effect';
 // ChoiceValue model
 const choiceValueSchema = Schema.Struct({
   name: Schema.String,
@@ -101,4 +102,47 @@ export class FindingModel {
       }
     });
   }
+
+  static serialize = (inData: FindingModelType | FindingModel): string | null => {
+
+    // Check if inData is an instance of FindingModel and extract _data if so
+    let dataToSerialize: FindingModelType;
+    if (inData instanceof FindingModel) {
+      dataToSerialize = inData;
+    } else {
+      dataToSerialize = inData;
+    }
+
+    // Serialize the data
+    const encodedData = Schema.encodeEither(findingModelSchema)(dataToSerialize);
+    if (Either.isRight(encodedData)) {
+      const encodedDataRight = encodedData.right;
+      const serializedData = JSON.stringify(encodedDataRight, null, 2);
+      return serializedData;
+    } else {
+      console.error('Serialization failed:', encodedData.left);
+      return null;
+    }
+  };
+
+  static deserialize = (inData: string | object) => {
+    let parsedData;
+
+    if (typeof inData === 'string') {
+      parsedData = JSON.parse(inData);
+    } else {
+      parsedData = inData;
+    }
+
+    const decode = Schema.decodeUnknownEither(findingModelSchema);
+    const decodedData = decode(parsedData);
+
+    if (Either.isRight(decodedData)) {
+      const decodedDataRight = decodedData.right;
+      return new FindingModel(decodedDataRight);
+    } else {
+      console.error('Decoding failed:', decodedData.left);
+      return null;
+    }
+  };
 }

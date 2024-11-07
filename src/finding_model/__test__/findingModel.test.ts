@@ -96,7 +96,7 @@ describe('findingModel', () => {
   it('should create a new FindingModel from finding model data', () => {
     const findingModel = new FindingModel(findingJson);
     expect(findingModel).toBeInstanceOf(FindingModel);
-    //expect(findingModel).toHaveProperty("name", "calcified pulmonary granuloma"); //TODO why is this failing?
+    expect(findingModel).toHaveProperty("name", "calcified pulmonary granuloma");
     expect(findingModel).toHaveProperty(
       'description',
       'A type of small lesion in the lungs, often caused by inflammation from diseases such as tuberculosis. These granulomas become calcified as they heal, leaving behind a small area of lung tissue that is harder than normal due to the deposition of calcium salts.',

@@ -24,7 +24,7 @@
     "check-format": "prettier --check .",
     "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
     "lint": "eslint . --max-warnings 0",
-    "test": "vitest run",
+    "test": "vitest --watch",
     "dev": "vitest",
     "tsc": "tsc",
     "local-release": "changeset version && changeset publish",
