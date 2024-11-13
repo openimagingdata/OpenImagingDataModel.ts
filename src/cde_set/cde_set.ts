@@ -12,10 +12,7 @@ import {
   setVersionSchema,
 } from './common.js';
 
-import {
-  CdElementFactory, 
-  elementUnionSchema,
-} from './cde_element.js';
+import { CdElementFactory, elementUnionSchema } from './cde_element.js';
 import type { BaseElement } from './cde_element.js'; //Importing as type otherwise throwing unused variable error in the compiled js
 
 export const cdeSetSchema = Schema.Struct({

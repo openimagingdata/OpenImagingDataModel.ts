@@ -103,8 +103,9 @@ export class FindingModel {
     });
   }
 
-  static serialize = (inData: FindingModelType | FindingModel): string | null => {
-
+  static serialize = (
+    inData: FindingModelType | FindingModel,
+  ): string | null => {
     // Check if inData is an instance of FindingModel and extract _data if so
     let dataToSerialize: FindingModelType;
     if (inData instanceof FindingModel) {
@@ -114,7 +115,8 @@ export class FindingModel {
     }
 
     // Serialize the data
-    const encodedData = Schema.encodeEither(findingModelSchema)(dataToSerialize);
+    const encodedData =
+      Schema.encodeEither(findingModelSchema)(dataToSerialize);
     if (Either.isRight(encodedData)) {
       const encodedDataRight = encodedData.right;
       const serializedData = JSON.stringify(encodedDataRight, null, 2);
