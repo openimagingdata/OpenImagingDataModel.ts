@@ -122,7 +122,6 @@ describe('Encoding', () => {
       Schema.encodeEither(findingModelSchema)(findingJson);
     if (Either.isRight(encodedDataEither)) {
       const serialized = JSON.stringify(encodedDataEither, null, 2);
-      console.log('Encoded Data: ', serialized);
       const encodedData = encodedDataEither.right;
       expect(encodedData).toHaveProperty(
         'name',
@@ -172,5 +171,33 @@ describe('Decoding', () => {
     } else {
       console.log('Error: ', decodedFinding.left);
     }
+  });
+});
+describe('FindingModel serialization and deserialization', () => {
+  it('should correctly serialize a FindingModel instance to JSON', () => {
+    const findingModel = new FindingModel(findingJson);
+    const serializedData = FindingModel.serialize(findingModel);
+
+    expect(serializedData).toBeTruthy(); // Ensure serialization succeeds
+    expect(typeof serializedData).toBe('string'); // Ensure the output is a string
+    const parsedData = JSON.parse(serializedData!); //parse the serialized data back into JSON obj to check values below
+
+    // Check if all properties match the original data
+    expect(parsedData).toHaveProperty('name', 'calcified pulmonary granuloma');
+    expect(parsedData).toHaveProperty('description', findingJson.description);
+    expect(parsedData.attributes).toHaveLength(4); // Verify length of attributes
+  });
+
+  it('should correctly deserialize JSON data back to a FindingModel instance', () => {
+    const serializedData = FindingModel.serialize(findingJson);
+    const deserializedModel = FindingModel.deserialize(serializedData!); //Take the JSON string and deserialize it back into a FindingModel instance
+    //TypeScript non-null assertion operator (!) is used to tell the compiler that the value is not null or undefined
+
+    expect(deserializedModel).toBeInstanceOf(FindingModel);
+    expect(deserializedModel).toHaveProperty('name', 'calcified pulmonary granuloma');
+    expect(deserializedModel).toHaveProperty('description', findingJson.description);
+    expect(deserializedModel!.attributes).toHaveLength(4);
+    expect(deserializedModel!.attributes[0]).toHaveProperty('name', 'size');
+    expect(deserializedModel!.attributes[1]).toHaveProperty('name', 'location');
   });
 });
